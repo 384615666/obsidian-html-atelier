@@ -1,6 +1,30 @@
-# HTML Atelier 1.0.0
+# HTML Atelier
 
-在 Obsidian 中预览静态 HTML，并在原生右侧栏修改页面文案。适用于桌面版 Obsidian 1.5.0 及以上版本。
+Preview static HTML files in a native sidebar, edit page text in place, and save changes while preserving source formatting. Requires desktop Obsidian 1.7.2 or later. Page scripts are never executed.
+
+## Installation
+
+1. Open **Settings → Community plugins** in Obsidian.
+2. Search for **HTML Atelier**, then install and enable it.
+3. Click an `.html` or `.htm` file in your vault. The right sidebar opens and selects the **HTML** panel automatically.
+
+Manual installation (optional): if another HTML preview or editing plugin is enabled, disable it first so it does not take over `.html` / `.htm` files. Download `main.js`, `manifest.json` and `styles.css` from GitHub Releases, put them into `.obsidian/plugins/html-atelier/` (the final structure must be `.obsidian/plugins/html-atelier/main.js`, without an extra nested folder), then restart Obsidian and enable the plugin under **Settings → Community plugins**.
+
+## Usage
+
+- HTML files open in preview mode in the central area, with the **HTML** panel in the right sidebar.
+- Use **Preview / Edit text** at the top of the panel to switch modes; **Undo / Save** sits below.
+- In edit mode, click text on the page to select it, then edit it in the sidebar; the page updates live.
+- **Save** (or Ctrl+S / Cmd+S inside the panel) writes all pending text changes back to the source file. Untouched tags, attributes, comments, styles, line breaks and entity spellings stay exactly as they were. You can also assign your own hotkey to the "Save current HTML" command.
+- The editor's Ctrl+Z / Cmd+Z undoes the current editing history (up to 200 steps); redo is not available yet.
+- **Restore** next to "Before save" reverts the selected text to its last saved state; restoring can be undone.
+- Unsaved changes are kept as a local draft in plugin data and restored when the file is reopened. If the file changes outside Obsidian, the plugin refuses to overwrite it and offers **Save draft as** / **Reload original file** instead.
+- Editing covers visible text nodes (headings, paragraphs, link and button labels, and similar). Images, link URLs, CSS, input values, text inside SVG, hidden areas and HTML structure are not edited.
+- Desktop only; not adapted for phones or tablets.
+
+---
+
+在 Obsidian 中预览静态 HTML，并在原生右侧栏修改页面文案。适用于桌面版 Obsidian 1.7.2 及以上版本。
 
 ## 安装
 
@@ -10,14 +34,11 @@
 
 手动安装（可选）：如果已启用其他 HTML 预览或编辑插件，先停用它们，避免抢占 `.html` / `.htm` 文件的打开方式。从 GitHub Releases 下载 `main.js`、`manifest.json`、`styles.css`，放入 `.obsidian/plugins/html-atelier/`（确认最终结构是 `.obsidian/plugins/html-atelier/main.js`，不要再套一层同名文件夹），重启 Obsidian 后在「设置 → 第三方插件」中启用。
 
-如果文件列表不显示 HTML，检查「设置 → 文件与链接 → 检测所有文件扩展名」。如果文件仍由旧插件打开，重启并确认旧插件已停用；也可以右键文件，选择「使用 HTML Atelier 打开」。
-
 ## 操作
 
 - 默认进入预览模式，中央区域完整显示 HTML 页面。
 - 右侧栏顶部切换「预览 / 编辑文案」，下面提供「撤销 / 保存」。
 - 在编辑模式下点击页面文字，右侧显示对应文案；输入时页面实时更新。
-- 「保存前」显示最近一次保存时的该段文字。旁边的「恢复」只还原当前文案，不影响其他修改；恢复操作也能撤销。
 - 点击「保存」或按 Ctrl+S（macOS 为 Cmd+S）保存当前文件的全部文案修改。保存完成后，恢复基准更新，当前撤销记录清空。命令「保存当前 HTML」默认未绑定全局快捷键，可在「设置 → 快捷键」中自行指定。
 - 编辑框内 Ctrl+Z / Cmd+Z 撤销本次编辑历史；最多保留 200 步。暂不提供重做。
 - 打开或切换 HTML 时，右侧栏自动显示并跟随当前 HTML。手动收起后，普通输入或刷新不会强制展开；再次打开 HTML 或选择文案会展开。
@@ -46,7 +67,7 @@
 
 ## 验证情况
 
-通过 TypeScript 检查、8 项文案处理自动化测试和 Chromium 浏览器交互检查。浏览器检查覆盖实际插件代码的预览、选择、修改、恢复、撤销、保存、外部冲突、另存草稿和草稿恢复；Obsidian 接口在测试中由模拟环境提供。
+通过 TypeScript 检查、官方 Obsidian ESLint 规则、8 项文案处理自动化测试和 Chromium 浏览器交互检查。浏览器检查覆盖实际插件代码的预览、选择、修改、恢复、撤销、保存、外部冲突、另存草稿和草稿恢复；Obsidian 接口在测试中由模拟环境提供。
 
 未在用户实际 Obsidian 库中安装验证。尤其是主题差异、本地资源加载和其他插件共存，应在安装后用附带的演示文件确认。
 
@@ -56,6 +77,7 @@
 
 ```sh
 npm ci
+npm run lint
 npm run check
 npm test
 npm run build

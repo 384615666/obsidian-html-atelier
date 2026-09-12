@@ -1,10 +1,11 @@
 {
   "name": "obsidian-html-atelier",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "private": true,
   "scripts": {
     "build": "node build.mjs",
     "check": "tsc --noEmit",
+    "lint": "eslint src",
     "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
@@ -13,10 +14,13 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "esbuild": "^0.25.0",
+    "eslint": "^9.39.4",
+    "eslint-plugin-obsidianmd": "^0.4.2",
     "jsdom": "^26.0.0",
     "obsidian": "latest",
     "playwright-core": "^1.63.0",
     "tsx": "^4.20.0",
-    "typescript": "^5.8.0"
+    "typescript": "^5.8.0",
+    "typescript-eslint": "^8.70.0"
   }
 }

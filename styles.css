@@ -1,7 +1,7 @@
-.html-atelier-view {padding:0!important;overflow:hidden!important;display:flex;flex-direction:column;}
+.html-atelier-view.html-atelier-view {padding:0;overflow:hidden;display:flex;flex-direction:column;}
 .html-atelier-frame {width:100%;height:100%;flex:1;border:0;background:white;min-height:200px;color-scheme:normal;}
-.html-atelier-panel {padding:0!important;display:flex;flex-direction:column;gap:0;overflow:auto;background:var(--background-secondary);font-size:var(--font-ui-small);}
-.html-atelier-panel [hidden] {display:none!important;}
+.html-atelier-panel.html-atelier-panel {padding:0;display:flex;flex-direction:column;gap:0;overflow:auto;background:var(--background-secondary);font-size:var(--font-ui-small);}
+.html-atelier-panel [hidden] {display:none;}
 .html-atelier-panel,.html-atelier-panel * {box-sizing:border-box;}
 .html-atelier-file {padding:16px 18px;border-bottom:1px solid var(--background-modifier-border);color:var(--text-muted);overflow-wrap:anywhere;}
 .html-atelier-controls {padding:14px 16px;display:flex;flex-direction:column;gap:12px;border-bottom:1px solid var(--background-modifier-border);}

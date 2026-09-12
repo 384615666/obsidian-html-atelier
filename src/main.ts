@@ -2,6 +2,7 @@ import {FileView, ItemView, Modal, Notice, Plugin, TFile, WorkspaceLeaf, setIcon
 import {applyText, EditSession, makePreview} from './model';
 
 const HTML_VIEW='html-atelier-preview', PANEL_VIEW='html-atelier-panel';
+const OVERLAY_CSS='html-atelier-selection-layer{all:initial;position:fixed;inset:0;pointer-events:none;z-index:2147483647}html-atelier-selection-box{position:fixed;pointer-events:none;box-sizing:border-box;left:var(--html-atelier-x);top:var(--html-atelier-y);width:var(--html-atelier-w);height:var(--html-atelier-h);border:var(--html-atelier-border);border-radius:2px}';
 interface Draft {source:string; changes:[string,string][]}
 interface Stored {drafts:Record<string,Draft>}
 const isHtml=(file:TFile|null):file is TFile=>!!file&&['html','htm'].includes(file.extension.toLowerCase());
@@ -11,7 +12,7 @@ export default class HtmlAtelier extends Plugin {
  private pendingSessions=new Map<string,Promise<EditSession>>();
  private writeQueue=Promise.resolve();private panelPromise:Promise<void>|null=null;private ending=false;
  async onload(){
-  const data=await this.loadData();if(data?.drafts)this.stored.drafts=data.drafts;
+  const data=(await this.loadData()) as Stored|null;if(data?.drafts)this.stored.drafts=data.drafts;
   this.registerView(HTML_VIEW,leaf=>new HtmlView(leaf,this));
   this.registerView(PANEL_VIEW,leaf=>new HtmlPanel(leaf,this));
   for(const ext of ['html','htm']){try{this.registerExtensions([ext],HTML_VIEW);}catch{new Notice(`HTML Atelier：.${ext} 已被其他插件接管。停用旧 HTML 插件后重启即可自动打开，也可使用文件右键菜单。`,10000);}}
@@ -55,7 +56,7 @@ export default class HtmlAtelier extends Plugin {
  refresh(){for(const view of this.views())view.sync();for(const leaf of this.app.workspace.getLeavesOfType(PANEL_VIEW))(leaf.view as HtmlPanel).refresh();}
  changed(file:TFile,s:EditSession){this.cacheDraft(file,s);this.refresh();}
  cacheDraft(file:TFile,s:EditSession){if(s.dirty)this.stored.drafts[file.path]={source:s.model.source,changes:[...s.changes]};else delete this.stored.drafts[file.path];void this.persist();}
- persist(){const snapshot=JSON.parse(JSON.stringify(this.stored));this.writeQueue=this.writeQueue.catch(()=>{}).then(()=>this.saveData(snapshot));this.writeQueue.catch(e=>{console.error('HTML Atelier draft persistence',e);new Notice('HTML 草稿备份失败，请及时保存原文件。');});return this.writeQueue;}
+ persist(){const snapshot=JSON.parse(JSON.stringify(this.stored)) as Stored;this.writeQueue=this.writeQueue.catch(()=>{}).then(()=>this.saveData(snapshot));this.writeQueue.catch(e=>{console.error('HTML Atelier draft persistence',e);new Notice('HTML 草稿备份失败，请及时保存原文件。');});return this.writeQueue;}
  async save(file:TFile,s:EditSession){
   if(s.busy||!s.dirty)return !s.dirty;s.busy=true;this.refresh();
   try{
@@ -87,15 +88,27 @@ class HtmlView extends FileView {
  async onClose(){if(this.file&&this.session)this.plugin.cacheDraft(this.file,this.session);if(this.plugin.active===this)this.plugin.active=null;this.plugin.refresh();}
  renderFrame(){
   if(!this.session||!this.file)return;
-  const old=this.iframe?.contentWindow;let scrollX=0,scrollY=0;try{scrollX=old?.scrollX??0;scrollY=old?.scrollY??0;}catch{}
+  const old=this.iframe?.contentWindow;let scrollX=0,scrollY=0;try{scrollX=old?.scrollX??0;scrollY=old?.scrollY??0;}catch{/* the frame may already be detached */}
   this.contentEl.empty();const frame=this.contentEl.createEl('iframe',{cls:'html-atelier-frame',attr:{sandbox:'allow-same-origin',title:this.file.name+' — HTML 预览',referrerpolicy:'no-referrer'}});this.iframe=frame;
   frame.addEventListener('load',()=>{
    const doc=frame.contentDocument;if(!doc)return;
    this.textNodes.clear();const walker=doc.createTreeWalker(doc,128);let comment:Node|null;
    while((comment=walker.nextNode())){const match=/^html-atelier-text:(t\d+)$/.exec(comment.nodeValue??'');if(match&&comment.nextSibling?.nodeType===3)this.textNodes.set(match[1],comment.nextSibling as Text);}
-   const layer=doc.createElement('html-atelier-selection-layer');layer.style.cssText='all:initial!important;position:fixed!important;inset:0!important;pointer-events:none!important;z-index:2147483647!important;';doc.documentElement.append(layer);this.overlay=layer.attachShadow({mode:'open'});
+   // Overlay elements live in the frame document, so they are created through the frame's own createElement.
+   const styleEl=doc.createElement('style');styleEl.textContent=OVERLAY_CSS;doc.head.append(styleEl);
+   const layer=doc.createElement('html-atelier-selection-layer');doc.documentElement.append(layer);this.overlay=layer.attachShadow({mode:'open'});
+   const shadowStyle=doc.createElement('style');shadowStyle.textContent=OVERLAY_CSS;this.overlay.append(shadowStyle);
    this.sync();frame.contentWindow?.scrollTo(scrollX,scrollY);
-   const findText=(event:MouseEvent)=>{const range=(doc as Document&{caretRangeFromPoint(x:number,y:number):Range|null}).caretRangeFromPoint(event.clientX,event.clientY);if(range){for(const [id,node] of this.textNodes)if(node===range.startContainer&&this.containsPoint(node,event.clientX,event.clientY))return id;}const target=event.target as Element;const matches=[...this.textNodes].filter(([,node])=>target.contains(node));return matches.length===1?matches[0][0]:null;};
+   const findText=(event:MouseEvent)=>{
+    const pos=(doc as Document&{caretPositionFromPoint?(x:number,y:number):{offsetNode:Node;offset:number}|null}).caretPositionFromPoint?.(event.clientX,event.clientY);
+    let range:Range|null=null;
+    if(pos){range=doc.createRange();range.setStart(pos.offsetNode,pos.offset);range.collapse(true);}
+    else{
+     // Fallback for app builds that predate caretPositionFromPoint.
+     range=(doc as Document&{caretRangeFromPoint(x:number,y:number):Range|null}).caretRangeFromPoint(event.clientX,event.clientY);
+    }
+    if(range){for(const [id,node] of this.textNodes)if(node===range.startContainer&&this.containsPoint(node,event.clientX,event.clientY))return id;}
+    const target=event.target as Element;const matches=[...this.textNodes].filter(([,node])=>target.contains(node));return matches.length===1?matches[0][0]:null;};
    doc.addEventListener('mousemove',event=>{if(this.session?.mode!=='edit')return;const id=findText(event);if(id!==this.hovered){this.hovered=id;this.drawSelection();}});
    doc.addEventListener('mouseleave',()=>{this.hovered=null;this.drawSelection();});
    doc.addEventListener('scroll',()=>this.drawSelection(),true);frame.contentWindow?.addEventListener('resize',()=>this.drawSelection());
@@ -106,7 +119,7 @@ class HtmlView extends FileView {
      const id=findText(event);
      if(id){s.selected=id;this.plugin.active=this;this.plugin.refresh();void this.plugin.showPanel();}
     }else{
-     const anchor=target.closest('a');if(anchor){const href=anchor.getAttribute('href')||'';event.preventDefault();if(href.startsWith('#')){try{doc.getElementById(decodeURIComponent(href.slice(1)))?.scrollIntoView();}catch{}}else if(/^https?:|^mailto:/i.test(href)){window.open(href,'_blank','noopener,noreferrer');}else new Notice('此预览仅支持页内锚点和网页链接。');}
+     const anchor=target.closest('a');if(anchor){const href=anchor.getAttribute('href')||'';event.preventDefault();if(href.startsWith('#')){try{doc.getElementById(decodeURIComponent(href.slice(1)))?.scrollIntoView();}catch{/* ignore malformed anchors */}}else if(/^https?:|^mailto:/i.test(href)){window.open(href,'_blank','noopener,noreferrer');}else new Notice('此预览仅支持页内锚点和网页链接。');}
     }
    },true);
    doc.addEventListener('submit',event=>event.preventDefault(),true);
@@ -116,7 +129,15 @@ class HtmlView extends FileView {
  }
  containsPoint(node:Text,x:number,y:number){const r=node.ownerDocument.createRange();r.selectNodeContents(node);return [...r.getClientRects()].some(rect=>x>=rect.left&&x<=rect.right&&y>=rect.top&&y<=rect.bottom);}
  drawSelection(){if(!this.overlay)return;this.overlay.replaceChildren();const s=this.session;if(s?.mode!=='edit')return;
-  for(const id of new Set([this.hovered,s.selected])){if(!id)continue;const node=this.textNodes.get(id);if(!node)continue;const range=node.ownerDocument.createRange();range.selectNodeContents(node);for(const rect of range.getClientRects()){const box=node.ownerDocument.createElement('div');box.style.cssText=`position:fixed;pointer-events:none;box-sizing:border-box;left:${rect.left-3}px;top:${rect.top-2}px;width:${rect.width+6}px;height:${rect.height+4}px;border:${id===s.selected?'2px solid':'1px dashed'} #9275df;border-radius:2px;`;this.overlay.append(box);}}
+  for(const id of new Set([this.hovered,s.selected])){if(!id)continue;const node=this.textNodes.get(id);if(!node)continue;const range=node.ownerDocument.createRange();range.selectNodeContents(node);for(const rect of range.getClientRects()){
+    // Created through the frame's own createElement; see renderFrame.
+    const box=node.ownerDocument.createElement('html-atelier-selection-box');
+    box.style.setProperty('--html-atelier-x',`${rect.left-3}px`);
+    box.style.setProperty('--html-atelier-y',`${rect.top-2}px`);
+    box.style.setProperty('--html-atelier-w',`${rect.width+6}px`);
+    box.style.setProperty('--html-atelier-h',`${rect.height+4}px`);
+    box.style.setProperty('--html-atelier-border',`${id===s.selected?'2px solid':'1px dashed'} #9275df`);
+    this.overlay.append(box);}}
  }
  sync(){const s=this.session;const doc=this.iframe?.contentDocument;if(!s||!doc)return;
   for(const [id,node] of this.textNodes){const value=s.value(id);if(node.data!==value)node.data=value;}this.drawSelection();

@@ -2,19 +2,26 @@ import {parse, serialize} from 'parse5';
 
 export interface Segment {id:string; text:string; start:number; end:number; kind:string}
 export interface DocumentModel {source:string; segments:Segment[]}
+interface P5Node {
+ nodeName:string;tagName?:string;value?:string;data?:string;
+ attrs?:{name:string;value:string}[];
+ childNodes?:P5Node[];
+ parentNode?:P5Node|null;
+ sourceCodeLocation?:{startOffset:number;endOffset:number}|null;
+}
 const excluded = new Set(['script','style','noscript','template','textarea','select','option','svg','math','title','head','iframe','object','embed','canvas']);
 export function parseDocument(source:string):DocumentModel {
- const doc:any=parse(source,{sourceCodeLocationInfo:true});
+ const doc=parse(source,{sourceCodeLocationInfo:true}) as unknown as P5Node;
  const segments:Segment[]=[];
- function visit(node:any, blocked=false, kind='文字') {
-  const tag=node.tagName;
-  blocked ||= excluded.has(tag)||node.attrs?.some((a:any)=>a.name==='hidden'||a.name==='contenteditable');
+ function visit(node:P5Node, blocked=false, kind='文字') {
+  const tag=node.tagName??'';
+  blocked=blocked||excluded.has(tag)||!!node.attrs?.some(a=>a.name==='hidden'||a.name==='contenteditable');
   if (/^h[1-6]$/.test(tag)) kind='标题'; else if(tag==='button') kind='按钮'; else if(tag==='a')kind='链接'; else if(tag==='p')kind='段落';
-  if(node.nodeName==='#text'&&!blocked&&node.value.trim()&&node.sourceCodeLocation){
+  if(node.nodeName==='#text'&&!blocked&&node.value?.trim()&&node.sourceCodeLocation){
    const l=node.sourceCodeLocation;
    segments.push({id:'t'+segments.length,text:node.value,start:l.startOffset,end:l.endOffset,kind});
   }
-  for(const child of node.childNodes||[])visit(child,blocked,kind);
+  for(const child of node.childNodes??[])visit(child,blocked,kind);
  }
  visit(doc);return {source,segments};
 }
@@ -27,20 +34,22 @@ export function applyText(model:DocumentModel, changes:Map<string,string>):strin
  }return source;
 }
 export function makePreview(model:DocumentModel, base:string):string {
- const doc:any=parse(model.source,{sourceCodeLocationInfo:true});
+ const doc=parse(model.source,{sourceCodeLocationInfo:true}) as unknown as P5Node;
  const byStart=new Map(model.segments.map(s=>[s.start,s]));
- function visit(node:any){
-  if(node.attrs)node.attrs=node.attrs.filter((a:any)=>!a.name.startsWith('on')&&!['contenteditable','autofocus'].includes(a.name));
-  if(node.childNodes)node.childNodes=node.childNodes.filter((n:any)=>!['script','base','iframe','object','embed'].includes(n.tagName)&&!(n.tagName==='meta'&&n.attrs?.some((a:any)=>a.name==='http-equiv')));
-  for(let i=0;i<(node.childNodes?.length||0);i++){
-   const child=node.childNodes[i];const seg=child.nodeName==='#text'?byStart.get(child.sourceCodeLocation?.startOffset):undefined;
-   if(seg){node.childNodes.splice(i,0,{nodeName:'#comment',data:'html-atelier-text:'+seg.id,parentNode:node});i++;}else visit(child);
+ function visit(node:P5Node){
+  if(node.attrs)node.attrs=node.attrs.filter(a=>!a.name.startsWith('on')&&!['contenteditable','autofocus'].includes(a.name));
+  if(node.childNodes)node.childNodes=node.childNodes.filter(n=>!['script','base','iframe','object','embed'].includes(n.tagName??'')&&!(n.tagName==='meta'&&n.attrs?.some(a=>a.name==='http-equiv')));
+  const kids=node.childNodes;
+  if(!kids)return;
+  for(let i=0;i<kids.length;i++){
+   const child=kids[i];const seg=child.nodeName==='#text'?byStart.get(child.sourceCodeLocation?.startOffset??-1):undefined;
+   if(seg){kids.splice(i,0,{nodeName:'#comment',data:'html-atelier-text:'+seg.id,parentNode:node});i++;}else visit(child);
   }
  }visit(doc);
  const safeBase=base.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
  const policy="default-src 'none'; img-src app: obsidian: data: blob: https: http:; media-src app: obsidian: data: blob: https: http:; style-src 'unsafe-inline' app: obsidian: data: https: http:; font-src app: obsidian: data: https: http:; script-src 'none'; frame-src 'none'; connect-src 'none'; form-action 'none'; base-uri app: obsidian:;";
  const additions=`<meta http-equiv="Content-Security-Policy" content="${policy}"><base href="${safeBase}">`;
- return serialize(doc).replace('<head>','<head>'+additions);
+ return serialize(doc as never).replace('<head>','<head>'+additions);
 }
 
 export class EditSession {
