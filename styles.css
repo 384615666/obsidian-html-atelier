@@ -1,5 +1,5 @@
 .html-atelier-view.html-atelier-view {padding:0;overflow:hidden;display:flex;flex-direction:column;}
-.html-atelier-frame {width:100%;height:100%;flex:1;border:0;background:white;min-height:200px;color-scheme:normal;}
+.html-atelier-frame {width:100%;height:100%;flex:1;border:0;background:white;min-height:160px;color-scheme:normal;}
 .html-atelier-panel.html-atelier-panel {padding:0;display:flex;flex-direction:column;gap:0;overflow:auto;background:var(--background-secondary);font-size:var(--font-ui-small);}
 .html-atelier-panel [hidden] {display:none;}
 .html-atelier-panel,.html-atelier-panel * {box-sizing:border-box;}
@@ -33,3 +33,314 @@
 .html-atelier-empty {padding:24px 18px;color:var(--text-muted);line-height:1.9;}
 .html-atelier-conflict {padding:14px 18px;color:var(--text-warning);line-height:1.7;border-bottom:1px solid var(--background-modifier-border);}
 .html-atelier-conflict .html-atelier-button {margin-top:10px;}
+
+/* ===== 2.0:F01-F26 界面 ===== */
+.html-atelier-view{display:flex;flex-direction:column}
+.html-atelier-toolbar{display:flex;align-items:center;gap:2px;padding:3px 6px;border-bottom:1px solid var(--background-modifier-border);flex-wrap:wrap;min-height:34px}
+.html-atelier-button{background:transparent;border:none;box-shadow:none;color:var(--text-muted);padding:3px 6px;border-radius:4px;cursor:pointer;display:inline-flex;align-items:center;gap:4px;font-size:var(--font-ui-small)}
+.html-atelier-button:hover{background:var(--background-modifier-hover);color:var(--text-normal)}
+.html-atelier-button.html-atelier-active{color:var(--interactive-accent);background:var(--background-modifier-hover)}
+.html-atelier-button:disabled{opacity:.4;cursor:default}
+.html-atelier-filetitle{font-weight:600;margin:0 4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.html-atelier-dirtydot{color:var(--interactive-accent);font-size:10px}
+.html-atelier-hidden{display:none!important}
+.html-atelier-modes,.html-atelier-actions{display:inline-flex;gap:2px}
+.html-atelier-actions{margin-left:auto}
+.html-atelier-main{flex:1;display:flex;min-height:0;overflow:hidden}
+.html-atelier-view.html-atelier-issplit .html-atelier-main{flex-direction:row}
+/* 分栏:两栏平分整行。预览容器带着 applyViewport 写的**行内 width**(auto 预设即 100%),
+   而 flex-basis:auto 会直接采用那个宽度把整行吃掉,源码栏(basis 0)被压成 0 宽 ——
+   分栏看起来跟预览一模一样(实测 1080 容器里预览 1079、源码 1px;用户反馈 2026-09-15)。
+   basis 改成 0 之后行内 width 不再参与主轴尺寸计算,两栏各得一半。 */
+.html-atelier-view.html-atelier-issplit .html-atelier-viewport{flex:1 1 0;min-width:0}
+.html-atelier-view.html-atelier-issplit .html-atelier-sourcehost{flex:1 1 0;min-width:0}
+.html-atelier-viewport{flex:0 1 auto;min-width:0;max-width:100%;overflow:auto;background:white;margin:0 auto;transition:width .15s ease}
+.html-atelier-frame{border:none;width:100%;height:100%;display:block;background:white}
+.html-atelier-sourcehost{flex:1;min-width:0;overflow:auto;border-left:1px solid var(--background-modifier-border)}
+.html-atelier-sourcehost .cm-editor{height:100%}
+.html-atelier-sourcehost .cm-scroller{font-family:var(--font-monospace)}
+/* 与宿主编辑器一致:滚到底时最后一行不被固定状态栏遮住 */
+.html-atelier-sourcehost .cm-scroller{scroll-padding-block-end:var(--status-bar-scroll-padding,calc(var(--status-bar-font-size,var(--font-ui-smaller)) + 18px))}
+
+/* 侧栏面板 */
+.html-atelier-panel{display:flex;flex-direction:column;padding:0}
+.html-atelier-toolbarhost{display:block}
+/* editor.toolbarPlacement='sidebar':工具栏与视图内那条是同一份 DOM,只是更紧凑 */
+.html-atelier-panel .html-atelier-toolbar{min-height:0;padding:4px 8px}
+.html-atelier-panel .view-content{display:flex;flex-direction:column;flex:1;min-height:0;padding:0}
+.html-atelier-file{padding:6px 10px;font-weight:600;border-bottom:1px solid var(--background-modifier-border);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.html-atelier-searchwrap,.html-atelier-tabs,.html-atelier-panelcontent,.html-atelier-searchresults{min-width:0;overflow:hidden}
+.html-atelier-searchwrap{overflow:visible}
+.html-atelier-searchwrap{display:flex;align-items:center;gap:6px;padding:6px 10px;border-bottom:1px solid var(--background-modifier-border)}
+.html-atelier-search{flex:1;min-width:0}
+.html-atelier-caselabel{display:flex;align-items:center;gap:2px;font-size:var(--font-ui-smaller);white-space:nowrap;cursor:pointer}
+.html-atelier-searchresults{max-height:180px;overflow:auto;border-bottom:1px solid var(--background-modifier-border)}
+.html-atelier-tabs{display:flex;border-bottom:1px solid var(--background-modifier-border)}
+.html-atelier-tabs button{flex:1;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted);padding:6px 4px;cursor:pointer;font-size:var(--font-ui-small)}
+.html-atelier-tabs button.html-atelier-active{color:var(--interactive-accent);border-bottom-color:var(--interactive-accent)}
+.html-atelier-panelcontent{flex:1;overflow:auto;padding:8px 10px;min-height:0}
+.html-atelier-statusbar{display:flex;align-items:center;gap:6px;padding:6px 10px;border-top:1px solid var(--background-modifier-border);font-size:var(--font-ui-smaller);overflow:hidden;min-width:0}
+.html-atelier-statusfile{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.html-atelier-statusfile.html-atelier-conflict-text{color:var(--text-warning)}
+.html-atelier-statusactions{display:flex;gap:4px}
+.html-atelier-statusactions button{background:transparent;border:none;box-shadow:none;color:var(--text-muted);padding:2px 4px;cursor:pointer;border-radius:4px}
+.html-atelier-statusactions button:hover:not(:disabled){background:var(--background-modifier-hover)}
+.html-atelier-statusactions button:disabled{opacity:.35}
+.html-atelier-savebtn{color:var(--text-on-accent)!important;background:var(--interactive-accent)!important;padding:3px 12px;border-radius:5px;border:none;cursor:pointer;font-size:var(--font-ui-small)}
+.html-atelier-savebtn:disabled{opacity:.5}
+
+/* 表单 */
+.html-atelier-form{display:flex;flex-direction:column;gap:8px}
+.html-atelier-formhead{display:flex;gap:6px;align-items:baseline;font-weight:600}
+.html-atelier-muted{color:var(--text-muted);font-size:var(--font-ui-smaller)}
+.html-atelier-input,.html-atelier-textarea{width:100%;background:var(--background-primary);border:1px solid var(--background-modifier-border);border-radius:5px;padding:5px 8px;color:var(--text-normal);font-size:var(--font-ui-small)}
+.html-atelier-textarea{resize:vertical;font-family:var(--font-interface)}
+.html-atelier-btnrow{display:flex;gap:6px;flex-wrap:wrap}
+.html-atelier-btnrow button{background:var(--interactive-normal);border:1px solid var(--background-modifier-border);border-radius:5px;padding:3px 10px;cursor:pointer;color:var(--text-normal);font-size:var(--font-ui-smaller)}
+.html-atelier-btnrow button:hover:not(:disabled){background:var(--interactive-hover)}
+.html-atelier-btnrow button:disabled{opacity:.4;cursor:default}
+.html-atelier-hint{color:var(--text-muted);font-size:var(--font-ui-smaller)}
+.html-atelier-warn{color:var(--text-warning)}
+.html-atelier-panelnote{color:var(--text-muted);padding:12px 4px}
+
+/* 大纲/修改/资源 */
+.html-atelier-listhead{font-weight:600;margin:8px 0 4px;font-size:var(--font-ui-small)}
+.html-atelier-list{display:flex;flex-direction:column;gap:1px}
+.html-atelier-row{padding:4px 6px;border-radius:4px;cursor:pointer;color:var(--text-normal);font-size:var(--font-ui-small);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.html-atelier-row:hover{background:var(--background-modifier-hover)}
+.html-atelier-h2{padding-left:14px}.html-atelier-h3{padding-left:26px}.html-atelier-h4{padding-left:38px}
+.html-atelier-h5{padding-left:50px}.html-atelier-h6{padding-left:62px}
+.html-atelier-change{border:1px solid var(--background-modifier-border);border-radius:6px;padding:6px;margin-bottom:6px}
+.html-atelier-changehead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+.html-atelier-diff{display:flex;flex-direction:column;gap:2px;font-size:var(--font-ui-smaller)}
+.html-atelier-diffold{color:var(--text-muted);text-decoration:line-through;word-break:break-all}
+.html-atelier-diffnew{color:var(--text-normal);word-break:break-all}
+.html-atelier-badge{font-size:var(--font-ui-smaller);border:1px solid var(--background-modifier-border);border-radius:8px;padding:0 6px;color:var(--text-muted)}
+.html-atelier-badge-missing,.html-atelier-badge-blocked{color:var(--text-error);border-color:var(--text-error)}
+.html-atelier-conflictbar{display:flex;gap:6px;align-items:center;padding:8px;border:1px solid var(--text-warning);border-radius:6px;flex-wrap:wrap;margin-top:8px}
+.html-atelier-conflict-text{color:var(--text-warning)}
+
+/* 合并模态 */
+.html-atelier-mergechunks{display:flex;flex-direction:column;gap:8px;margin:8px 0;max-height:50vh;overflow:auto}
+.html-atelier-mergechunk{border:1px solid var(--background-modifier-border);border-radius:6px;padding:6px;font-size:var(--font-ui-smaller);word-break:break-all;white-space:pre-wrap}
+.html-atelier-merge-conflict{border-color:var(--text-warning)}
+
+/* 草稿管理 */
+.html-atelier-draftrow{justify-content:space-between}
+.html-atelier-draftrow button{margin-left:6px}
+
+/* 嵌入(F21) */
+.html-atelier-embedbox{border:1px solid var(--background-modifier-border);border-radius:8px;overflow:hidden;margin:6px 0}
+.html-atelier-embedhead{display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--background-secondary);font-size:var(--font-ui-smaller)}
+.html-atelier-embedhead button{background:transparent;border:1px solid var(--background-modifier-border);border-radius:4px;padding:1px 8px;cursor:pointer;font-size:var(--font-ui-smaller)}
+.html-atelier-embedhost{position:relative}
+.html-atelier-embederror{padding:10px;color:var(--text-error);font-size:var(--font-ui-smaller)}
+
+/* 220px 窄侧栏可用(§13.3) */
+@media (max-width:260px){
+ .html-atelier-toolbar{flex-wrap:wrap}
+ .html-atelier-filetitle{max-width:90px}
+ .html-atelier-row{align-items:flex-start}
+}
+
+
+
+
+/* Sidebar design: scoped to the HTML panel; the document preview retains its own style. */
+.html-atelier-mode-label{display:none}
+.html-atelier-panel.html-atelier-panel{
+ --ha-line:var(--background-modifier-border,#e4e4e8);
+ --ha-accent:var(--interactive-accent,#7756cd);
+ --ha-tint:color-mix(in srgb,var(--ha-accent) 9%,transparent);
+ --ha-ease:cubic-bezier(.22,.61,.36,1);
+ container-type:inline-size;
+ height:100%;min-height:0;min-width:0;overflow-x:hidden;overflow-y:auto;
+ padding:0 0 var(--status-bar-scroll-padding,calc(var(--status-bar-font-size,12px) + 18px));
+ background:var(--background-secondary);color:var(--text-normal);font-size:var(--font-ui-small,13px);line-height:1.5;
+}
+.html-atelier-panel .html-atelier-file{
+ display:flex;align-items:center;gap:11px;flex-shrink:0;
+ padding:20px 16px 16px;border:0;white-space:normal;overflow:hidden;
+}
+.html-atelier-panel .html-atelier-fileicon{
+ display:flex;align-items:center;justify-content:center;flex:0 0 36px;height:40px;
+ border:1px solid color-mix(in srgb,var(--ha-accent) 15%,var(--ha-line));
+ border-radius:10px;background:var(--ha-tint);color:var(--ha-accent);
+}
+.html-atelier-panel .html-atelier-fileicon svg{width:19px;height:19px}
+.html-atelier-panel .html-atelier-fileinfo{min-width:0;flex:1}
+.html-atelier-panel .html-atelier-filename{
+ font-size:var(--font-ui-medium,14px);font-weight:600;line-height:1.5;color:var(--text-normal);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.html-atelier-panel .html-atelier-filefolder{
+ margin-top:3px;font-size:calc(var(--font-ui-smaller,12px) - 1px);font-weight:400;color:var(--text-muted);
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.html-atelier-panel .html-atelier-toolbarhost{flex-shrink:0}
+.html-atelier-panel .html-atelier-toolbar{
+ padding:0 14px 14px;min-height:0;gap:4px;display:flex;flex-wrap:wrap;border:0;
+}
+.html-atelier-panel .html-atelier-toolbar .html-atelier-button{
+ display:inline-flex;align-items:center;justify-content:center;
+ width:28px;height:28px;min-height:28px;padding:0;border:0;box-shadow:none;
+ border-radius:6px;background:transparent;color:var(--text-muted);cursor:pointer;
+ transition:background-color .15s,color .15s;
+}
+.html-atelier-panel .html-atelier-toolbar .html-atelier-button svg{width:15px;height:15px}
+.html-atelier-panel .html-atelier-toolbar .html-atelier-button:hover:not(:disabled){background:var(--background-modifier-hover);color:var(--text-normal)}
+.html-atelier-panel .html-atelier-toolbar .html-atelier-button:disabled{opacity:.3;cursor:default}
+.html-atelier-panel .html-atelier-actions{order:0;display:flex;margin-left:auto;gap:3px;flex-wrap:nowrap}
+.html-atelier-panel .html-atelier-modes{
+ order:1;flex:0 0 100%;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));
+ gap:3px;padding:4px;margin-top:8px;border:1px solid var(--ha-line);
+ border-radius:9px;background:var(--background-primary-alt,var(--background-primary));
+}
+.html-atelier-panel .html-atelier-modes .html-atelier-button{
+ width:100%;height:32px;min-height:32px;gap:5px;min-width:0;font-size:var(--font-ui-smaller,12px);font-weight:500;
+}
+.html-atelier-panel .html-atelier-mode-label{display:inline;min-width:0}
+.html-atelier-panel .html-atelier-mode-label,.html-atelier-panel .html-atelier-tablabel{
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;
+}
+.html-atelier-panel .html-atelier-tabs button>span:first-child{flex-shrink:0}
+.html-atelier-panel .html-atelier-tabs button,.html-atelier-panel .html-atelier-modes .html-atelier-button{
+ overflow:hidden;height:auto;min-height:max(32px,2em);
+}
+.html-atelier-panel .html-atelier-modes .html-atelier-button[aria-pressed=true]{
+ background:var(--ha-tint);color:var(--ha-accent);box-shadow:none;
+}
+.html-atelier-panel .html-atelier-searchblock{
+ flex-shrink:0;margin:0 14px 16px;border:1px solid var(--ha-line);border-radius:8px;
+ background:var(--background-primary);overflow:hidden;
+}
+.html-atelier-panel .html-atelier-searchblock:focus-within{border-color:var(--ha-accent);box-shadow:0 0 0 2px var(--ha-tint)}
+.html-atelier-panel .html-atelier-searchwrap{display:flex;align-items:center;gap:4px;padding:4px 7px;border:0;min-width:0}
+.html-atelier-panel .html-atelier-searchwrap[hidden]{display:none}
+.html-atelier-panel .html-atelier-replacewrap{border-top:1px solid var(--ha-line);padding-left:10px}
+.html-atelier-panel .html-atelier-searchicon{display:flex;color:var(--text-muted);flex-shrink:0;margin-left:3px}
+.html-atelier-panel .html-atelier-searchicon svg{width:14px;height:14px}
+.html-atelier-panel input.html-atelier-search{
+ flex:1;min-width:0;width:0;height:28px;padding:3px 4px;border:0;border-radius:4px;
+ background:transparent;box-shadow:none;color:var(--text-normal);font-size:var(--font-ui-smaller,12px);
+}
+.html-atelier-panel input.html-atelier-search::placeholder{color:var(--text-muted);opacity:.8}
+.html-atelier-panel input.html-atelier-search:focus{box-shadow:none;outline:none}
+.html-atelier-panel .html-atelier-caselabel{
+ position:relative;display:flex;align-items:center;justify-content:center;flex:0 0 24px;
+ height:24px;border-radius:4px;font-size:calc(var(--font-ui-smaller,12px) - 1px);color:var(--text-muted);cursor:pointer;
+}
+.html-atelier-panel .html-atelier-caselabel input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.html-atelier-panel .html-atelier-caselabel-on{background:var(--ha-tint);color:var(--ha-accent)}
+.html-atelier-panel .html-atelier-replacetoggle{
+ display:flex;align-items:center;justify-content:center;flex:0 0 24px;width:24px;height:24px;
+ padding:0;border:0;border-radius:4px;background:transparent;box-shadow:none;color:var(--text-muted);
+}
+.html-atelier-panel .html-atelier-replacetoggle svg{width:14px;height:14px}
+.html-atelier-panel .html-atelier-replacetoggle:hover,.html-atelier-panel .html-atelier-replacetoggle[aria-expanded=true]{color:var(--ha-accent);background:var(--ha-tint)}
+.html-atelier-panel .html-atelier-searchblock button.html-atelier-btnrow{
+ flex:0 0 auto;display:inline-flex;align-items:center;height:25px;padding:0 8px;
+ border:0;border-radius:5px;box-shadow:none;background:var(--background-modifier-hover);color:var(--text-normal);font-size:calc(var(--font-ui-smaller,12px) - 1px);
+}
+.html-atelier-panel .html-atelier-tabs{
+ flex-shrink:0;display:flex;position:relative;gap:0;margin:0 14px 12px;padding:2px;
+ border:0;border-radius:7px;background:var(--background-modifier-hover);overflow:hidden;
+}
+.html-atelier-panel .html-atelier-tabs::before{
+ content:'';position:absolute;left:2px;top:2px;bottom:2px;width:calc((100% - 4px)/4);
+ border-radius:5px;background:var(--background-primary);
+ box-shadow:0 1px 3px var(--background-modifier-box-shadow,rgba(0,0,0,.06));transform:translateX(calc(var(--html-atelier-tab,0)*100%));
+ transition:transform .2s var(--ha-ease);pointer-events:none;
+}
+.html-atelier-panel .html-atelier-tabs button{
+ position:relative;z-index:1;flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;
+ height:auto;min-height:max(32px,2em);padding:0 3px;border:0;border-radius:5px;box-shadow:none;
+ background:transparent;color:var(--text-muted);font-size:var(--font-ui-smaller,12px);font-weight:500;cursor:pointer;
+}
+.html-atelier-panel .html-atelier-tabs button span:first-child{display:flex}
+.html-atelier-panel .html-atelier-tabs button svg{width:13px;height:13px}
+.html-atelier-panel .html-atelier-tabs button.html-atelier-active{color:var(--ha-accent);background:transparent;border:0}
+.html-atelier-panel .html-atelier-panelcontent{flex:1;min-height:72px;padding:0 14px 16px;overflow:auto;scrollbar-width:thin}
+.html-atelier-panel .html-atelier-fileempty .html-atelier-filename{white-space:normal;overflow-wrap:anywhere;font-weight:500}
+.html-atelier-panel .html-atelier-fileempty .html-atelier-fileicon{opacity:.6}
+.html-atelier-panel .html-atelier-panelcontent.html-atelier-enter{animation:html-atelier-pane-in .18s var(--ha-ease)}
+@keyframes html-atelier-pane-in{from{opacity:.5;transform:translateY(3px)}to{opacity:1;transform:none}}
+.html-atelier-panel .html-atelier-listhead{
+ display:flex;align-items:center;gap:8px;margin:4px 2px 10px;font-size:calc(var(--font-ui-smaller,12px) - 1px);font-weight:500;color:var(--text-muted);
+}
+.html-atelier-panel .html-atelier-count{display:inline-flex;align-items:center;justify-content:center;min-width:20px;padding:0 5px;height:18px;border-radius:5px;background:var(--background-modifier-hover);font-size:calc(var(--font-ui-smaller,12px) - 2px);font-variant-numeric:tabular-nums}
+.html-atelier-panel .html-atelier-list{gap:2px;min-width:0}
+.html-atelier-panel .html-atelier-row{
+ min-width:0;max-width:100%;height:auto;min-height:32px;padding:7px 8px;
+ border:0;border-radius:6px;background:transparent;box-shadow:none;white-space:normal;
+ color:var(--text-normal);font:inherit;font-size:var(--font-ui-smaller,12px);text-align:left;line-height:1.65;overflow-wrap:anywhere;
+}
+.html-atelier-panel .html-atelier-outlinerow{display:flex;flex-wrap:nowrap;align-items:baseline;gap:8px;width:100%;cursor:pointer}
+.html-atelier-panel .html-atelier-headinglevel{flex:0 0 18px;font-size:calc(var(--font-ui-smaller,12px) - 3px);font-weight:500;color:var(--text-muted);opacity:.6;font-family:var(--font-monospace,monospace)}
+.html-atelier-panel .html-atelier-rowlabel{min-width:0;flex:1}
+.html-atelier-panel .html-atelier-outlinerow.html-atelier-h1{font-weight:600;font-size:var(--font-ui-small,13px);margin:2px 0 6px}
+.html-atelier-panel .html-atelier-outlinerow.html-atelier-h2{padding-left:8px;font-weight:550;margin-top:7px}
+.html-atelier-panel .html-atelier-outlinerow.html-atelier-h3{padding-left:22px;color:var(--text-muted)}
+.html-atelier-panel .html-atelier-outlinerow.html-atelier-h4{padding-left:36px;color:var(--text-muted)}
+.html-atelier-panel .html-atelier-outlinerow.html-atelier-h5{padding-left:46px;color:var(--text-muted)}
+.html-atelier-panel .html-atelier-outlinerow.html-atelier-h6{padding-left:56px;color:var(--text-muted)}
+.html-atelier-panel .html-atelier-row:hover{background:var(--background-modifier-hover)}
+.html-atelier-panel .html-atelier-outlinerow.html-atelier-selected{background:var(--ha-tint);color:var(--ha-accent);box-shadow:inset 2px 0 var(--ha-accent)}
+.html-atelier-panel .html-atelier-textlistdetails{margin-top:18px;border-top:1px solid var(--ha-line);padding-top:12px}
+.html-atelier-panel .html-atelier-textlistdetails summary{display:list-item;cursor:pointer;margin-left:14px}
+.html-atelier-panel .html-atelier-textlistdetails summary .html-atelier-count{margin-left:8px}
+.html-atelier-panel .html-atelier-textrow{display:block;width:100%}
+.html-atelier-panel .html-atelier-form{gap:12px;padding:6px 0}
+.html-atelier-panel .html-atelier-formhead{justify-content:space-between;font-size:var(--font-ui-small,13px);margin:0 0 2px}
+.html-atelier-panel .html-atelier-input,.html-atelier-panel .html-atelier-textarea{
+ min-width:0;max-width:100%;padding:10px 11px;border:1px solid var(--ha-line);border-radius:8px;
+ background:var(--background-primary);color:var(--text-normal);font-size:var(--font-ui-small,13px);line-height:1.75;box-shadow:none;
+}
+.html-atelier-panel .html-atelier-textarea{min-height:155px}
+.html-atelier-panel .html-atelier-hint{font-size:calc(var(--font-ui-smaller,12px) - 1px);line-height:1.7;margin:0}
+.html-atelier-panel .html-atelier-btnrow{gap:7px}
+.html-atelier-panel .html-atelier-btnrow button,.html-atelier-panel .html-atelier-resource button{
+ height:auto;min-height:28px;padding:5px 9px;border:1px solid var(--ha-line);border-radius:6px;
+ background:var(--background-primary);box-shadow:none;font-size:calc(var(--font-ui-smaller,12px) - 1px);line-height:1.4;white-space:normal;color:var(--text-normal);
+}
+.html-atelier-panel .html-atelier-change{padding:12px;margin-bottom:10px;border:1px solid var(--ha-line);border-radius:9px;background:var(--background-primary)}
+.html-atelier-panel .html-atelier-changehead{gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.html-atelier-panel .html-atelier-diff{gap:7px;font-size:var(--font-ui-smaller,12px);line-height:1.7}
+.html-atelier-panel .html-atelier-diffold{padding:5px 8px;background:color-mix(in srgb,var(--text-error,#b33) 5%,transparent);border-radius:4px}
+.html-atelier-panel .html-atelier-diffnew{padding:5px 8px;background:var(--ha-tint);border-radius:4px}
+.html-atelier-panel .html-atelier-resource{margin-top:10px;padding:10px;border:1px solid var(--ha-line);border-radius:8px;background:var(--background-primary)}
+.html-atelier-panel .html-atelier-resource>span{min-width:0;overflow-wrap:anywhere}
+.html-atelier-panel .html-atelier-badge{font-size:calc(var(--font-ui-smaller,12px) - 2px);padding:1px 6px;border-radius:5px;line-height:1.6}
+.html-atelier-panel .html-atelier-panelnote{margin:4px 0;padding:24px 16px;border:1px dashed var(--ha-line);border-radius:9px;color:var(--text-muted);font-size:var(--font-ui-smaller,12px);line-height:1.9;text-align:center}
+.html-atelier-panel .html-atelier-searchresults{flex-shrink:0;max-height:180px;margin:0 14px;border:0;overflow:auto}
+.html-atelier-panel .html-atelier-searchresults:not(:empty){margin-top:-8px;margin-bottom:12px;padding:6px;border:1px solid var(--ha-line);border-radius:8px;background:var(--background-primary)}
+.html-atelier-panel .html-atelier-statusbar{
+ display:flex;flex-shrink:0;align-items:center;gap:8px;min-height:68px;margin-top:auto;padding:12px 14px;
+ border-top:1px solid var(--ha-line);background:var(--background-secondary);overflow:hidden;
+}
+.html-atelier-panel .html-atelier-statusinfo{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.html-atelier-panel .html-atelier-statusfile{display:block;color:var(--text-muted);font-size:calc(var(--font-ui-smaller,12px) - 1px);line-height:1.5}
+.html-atelier-panel .html-atelier-statusdirty{color:var(--text-normal)}
+.html-atelier-panel .html-atelier-statusdraft{font-size:calc(var(--font-ui-smaller,12px) - 2px);color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.8}
+.html-atelier-panel .html-atelier-statusactions{display:flex;gap:3px;flex-shrink:0;align-items:center}
+.html-atelier-panel .html-atelier-statusactions button:not(.html-atelier-savebtn){display:flex;justify-content:center;align-items:center;width:26px;height:30px;padding:0;border:0;border-radius:5px;box-shadow:none;background:transparent;color:var(--text-muted)}
+.html-atelier-panel .html-atelier-statusactions button svg{width:14px;height:14px}
+.html-atelier-panel .html-atelier-savebtn{display:flex;align-items:center;justify-content:center;width:auto;height:32px;padding:0 13px!important;border:0;border-radius:7px;box-shadow:none;font-size:var(--font-ui-smaller,12px);font-weight:500;white-space:nowrap}
+.html-atelier-panel button:focus-visible,.html-atelier-panel textarea:focus-visible,.html-atelier-panel summary:focus-visible,.html-atelier-panel .html-atelier-caselabel:focus-within{outline:2px solid var(--ha-accent);outline-offset:2px}
+.html-atelier-panel .html-atelier-conflict-text{color:var(--text-warning)}
+@container (max-width:280px){
+ .html-atelier-panel .html-atelier-file{padding:16px 12px 12px;gap:8px}
+ .html-atelier-panel .html-atelier-fileicon{flex-basis:30px;height:34px}
+ .html-atelier-panel .html-atelier-filename{font-size:var(--font-ui-smaller,12px)}
+ .html-atelier-panel .html-atelier-toolbar{padding-inline:10px}
+ .html-atelier-panel .html-atelier-searchblock,.html-atelier-panel .html-atelier-tabs{margin-inline:10px}
+ .html-atelier-panel .html-atelier-modes .html-atelier-button{font-size:calc(var(--font-ui-smaller,12px) - 1px)}
+ .html-atelier-panel .html-atelier-modes .html-atelier-button>span:first-child,.html-atelier-panel .html-atelier-tabs button>span:first-child{display:none}
+ .html-atelier-panel .html-atelier-panelcontent{padding-inline:10px}
+ .html-atelier-panel .html-atelier-statusbar{padding-inline:10px;gap:4px}
+ .html-atelier-panel .html-atelier-statusactions{gap:0}
+ .html-atelier-panel .html-atelier-savebtn{padding-inline:9px!important}
+}
+@media (prefers-reduced-motion:reduce){
+ .html-atelier-panel *,.html-atelier-panel *::before{transition:none!important;animation:none!important}
+}

@@ -76,6 +76,7 @@ npm run check
 npm test
 npm run build
 node tests/browser-check.mjs
+node tests/sidebar-regression.mjs
 ```
 
 浏览器测试默认使用 Windows 上的 Microsoft Edge。其他位置可通过 `HTML_ATELIER_BROWSER` 指定 Chromium 浏览器可执行文件。构建后的 `main.js` 与 `manifest.json`、`styles.css` 即为运行所需文件。第三方依赖许可见 `THIRD-PARTY-NOTICES.txt`。

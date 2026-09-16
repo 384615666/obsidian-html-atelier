@@ -2,3 +2,15 @@ node_modules/
 test-results/
 main.js
 data.json
+
+# 内部开发/测试过程产物,不进公开仓库(2026-09-16 定):
+# probe/  = 探针脚本与测试库;audit/ = 审计过程与运行时探针;
+# docs/   = 设计/任务书/审计报告等内部文档;人工测试库/ = 手工测试 vault;
+# class-audit.mjs / i18n-coverage.mts = 一次性分析脚本
+# 注:tests/ 是仓库的正式测试套件(npm test / 门禁),属于要提交的部分。
+probe/
+audit/
+docs/
+人工测试库/
+class-audit.mjs
+i18n-coverage.mts
