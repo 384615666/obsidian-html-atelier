@@ -43,6 +43,8 @@ export interface PanelCallbacks {
  // 「修改」清单的定位:源码与预览都要到那处改动(F11)
    locateChange(offset:number,segmentId:string|null):void;
  locatePreview(segmentId:string):void;
+ // 搜索命中:在预览里选中那段文字(视图选择、预览选中框、侧栏表单三者一致)
+ selectInPreview(segmentId:string):void;
  // 返回是否真的定位到了:大纲点击需要据此决定要不要退回锚点/源码
  revealInPreview(containerIndex:number,lStart:number,lEnd:number):boolean;
  saveActive():void;
@@ -83,7 +85,7 @@ export class HtmlPanelView extends ItemView {
  private segmentOverride=false;
  private searchHits:SearchHit[]=[];private searchAt=-1;
  private replaceBox!:HTMLInputElement;
- private lastRenderedRev=-1;
+ private lastRenderedRev='';
  private lastRenderedSession:DocumentSession|null=null;
  private outlineStates=new WeakMap<DocumentSession,OutlineState>();
  private outlineOwner:DocumentSession|null=null;
@@ -283,9 +285,12 @@ export class HtmlPanelView extends ItemView {
   this.statusFile.setText(fileStatus);
   this.statusFile.toggleClass('html-atelier-statusdirty',!!s?.dirty);
   this.statusFile.toggleClass('html-atelier-conflict-text',s?.contentState==='conflict');
-  this.statusDraft.setText(s?{pending:t('statusDraftPending'),writing:t('statusDraftWriting'),saved:t('statusDraftSaved'),failed:t('statusDraftFailed'),disabled:t('statusDraftDisabled')}[s.draftStatus]:'');
-  // 内容:revision 未变且非强制时不重绘(保持输入焦点)
-  const rev=s?s.revision*4+s.parsedRevision:-1;
+  // idle(干净且无草稿)与"没有会话"同样显示为空:干净文件不该出现误导性草稿文案
+  this.statusDraft.setText(s?{idle:'',pending:t('statusDraftPending'),writing:t('statusDraftWriting'),saved:t('statusDraftSaved'),failed:t('statusDraftFailed'),disabled:t('statusDraftDisabled')}[s.draftStatus]:'');
+  // 内容:revision 与保存基准都未变且非强制时不重绘(保持输入焦点)。
+  // 基准必须进键:保存只前移 baseSource、不动 revision,键里没有它时保存后的非强制
+  // 刷新一律早退,「修改」清单还列着已写回的条目(宣传片 05 镜头实测)
+  const rev=s?`${s.revision}:${s.parsedRevision}:${s.baseHash}`:'';
   // 输入法组合中任何重绘都会打断候选词,一律推迟(见 composing 的说明)
   if(this.composing)return;
   if(!force&&s===this.lastRenderedSession&&rev===this.lastRenderedRev)return;
@@ -802,7 +807,7 @@ export class HtmlPanelView extends ItemView {
    restore.addEventListener('click',()=>this.restoreItem(s,item));
    const diff=row.createDiv({cls:'html-atelier-diff'});
    diff.createDiv({cls:'html-atelier-diffline html-atelier-diffold',text:item.before});
-   diff.createDiv({cls:'html-atelier-difflinet html-atelier-diffnew',text:item.after});
+   diff.createDiv({cls:'html-atelier-diffline html-atelier-diffnew',text:item.after});
   }
  }
 
@@ -897,11 +902,9 @@ export class HtmlPanelView extends ItemView {
     const r=rangesForLogical(c,hit.start,hit.end);
     if(r.length===1){
      const seg=this.segmentAt(idx,r[0].srcStart);
-     if(seg){
-      (window as unknown as {htmlAtelierSelection?:SelectionInfo|null}).htmlAtelierSelection={kind:'text',segmentId:seg.id};
-      this.callbacks.locatePreview(seg.id);
-      this.refresh(true);
-     }
+     // 走视图自己的选择路径(同点击预览文字):此前只改全局选择,视图的 selected 还是
+     // 旧段落,切到编辑后实线框画在旧选择上、命中处什么都不显示(宣传片 08 镜头实测)
+     if(seg)this.callbacks.selectInPreview(seg.id);
     }else this.callbacks.revealInPreview(hit.containerIndex,hit.start,hit.end);
    });
    void i;

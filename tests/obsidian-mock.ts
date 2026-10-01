@@ -13,6 +13,11 @@ export class TFile {path:string;name:string;basename:string;extension:string;par
   const m=this.name.match(/\.([^.]+)$/);this.extension=(m?m[1]:'').toLowerCase();
   this.basename=m?this.name.slice(0,-(m[0].length)):this.name;}}
 export class ItemView {contentEl:HTMLElement;app:any;constructor(public leaf:any){this.app=leaf.app;this.contentEl=leaf.el;}async onOpen(){}getViewType(){return '';}}
+// 宿主的 View 继承 Component,registerDomEvent 随卸载自动清理;桩直接转发 addEventListener
+// (2026-09-30:htmlView 的面板输入框焦点跟踪依赖它,空实现会让 harness 直接 TypeError)
+Object.defineProperty(ItemView.prototype,'registerDomEvent',{writable:true,configurable:true,
+ value:function(el:EventTarget,type:string,cb:EventListenerOrEventListenerObject,options?:boolean|AddEventListenerOptions){
+  el.addEventListener(type,cb,options);return this;}});
 // navigation:宿主的 View.navigation —— 文档视图为 true,侧栏 ItemView 为 false。
 // getActiveFile 的回退逻辑依赖它(见 main.ts 的 htmlStillActive 说明),桩必须带上。
 export class FileView extends ItemView {file:TFile|null=null;navigation=true;}

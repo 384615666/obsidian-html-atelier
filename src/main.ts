@@ -68,6 +68,8 @@ export default class HtmlAtelier extends Plugin {
   // 中断 onload,导致视图/命令全部未注册——实测教训)
   this.sidebar=new SidebarCoordinator(this.app,()=>this.settings,this.t);
   this.drafts=new DraftsService(this.app,()=>this.settings,getDeviceId());
+  // 草稿状态多在防抖定时器里异步变化,面板必须被通知到,否则改字后一直显示"待备份"
+  this.drafts.onStatusChange=()=>this.refreshPanels();
   this.noteRef=new NoteReferenceService(this.app,this.t);
   this.saveAs=new SaveAsService(this.app,this.t);
   this.assetRefresh=createAssetRefresher(()=>void this.refreshDependentViews());
@@ -160,12 +162,13 @@ export default class HtmlAtelier extends Plugin {
     v.scrollToAnchor(v.currentAnchor);
     v.syncTextNodes();
    },
+   selectInPreview:(segmentId:string)=>this.activeHtmlView()?.selectText(segmentId),
    revealInPreview:(containerIndex:number,lStart:number,lEnd:number)=>{
     return this.activeHtmlView()?.locateLogical(containerIndex,lStart,lEnd)??false;
    },
    saveActive:()=>{const v=this.activeHtmlView();if(v?.file&&v.session)void this.saveFile(v.file,v.session);},
-   undo:()=>{const v=this.activeHtmlView();try{v?.session?.undo();v?.syncTextNodes();this.refreshPanels();}catch(e){new Notice(e instanceof Error?e.message:String(e));}},
-   redo:()=>{const v=this.activeHtmlView();try{v?.session?.redo();v?.syncTextNodes();this.refreshPanels();}catch(e){new Notice(e instanceof Error?e.message:String(e));}},
+   undo:()=>{const v=this.activeHtmlView();if(!v?.session)return;try{v.session.undo();this.afterHistoryMove(v,v.session);}catch(e){new Notice(e instanceof Error?e.message:String(e));}},
+   redo:()=>{const v=this.activeHtmlView();if(!v?.session)return;try{v.session.redo();this.afterHistoryMove(v,v.session);}catch(e){new Notice(e instanceof Error?e.message:String(e));}},
    openFileByPath:(path:string)=>{void this.app.workspace.openLinkText(path,'',false);},
    pickLibraryFile:async(filter:(f:{path:string; extension:string})=>boolean)=>{
     return new Promise<string|null>(resolve=>{
@@ -240,6 +243,9 @@ export default class HtmlAtelier extends Plugin {
    // (审计 round4 BUG 3:实测 39 次连续失败)。
    recovered?.revision??0);
   if(recovered)session.contentState=recovered.conflict?'conflict':'dirty';
+  // 初始草稿状态:关闭备份 → disabled;恢复出草稿 → saved(记录确实存在);
+  // 否则 idle(干净,不显示草稿文案)。此前恒为初始值 'disabled',一打开就谎报"备份已关闭"。
+  session.draftStatus=this.settings.drafts.enabled?(recovered?'saved':'idle'):'disabled';
   this.sessions.set(file.path,session);
   return session;
  }
@@ -259,10 +265,14 @@ export default class HtmlAtelier extends Plugin {
   }};
   const outcome=await session.save(io);
   if(outcome.result==='written'){
-   await this.drafts.clearDraft(file.path);
+   await this.drafts.clearDraft(file.path,session);
+   // 保存写入的就是预览正在显示的 workingSource(session.save 只前移 baseSource,
+   // 不改内容/revision),预览无需重建:原地清掉修改高亮即可。此前这里 renderFrame(true)
+   // 先 empty 再等 srcdoc 异步构建,中间露出一帧空白(screencast 实测 40ms 处整帧白)。
+   // 真正需要重绘的场景(外部修改、冲突合并、手动刷新)由各自路径调用 renderFrame。
    for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
     const v=leaf.view as HtmlFileView;
-    if(v.session===session)v.renderFrame(true);
+    if(v.session===session)v.applyChangeHighlights();
    }
    view?.restoreFocusAfterSave();
    await this.drainQueuedExternal(file,session);
@@ -291,6 +301,17 @@ export default class HtmlAtelier extends Plugin {
   if(disk!==null)session.externalChange(disk);
  }
 
+ // 撤销/重做后的草稿同步(2026-09-30 复查):此前撤销/重做不碰草稿层,撤销回已保存
+ // 内容后磁盘残留撤销前的旧草稿(onunload 只 flush 脏会话,删不掉它),重启后被
+ // recover 当成未保存修改复活。现在按普通编辑处理:变干净 → 立即删草稿回 idle;
+ // 仍有未保存修改 → 重新排队备份。
+ private afterHistoryMove(v:HtmlFileView,session:DocumentSession){
+  v.syncTextNodes();
+  if(!session.dirty&&session.contentState!=='conflict')void this.drafts.clearDraft(session.filePath,session);
+  else this.drafts.scheduleSave(session);
+  this.refreshPanels();
+ }
+
  // 设置变更的统一入口(设置页回调)。三级要求:
  // 1) 必须**快照**入参:设置页传进来的就是它自己那份可变副本,直接存引用会让
  //    this.settings 与 next 变成同一个对象 —— 下一次变更时 prev 和 next 是同一个引用,
@@ -313,6 +334,7 @@ export default class HtmlAtelier extends Plugin {
    ||next.embeds.autoHeightMax!==prev.embeds.autoHeightMax
    ||next.embeds.showDrafts!==prev.embeds.showDrafts
    ||next.embeds.showToolbar!==prev.embeds.showToolbar;
+  const draftsToggled=next.drafts.enabled!==prev.drafts.enabled;
   this.settings=next;
   void this.saveData(this.buildPluginData());
   if(langChanged){
@@ -333,6 +355,17 @@ export default class HtmlAtelier extends Plugin {
   if(highlightChanged)for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).applyChangeHighlights();
   if(sourceChanged)for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).reconfigureSourceEditor();
   if(embeddingsChanged)this.refreshEmbedHosts();
+  // 开关拨动后存量会话的 draftStatus 不会自愈:关闭期间编辑过的会话停在 disabled,
+  // 重新开启后面板继续谎报"备份已关闭",直到下一次编辑(审计 m4)。按新设置重算:
+  // 开启时脏会话立即重排备份、干净会话清掉残留草稿回 idle;关闭时统一标 disabled。
+  if(draftsToggled){
+   for(const session of this.sessions.values()){
+    if(!next.drafts.enabled){session.draftStatus='disabled';continue;}
+    if(session.dirty||session.contentState==='conflict')this.drafts.scheduleSave(session);
+    else void this.drafts.clearDraft(session.filePath,session);
+   }
+   this.refreshPanels();
+  }
  }
 
  // 嵌入渲染参数改变后,已渲染的 Markdown 预览里仍是旧参数(乃至仍显示已关闭的嵌入)。
@@ -496,18 +529,25 @@ export default class HtmlAtelier extends Plugin {
    const session=this.sessions.get(file.path);
    if(session){
     void (async()=>{
+     // 只有会话真的因这次 modify 变化(采用磁盘版/进入冲突/丢失,或补发了排队变化)
+     // 才重绘。自身保存触发的 modify 磁盘==baseSource,externalChange 返回 null:
+     // saveFile 已经重绘过,这里再 renderFrame 会拆掉尚未加载完成的新帧,把保存前
+     // 算好的滚动比例一起丢掉 —— 预览保存后跳回页顶的根因(设计 §11.4 F26)。
+     let changed=false;
      const disk=await this.app.vault.read(file).catch(()=>null);
-     if(disk===null)session.markMissing();
-     else session.externalChange(disk);
-     if(session.hasQueuedExternal&&session.operation==='idle'){
+     if(disk===null){session.markMissing();changed=true;}
+     else changed=session.externalChange(disk)!==null;
+     if(!changed&&session.hasQueuedExternal&&session.operation==='idle'){
       const disk2=await this.app.vault.read(file).catch(()=>null);
-      if(disk2!==null)session.externalChange(disk2);
+      if(disk2!==null)changed=session.externalChange(disk2)!==null;
      }
-     for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
-      const v=leaf.view as HtmlFileView;
-      if(v.session===session)v.renderFrame(true);
+     if(changed){
+      for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
+       const v=leaf.view as HtmlFileView;
+       if(v.session===session)v.renderFrame(true);
+      }
+      this.refreshPanels(true);
      }
-     this.refreshPanels(true);
     })();
    }
     if(this.settings.preview.autoRefreshAssets&&/\.(css|png|jpe?g|webp|gif|svg|avif|woff2?|ttf|otf|eot)$/i.test(file.path))
@@ -565,8 +605,8 @@ export default class HtmlAtelier extends Plugin {
   cmd('zoom-reset','恢复 100% 缩放',c=>{const v=needView();if(!v)return false;if(!c){v.zoom=100;v.applyViewport();}return true;});
   cmd('nav-back','后退',c=>{const v=needView();if(!v||!this.nav.canBack(v))return false;if(!c)v.goBack();return true;});
   cmd('nav-forward','前进',c=>{const v=needView();if(!v||!this.nav.canForward(v))return false;if(!c)v.goForward();return true;});
-  cmd('undo','撤销',c=>{const x=needSession();if(!x||x.s.controller.undoDepth===0)return false;if(!c){try{x.s.undo();x.v.syncTextNodes();this.refreshPanels();}catch(e){new Notice(e instanceof Error?e.message:String(e));}}return true;});
-  cmd('redo','重做',c=>{const x=needSession();if(!x||x.s.controller.redoDepth===0)return false;if(!c){try{x.s.redo();x.v.syncTextNodes();this.refreshPanels();}catch(e){new Notice(e instanceof Error?e.message:String(e));}}return true;});
+  cmd('undo','撤销',c=>{const x=needSession();if(!x||x.s.controller.undoDepth===0)return false;if(!c){try{x.s.undo();this.afterHistoryMove(x.v,x.s);}catch(e){new Notice(e instanceof Error?e.message:String(e));}}return true;});
+  cmd('redo','重做',c=>{const x=needSession();if(!x||x.s.controller.redoDepth===0)return false;if(!c){try{x.s.redo();this.afterHistoryMove(x.v,x.s);}catch(e){new Notice(e instanceof Error?e.message:String(e));}}return true;});
   this.addCommand({id:'draft-manager',name:'打开草稿管理',callback:()=>{new DraftManagerModal(this.t,this.drafts,path=>{void this.app.workspace.openLinkText(path,'',false);},this.app,()=>this.settings).open();}});
   cmd('conflict-manager','打开冲突处理',c=>{const x=needSession();if(!x||x.s.contentState!=='conflict')return false;if(!c)this.openConflict();return true;});
   cmd('copy-page-link','复制当前 HTML 页面链接',c=>{const x=needSession();if(!x)return false;if(!c)this.commandCopyPageLink();return true;});
@@ -650,7 +690,7 @@ export default class HtmlAtelier extends Plugin {
    new Notice(e instanceof Error?e.message:String(e),7000);
    return false;
   }
-  await this.drafts.clearDraft(v.file.path).catch(()=>{});
+  await this.drafts.clearDraft(v.file.path,v.session).catch(()=>{});
   v.renderFrame(true);
   this.refreshPanels();
   new Notice(this.t('statusClean'));

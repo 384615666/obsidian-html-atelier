@@ -1,6 +1,7 @@
 import {FileView, Menu, Notice, TFile, WorkspaceLeaf} from 'obsidian';
 type ViewStateResultLike=Parameters<FileView['setState']>[1];
 import {ViewToolbar,ToolbarTarget,ToolbarMode,showMenuAt} from './toolbar';
+import {renderSelectionBoxes} from './selectionOverlay';
 import {DocumentSession} from '../core/session';
 import {TextPatch,PatchError} from '../core/patch';
 import {parseDocument,makePreview,markerRegex,DocumentModel} from '../model';
@@ -8,6 +9,7 @@ import {SourceIndex,SourceNode} from '../parsing/sourceIndex';
 import {buildTextMap,TextContainer} from '../parsing/textMap';
 import {escapeAttrValue} from '../parsing/escape';
 import {debugLog} from '../services/debug';
+import {inlineLocalStylesheets,CssInlineIO} from '../services/cssInline';
 import {resolveLink,LinkRouter} from '../services/links';
 import {currentNavEntry,NavigationService,NavEntry} from '../services/nav';
 import type {AtelierSettings} from '../settings/schema';
@@ -96,6 +98,25 @@ export class HtmlFileView extends FileView {
   this.toolbarHost=this.contentEl.createDiv({cls:'html-atelier-toolbarhost'});
   this.contentEl.createDiv({cls:'html-atelier-main',attr:{'data-main':''}});
   this.syncToolbarPlacement();
+  this.trackPanelInput();
+ }
+
+ // 面板内最近持有焦点的输入框:保存按钮的 mousedown 会先把焦点从文字框拿走,
+ // click 处理器/saveFile 里再读 activeElement 已经是按钮(2026-09-30 复查:保存后
+ // 焦点离开侧栏文字框)。这里持续跟踪,保存时作为兜底。
+ private lastPanelInput:HTMLInputElement|HTMLTextAreaElement|null=null;
+ private panelInputTracked=false;
+ private trackPanelInput(){
+  if(this.panelInputTracked)return;
+  this.panelInputTracked=true;
+  const onFocusIn=(e:FocusEvent)=>{
+   const t=e.target;
+   if(t instanceof HTMLInputElement||t instanceof HTMLTextAreaElement)
+    this.lastPanelInput=t.closest('.html-atelier-panel')?t:null; // 焦点到面板外输入框:作废
+  };
+  const doc=this.contentEl.ownerDocument;
+  // View(Component) 的 registerDomEvent 随视图卸载自动清理
+  this.registerDomEvent(doc,'focusin',onFocusIn,true);
  }
 
  // 工具栏跟随 editor.toolbarPlacement:'view' 时自绘,'sidebar' 时交给右侧栏面板。
@@ -201,7 +222,7 @@ export class HtmlFileView extends FileView {
   this.flushSourceSync();
   ++this.loadToken;
   this.cancelSourceSync();
-  this.detachSource();this.iframe=null;this.session=null;this.selected=null;this.callbacks.onSelectChanged(null,null);
+  this.detachSource();this.iframe=null;this.visibleFrame=null;this.session=null;this.selected=null;this.callbacks.onSelectChanged(null,null);
  }
  async onClose(){
   this.captureScroll();this.flushSourceSync();this.cancelSourceSync();this.detachSource();
@@ -224,7 +245,7 @@ export class HtmlFileView extends FileView {
   main.empty();
   // empty() 会移除旧 iframe:它的窗口随即被丢弃(documentElement 变 null)。
   // 若继续持有,后续 renderFrame/抓取滚动都会读到死窗口(实测会让重绘整体失败)。
-  this.iframe=null;this.lastNavWin=null;
+  this.iframe=null;this.visibleFrame=null;this.lastNavWin=null;
   this.iframeWrap=main.createDiv({cls:'html-atelier-viewport'});
   this.sourceHost=main.createDiv({cls:'html-atelier-sourcehost'});
   this.applyMode();
@@ -237,6 +258,13 @@ export class HtmlFileView extends FileView {
   this.applyMode();
   this.applyViewport();
   if(mode==='source'||mode==='split')this.mountSource();
+  // 选中/悬停框只在编辑/分栏绘制:切模式要重画一次,否则从编辑切到预览时上次的
+  // 选中框留在预览上(宣传片 08 镜头实测:预览模式下导语还套着实线框)。
+  // 悬停一并清掉:切模式时指针在工具栏上,预览里没有被指着的文字;大纲/搜索定位
+  // 设下的悬停高亮是一次性的,不该在下次切回编辑时又冒出来(定位入口先切模式、
+  // 后设悬停,不受影响)
+  this.hovered=null;
+  this.drawSelection();
   this.refreshToolbar();
   this.pushNav();
  }
@@ -443,6 +471,20 @@ export class HtmlFileView extends FileView {
   else if(this.mode==='preview')this.setMode('edit');
  }
 
+ // 搜索命中 → 在预览里选中那段文字,与点击预览文字走同一条选择路径
+ // (视图 selected、侧栏表单、撤销分组键都以它为准)。
+ selectText(segmentId:string){
+  if(!this.session)return;
+  this.prepareLocate();
+  this.selected={kind:'text',segmentId};
+  this.describeSelection();
+  // 大纲定位留下的悬停(locateLogical)优先级高于选中,不清掉就看不到选中框
+  this.hovered=null;
+  this.scrollToAnchor(`#${segmentId}`);
+  this.callbacks.onSelectChanged(this.selected,this.session);
+  this.drawSelection();
+ }
+
  locateLogical(containerIndex:number,lStart:number,lEnd:number):boolean{
   void lEnd;
   if(!this.session)return false;
@@ -486,19 +528,38 @@ export class HtmlFileView extends FileView {
  renderFrame(reposition=false){
   if(!this.session||!this.file||!this.iframeWrap)return;
   this.renderCount++;
-  // 旧窗口可能已被丢弃(mountMain/empty 之后):只有文档还在时才用它算滚动比例
-  const oldWin=this.iframe?.contentWindow??null;
+  // 旧窗口可能已被丢弃(mountMain/empty 之后):只有文档还在时才用它算滚动比例。
+  // 必须读可见帧:预加载期间 this.iframe 指向隐藏的空白帧,读它会得到比例 0,
+  // 连续两次外部重绘(双次 renderFrame 重叠)时第二次就把跳顶 bug 复活(审计 M1)
+  const oldWin=(this.visibleFrame??this.iframe)?.contentWindow??null;
   let ratio=0;
   if(oldWin?.document?.documentElement&&reposition)ratio=this.callbacks.nav.scrollRatioOf(oldWin);
-  this.iframeWrap.empty();
+  // 预加载替换(2026-09-30 复查:保存后闪白帧的根因是先 empty 再等 srcdoc 异步构建,
+  // 中间约 7ms 预览区空白):旧帧保持可见,新帧隐藏加载,load 完成初始化后再原子替换。
+  // 期间再次 renderFrame 时,尚未就绪的隐藏帧被同步丢弃,可见帧不动。
+  if(this.iframe&&this.iframe!==this.visibleFrame)this.iframe.remove();
+  const previous=this.visibleFrame;
   this.nonce=Math.random().toString(36).slice(2,10);
   const resource=this.app.vault.getResourcePath(this.file);
   const base=resource.slice(0,resource.lastIndexOf('/')+1);
   const frame=this.iframeWrap.createEl('iframe',{cls:'html-atelier-frame',attr:{sandbox:'allow-same-origin',title:`${this.file.name} — HTML Atelier`,referrerpolicy:'no-referrer'}});
+  frame.addClass('html-atelier-hidden');
   this.iframe=frame;
   frame.addEventListener('load',()=>{
+   // 插入即触发的 about:blank 初始 load(srcdoc 未设置):不算内容就绪
+   if(!frame.getAttribute('srcdoc'))return;
    const doc=frame.contentDocument;
    if(!doc)return;
+   if(this.iframe!==frame){frame.remove();return;} // 已被更新的渲染淘汰
+   // 先替换显示,再做依赖布局的初始化:滚动恢复/选中框都要求新帧可见可布局,
+   // 隐藏帧的 scrollHeight 为 0,先恢复会全部落空
+   previous?.remove();
+   frame.toggleClass('html-atelier-hidden',false);
+   this.visibleFrame=frame;
+   // 导航/滚动抓取的目标窗口跟随可见帧切换(此前在 renderFrame 末尾就指向隐藏帧,
+   // 预加载窗口里抓到的 scrollRatio 恒为 0,污染导航栈与保存焦点——审计 M1)
+   this.lastNavWin=frame.contentWindow;
+   this.applyViewport();
    this.textNodes.clear();
    const re=markerRegex(this.nonce);
    const walker=doc.createTreeWalker(doc,128);
@@ -537,11 +598,48 @@ export class HtmlFileView extends FileView {
     this.callbacks.nav.restoreScroll(frame.contentWindow,target);
    }
    else if(reposition)this.restoreScrollWhenReady(frame.contentWindow,ratio);
+   this.drawSelection();
    this.refreshToolbar();
   });
-  frame.srcdoc=makePreview(parseDocument(this.session.workingSource),base,this.nonce,
+  // 预览文档构建含异步步骤(读库内 CSS 做内联),期间可能又发生一次 renderFrame:
+  // 代次令牌保证只有最新一次构建能写 srcdoc,旧构建整体丢弃。构建异常时同步回退
+  // (不内联 CSS),不让隐藏帧悬死、旧帧永远不被替换。构建期间内容又被编辑的,
+  // 快照已过期:按当前内容重排一次,不让新帧把旧版源"回放"出来(审计 m2)。
+  const buildToken=++this.previewBuildToken;
+  const source=this.session.workingSource;
+  const filePath=this.file.path;
+  const allowNetwork=this.callbacks.settings().preview.allowNetworkAssets;
+  const commit=(preview:string)=>{
+   if(buildToken!==this.previewBuildToken||this.iframe!==frame)return;
+   if(this.session&&this.session.workingSource!==source){void this.renderFrame(reposition);return;}
+   frame.srcdoc=preview;
+  };
+  void this.buildPreviewSource(source,filePath,base).then(commit).catch(e=>{
+   console.error('预览构建失败,回退不内联',e);
+   commit(makePreview(parseDocument(source),base,this.nonce,{allowNetwork}));
+  });
+ }
+
+ private previewBuildToken=0;
+ // 当前可见帧:预加载期间 this.iframe 指向隐藏的新帧,可见的仍是它
+ private visibleFrame:HTMLIFrameElement|null=null;
+
+ // 预览源生成:库内本地样式表先内联成 <style>(宿主 CSP 拦截 app:// 样式表加载,
+ // 2026-09-30 真机定因,见 services/cssInline.ts);内联失败回退原始源,与旧行为一致。
+ private async buildPreviewSource(source:string,filePath:string,base:string):Promise<string>{
+  const io:CssInlineIO={
+   readCss:async p=>{
+    const f=this.app.vault.getAbstractFileByPath(p);
+    return f instanceof TFile?await this.app.vault.cachedRead(f).catch(()=>null):null;
+   },
+   resourceUrl:p=>{
+    const f=this.app.vault.getAbstractFileByPath(p);
+    return f instanceof TFile?this.app.vault.getResourcePath(f):null;
+   },
+  };
+  const inlined=await inlineLocalStylesheets(source,filePath,io);
+  return makePreview(parseDocument(inlined),base,this.nonce,
    {allowNetwork:this.callbacks.settings().preview.allowNetworkAssets});
-  this.lastNavWin=frame.contentWindow;
  }
 
  // 事件:选择(F20 编辑入口)、链接路由(F02/F04)、菜单(F03)、悬停(F05)
@@ -572,6 +670,8 @@ export class HtmlFileView extends FileView {
   });
   doc.addEventListener('mouseleave',()=>{this.hovered=null;this.drawSelection();});
   doc.addEventListener('scroll',()=>{this.drawSelection();this.scheduleScrollCapture();},true);
+  // 预览尺寸变了(切分栏、拖侧栏、换宽度预设)页面会重排,框要按新布局重画,不然停在旧位置
+  doc.defaultView?.addEventListener('resize',()=>this.drawSelection());
   doc.addEventListener('click',event=>{
    const target=event.target as Element;
    const anchorEl=target.closest('a');
@@ -671,23 +771,17 @@ export class HtmlFileView extends FileView {
 
  drawSelection(){
   if(!this.overlay)return;
-  this.overlay.replaceChildren();
-  if(!(this.mode==='edit'||this.mode==='split'))return;
-  const id=this.hovered??(this.selected?.kind==='text'?this.selected.segmentId:null);
-  if(!id)return;
-  const node=this.textNodes.get(id);
-  if(!node)return;
-  const range=node.ownerDocument.createRange();
-  range.selectNodeContents(node);
-  for(const rect of range.getClientRects()){
-   const box=node.ownerDocument.createElement('html-atelier-selection-box');
-   box.style.setProperty('--html-atelier-x',`${rect.left-3}px`);
-   box.style.setProperty('--html-atelier-y',`${rect.top-2}px`);
-   box.style.setProperty('--html-atelier-w',`${rect.width+6}px`);
-   box.style.setProperty('--html-atelier-h',`${rect.height+4}px`);
-   box.style.setProperty('--html-atelier-border',`${id===this.selected?.segmentId?'2px solid':'1px dashed'} #9275df`);
-   this.overlay.append(box);
+  const editing=this.mode==='edit'||this.mode==='split';
+  const id=editing?(this.hovered??(this.selected?.kind==='text'?this.selected.segmentId:null)):null;
+  const node=id?this.textNodes.get(id):undefined;
+  let rects:Iterable<DOMRect>=[];
+  if(node){
+   const range=node.ownerDocument.createRange();
+   range.selectNodeContents(node);
+   rects=range.getClientRects();
   }
+  // 只替换旧框,shadow root 里的 <style> 要留着(见 renderSelectionBoxes)
+  renderSelectionBoxes(this.overlay,rects,id===this.selected?.segmentId);
  }
 
  // ---- 内容更新管线 ----
@@ -963,22 +1057,67 @@ export class HtmlFileView extends FileView {
   this.callbacks.onSelectChanged(this.selected,this.session);
  }
 
- // F26:保存后焦点恢复
+ // F26:保存后焦点恢复(滚动/选中/焦点与光标)
  saveFocus():void{
   this.preSaveSelection=this.selected;
-  this.preSaveScroll=this.iframe?.contentWindow?this.callbacks.nav.scrollRatioOf(this.iframe.contentWindow):null;
+  // 滚动比例取可见帧(预加载期间 this.iframe 是隐藏空白帧,会取到 0——审计 M1)
+  const capWin=(this.visibleFrame??this.iframe)?.contentWindow??null;
+  this.preSaveScroll=capWin?this.callbacks.nav.scrollRatioOf(capWin):null;
+  // 记录面板表单里持有焦点的输入框与光标区间:保存按钮点击或命令执行会把焦点顶到
+  // 按钮/body 上,结束后要放回原处才能继续打字(2026-09-30 复查:保存后焦点离开侧栏文字框)。
+  // 按钮路径下 activeElement 已是按钮,用跟踪到的最近面板输入框兜底。
+  const active=this.contentEl.ownerDocument.activeElement;
+  let focusEl:HTMLInputElement|HTMLTextAreaElement|null=null;
+  if(active instanceof HTMLInputElement||active instanceof HTMLTextAreaElement)focusEl=active;
+  else if(this.lastPanelInput?.isConnected&&this.lastPanelInput.closest('.html-atelier-panel'))focusEl=this.lastPanelInput;
+  this.preSaveFocus=focusEl?{el:focusEl,start:focusEl.selectionStart,end:focusEl.selectionEnd}:null;
  }
  restoreFocusAfterSave(){
   if(!this.callbacks.settings().editor.restoreFocusAfterSave)return;
-  if(this.preSaveScroll!==null&&this.iframe?.contentWindow)this.callbacks.nav.restoreScroll(this.iframe.contentWindow,this.preSaveScroll);
+  const resWin=(this.visibleFrame??this.iframe)?.contentWindow??null;
+  if(this.preSaveScroll!==null&&resWin)this.callbacks.nav.restoreScroll(resWin,this.preSaveScroll);
   if(this.preSaveSelection?.kind==='text'&&this.preSaveSelection.segmentId){
    const exists=this.currentModel().segments.some(x=>x.id===this.preSaveSelection!.segmentId);
-   if(exists){this.selected=this.preSaveSelection;this.callbacks.onSelectChanged(this.selected,this.session);this.syncTextNodes();return;}
-   this.selected=null;this.callbacks.onSelectChanged(null,this.session);
+   if(exists){
+    // 选中本就没丢(保存不重建预览、不改 selected)时跳过 onSelectChanged:它会
+    // force 重建面板,把焦点恢复的目标输入框换掉(2026-09-30 复查:保存后焦点
+    // 离开侧栏文字框的真凶之一)
+    if(this.selected!==this.preSaveSelection){this.selected=this.preSaveSelection;this.callbacks.onSelectChanged(this.selected,this.session);}
+    this.syncTextNodes();
+   }
+   else{this.selected=null;this.callbacks.onSelectChanged(null,this.session);}
+  }
+  // 焦点只在"当前焦点是保存动作的副作用"(body/面板按钮)或仍在原控件上时恢复;
+  // 用户保存期间已切到别的输入框/别的视图时,不抢焦点
+  const f=this.preSaveFocus;
+  if(f){
+   const doc=this.contentEl.ownerDocument;
+   const cur=doc.activeElement;
+   // 视图自绘工具栏(toolbarPlacement:'view')不在侧栏面板里,同样是保存动作的
+   // 焦点副作用,漏掉它的话该布局下"保存后焦点不回输入框"依旧复现(审计 m3)
+   const sideEffectOnly=cur===f.el||cur===doc.body||cur===null
+    ||(cur instanceof HTMLElement&&cur.tagName==='BUTTON'&&!!cur.closest('.html-atelier-panel,.html-atelier-toolbarhost'));
+   if(sideEffectOnly){
+    // 保存期间面板可能被重建(焦点在保存按钮上时,输入框的防重建保护不生效),
+    // 原节点随之被换掉:面板里恰好只有一个文本域时,按"同一字段"的替身恢复
+    let target:HTMLInputElement|HTMLTextAreaElement=f.el;
+    if(!f.el.isConnected){
+     const tas=doc.querySelectorAll<HTMLTextAreaElement>('.html-atelier-panel textarea');
+     if(tas.length===1)target=tas[0];
+    }
+    if(target.isConnected){
+     target.focus();
+     if(f.start!==null&&f.end!==null){
+      const len=target.value?.length??0;
+      try{target.setSelectionRange(Math.min(f.start,len),Math.min(f.end,len));}catch{/* 非文本类输入框 */}
+     }
+    }
+   }
   }
  }
  private preSaveSelection:SelectionInfo|null=null;
  private preSaveScroll:number|null=null;
+ private preSaveFocus:{el:HTMLInputElement|HTMLTextAreaElement; start:number|null; end:number|null}|null=null;
 
 }
 

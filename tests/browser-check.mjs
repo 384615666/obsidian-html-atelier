@@ -8,7 +8,7 @@ await build({entryPoints:['tests/browser-entry.ts'],outfile:'test-results/harnes
 const css=await readFile('styles.css','utf8');
 // 假状态栏:照抄宿主 .status-bar 的真实规则(position:fixed 贴窗口右下角、宽度只等于
 // 自身内容、z-index 高于侧栏),否则"面板底部被压住"这类缺陷在门禁里根本看不见
-await writeFile('test-results/harness.html',`<!doctype html><html><head><meta charset="utf-8"><style>:root{--background-primary:#fff;--background-secondary:#f6f6f6;--background-modifier-border:#e4e4e8;--text-muted:#73737b;--text-normal:#303036;--interactive-accent:#7756cd;--interactive-accent-hover:#6849bd;--text-on-accent:#fff;--background-modifier-hover:#eae8ee;--font-ui-small:13px;--font-ui-smaller:12px;--text-warning:#9b6415;--text-error:#b33;--font-interface:system-ui;--font-monospace:monospace;--background-modifier-box-shadow:rgba(0,0,0,.1);--size-4-1:4px;--size-4-2:8px;--size-2-2:4px;--radius-m:8px;--radius-s:4px;--divider-color:#e4e4e8;--layer-status-bar:30;--status-bar-font-size:var(--font-ui-smaller);--status-bar-position:fixed;--status-bar-radius:var(--radius-m) 0 0 0;--status-bar-border-width:1px 0 0 1px;--status-bar-background:var(--background-secondary);--status-bar-text-color:var(--text-muted)}body{margin:0;background:#eee;font:13px/1.5 system-ui}#shell{display:flex;height:780px;max-width:1120px;margin:20px auto;border:1px solid #ddd;border-radius:8px;overflow:hidden;background:#fff}#preview{flex:1;min-width:0}#sidebar{width:285px;flex-shrink:0;border-left:1px solid #ddd}.status-bar{position:var(--status-bar-position);width:auto;bottom:0;right:0;border-radius:var(--status-bar-radius);border-style:solid;border-width:var(--status-bar-border-width);border-color:var(--divider-color);background-color:var(--status-bar-background);color:var(--status-bar-text-color);display:flex;font-size:var(--status-bar-font-size);justify-content:flex-end;min-height:18px;padding:var(--size-4-1);gap:var(--size-4-1);z-index:var(--layer-status-bar)}.status-bar-item{border-radius:var(--radius-s);display:inline-flex;align-items:center;padding:3px var(--size-2-2);line-height:1}${css}</style></head><body><div id="shell"><div id="preview"></div><div id="sidebar"></div></div><div class="status-bar"><span class="status-bar-item">0 条反向链接</span><span class="status-bar-item">同步完成</span></div><script src="harness.js"></script></body></html>`);
+await writeFile('test-results/harness.html',`<!doctype html><html><head><meta charset="utf-8"><!-- 复刻真实宿主页面的 style-src:srcdoc 预览继承父页面 policy container,app:// 资源不在 'self'/白名单里 → 本地 <link rel=stylesheet> 被拦截(2026-09-30 真机定因);门禁必须在这个条件下验证样式表内联 --><meta http-equiv="Content-Security-Policy" content="style-src 'unsafe-inline' 'self' https://fonts.googleapis.com"><style>:root{--background-primary:#fff;--background-secondary:#f6f6f6;--background-modifier-border:#e4e4e8;--text-muted:#73737b;--text-normal:#303036;--interactive-accent:#7756cd;--interactive-accent-hover:#6849bd;--text-on-accent:#fff;--background-modifier-hover:#eae8ee;--font-ui-small:13px;--font-ui-smaller:12px;--text-warning:#9b6415;--text-error:#b33;--font-interface:system-ui;--font-monospace:monospace;--background-modifier-box-shadow:rgba(0,0,0,.1);--size-4-1:4px;--size-4-2:8px;--size-2-2:4px;--radius-m:8px;--radius-s:4px;--divider-color:#e4e4e8;--layer-status-bar:30;--status-bar-font-size:var(--font-ui-smaller);--status-bar-position:fixed;--status-bar-radius:var(--radius-m) 0 0 0;--status-bar-border-width:1px 0 0 1px;--status-bar-background:var(--background-secondary);--status-bar-text-color:var(--text-muted)}body{margin:0;background:#eee;font:13px/1.5 system-ui}#shell{display:flex;height:780px;max-width:1120px;margin:20px auto;border:1px solid #ddd;border-radius:8px;overflow:hidden;background:#fff}#preview{flex:1;min-width:0}#sidebar{width:285px;flex-shrink:0;border-left:1px solid #ddd}.status-bar{position:var(--status-bar-position);width:auto;bottom:0;right:0;border-radius:var(--status-bar-radius);border-style:solid;border-width:var(--status-bar-border-width);border-color:var(--divider-color);background-color:var(--status-bar-background);color:var(--status-bar-text-color);display:flex;font-size:var(--status-bar-font-size);justify-content:flex-end;min-height:18px;padding:var(--size-4-1);gap:var(--size-4-1);z-index:var(--layer-status-bar)}.status-bar-item{border-radius:var(--radius-s);display:inline-flex;align-items:center;padding:3px var(--size-2-2);line-height:1}${css}</style></head><body><div id="shell"><div id="preview"></div><div id="sidebar"></div></div><div class="status-bar"><span class="status-bar-item">0 条反向链接</span><span class="status-bar-item">同步完成</span></div><script src="harness.js"></script></body></html>`);
 const browser=await chromium.launch({executablePath:process.env.HTML_ATELIER_BROWSER||'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe',headless:true});
 try{
  const page=await browser.newPage({viewport:{width:1200,height:840}});const errors=[];page.on('pageerror',e=>{errors.push(e.message);console.log('PAGEERROR:',e.stack?e.stack.split(String.fromCharCode(10)).slice(0,4).join(' | '):e.message);});
@@ -319,7 +319,227 @@ try{
  assert.ok(Math.abs(tabPill.pillLeft-tabPill.wantLeft)<=2,'标签指示块未对齐选中项: '+JSON.stringify(tabPill));
  assert.equal(tabPill.anim,'html-atelier-pane-in','切标签应有入场动效: '+JSON.stringify(tabPill));
 
+ // 保存后预览不得跳回页顶、不得闪白帧(F26 §11.4;2026-09-30 复查):保存写入的就是
+ // 预览正在显示的内容,不得重建 iframe(旧实现先 empty 再等 srcdoc,screencast 实测
+ // 40ms 处一帧纯白;此前 modify 回声还会二次重绘丢滚动)。rAF 逐帧采样锁死:
+ // 全程无"无正文"帧、帧元素不被替换,且一次保存 0 次重绘。
+ const scrollKeep=await page.evaluate(async()=>{
+  const v=window.harness.main.view;
+  v.setMode('edit');await new Promise(r=>setTimeout(r,250));
+  const w=v.iframe.contentWindow;
+  w.scrollTo(0,600);
+  await new Promise(r=>setTimeout(r,450)); // 滚动捕获防抖(300ms)先记下位置
+  const before=Math.round(w.scrollY);
+  const rendersBefore=v.renderCount;
+  const s=v.session;
+  const start=s.workingSource.indexOf('第一');
+  s.applyEdit([{start,end:start+2,expected:'第一',replacement:'第壹'}],{origin:'edit',kind:'text'});
+  window.harness.plugin.refreshPanels();
+  const frames=[];
+  const raf=()=>{frames.push({el:v.iframe,text:(v.iframe?.contentDocument?.body?.innerText??'').length});requestAnimationFrame(raf);};
+  requestAnimationFrame(raf);
+  document.querySelector('.html-atelier-panel .html-atelier-savebtn').click();
+  await new Promise(r=>setTimeout(r,700));
+  const w2=v.iframe.contentWindow;
+  return {before,after:Math.round(w2.scrollY),dirty:s.dirty,renders:v.renderCount-rendersBefore,
+   emptyFrames:frames.filter(f=>f.text===0).length,
+   frameReplaced:frames.some(f=>f.el!==v.iframe),samples:frames.length};
+ });
+ assert.ok(scrollKeep.samples>=10,'rAF 采样帧数不足,本回归无效: '+JSON.stringify(scrollKeep));
+ assert.ok(scrollKeep.before>=400,'预置滚动失败: '+JSON.stringify(scrollKeep));
+ assert.ok(!scrollKeep.dirty,'保存应成功: '+JSON.stringify(scrollKeep));
+ assert.equal(scrollKeep.renders,0,'一次保存触发了 '+scrollKeep.renders+' 次重绘(保存回声不得重建预览)');
+ assert.equal(scrollKeep.emptyFrames,0,'保存期间出现空白帧(白闪): '+JSON.stringify(scrollKeep));
+ assert.equal(scrollKeep.frameReplaced,false,'保存期间预览 iframe 被替换(应原地更新): '+JSON.stringify(scrollKeep));
+ assert.ok(Math.abs(scrollKeep.after-scrollKeep.before)<=80,'保存后预览跳回页顶: '+JSON.stringify(scrollKeep));
+
+ // 保存后焦点与光标回到侧栏文字框(F26;2026-09-30 复查:此前 activeElement 变 body)
+ const focusKeep=await page.evaluate(async()=>{
+  const v=window.harness.main.view;
+  const h1=v.iframe.contentDocument.querySelector('h1');
+  const rect=h1.getBoundingClientRect();
+  h1.dispatchEvent(new v.iframe.contentWindow.MouseEvent('click',{bubbles:true,cancelable:true,
+   clientX:Math.round(rect.left+6),clientY:Math.round(rect.top+6)}));
+  await new Promise(r=>setTimeout(r,200));
+  const ta=document.querySelector('.html-atelier-panel textarea');
+  if(!ta)return {error:'no textarea'};
+  ta.focus();ta.setSelectionRange(2,5);
+  const s=v.session;
+  const start=s.workingSource.indexOf('第壹');
+  s.applyEdit([{start,end:start+2,expected:'第壹',replacement:'第贰'}],{origin:'edit',kind:'text'});
+  window.harness.plugin.refreshPanels();
+  document.querySelector('.html-atelier-panel .html-atelier-savebtn').click();
+  await new Promise(r=>setTimeout(r,500));
+  const ta2=document.querySelector('.html-atelier-panel textarea');
+  return {restored:document.activeElement===ta2,start:ta2?.selectionStart,end:ta2?.selectionEnd};
+ });
+ assert.equal(focusKeep.error,undefined,'文字表单未出现: '+JSON.stringify(focusKeep));
+ assert.equal(focusKeep.restored,true,'保存后焦点未回到侧栏文字框: '+JSON.stringify(focusKeep));
+ assert.deepEqual([focusKeep.start,focusKeep.end],[2,5],'保存后光标区间未恢复: '+JSON.stringify(focusKeep));
+
+ // 保存后「修改」清单必须清空(2026-09-30 宣传片 05 镜头实测):保存只前移 baseSource、
+ // 不动 revision,面板"内容未变不重绘"的键里没有基准时,保存后的刷新一律早退,
+ // 已写回的条目一直挂在清单上
+ const changesAfterSave=await page.evaluate(async()=>{
+  const v=window.harness.main.view;const s=v.session;
+  const start=s.workingSource.indexOf('第贰');
+  s.applyEdit([{start,end:start+2,expected:'第贰',replacement:'第叁'}],{origin:'edit',kind:'text'});
+  window.harness.plugin.refreshPanels();
+  document.querySelector('.html-atelier-panel .html-atelier-tabs button[aria-label="修改"]').click();
+  await new Promise(r=>setTimeout(r,150));
+  const rows=()=>document.querySelectorAll('.html-atelier-panel .html-atelier-change').length;
+  const before=rows();
+  document.querySelector('.html-atelier-panel .html-atelier-savebtn').click();
+  await new Promise(r=>setTimeout(r,500));
+  const out={before,after:rows(),dirty:s.dirty,note:document.querySelector('.html-atelier-panel .html-atelier-panelnote')?.textContent??''};
+  document.querySelector('.html-atelier-panel .html-atelier-tabs button[aria-label="编辑"]').click();
+  return out;
+ });
+ assert.equal(changesAfterSave.before,1,'保存前修改清单应列出这一处改动: '+JSON.stringify(changesAfterSave));
+ assert.ok(!changesAfterSave.dirty,'保存应成功: '+JSON.stringify(changesAfterSave));
+ assert.equal(changesAfterSave.after,0,'保存后修改清单仍列着已写回的条目: '+JSON.stringify(changesAfterSave));
+ assert.ok(changesAfterSave.note.includes('没有未保存的修改'),'保存后修改清单应显示空状态: '+JSON.stringify(changesAfterSave));
+
+ // 编辑 → 预览:选中框必须随之消失(宣传片 08 镜头实测:预览模式下还套着上次的实线框)
+ const boxesAfterPreview=await page.evaluate(async()=>{
+  const v=window.harness.main.view;
+  v.setMode('edit');await new Promise(r=>setTimeout(r,150));
+  const h1=v.iframe.contentDocument.querySelector('h1');const rect=h1.getBoundingClientRect();
+  h1.dispatchEvent(new v.iframe.contentWindow.MouseEvent('click',{bubbles:true,cancelable:true,clientX:Math.round(rect.left+6),clientY:Math.round(rect.top+6)}));
+  await new Promise(r=>setTimeout(r,150));
+  const boxes=()=>[...v.overlay.querySelectorAll('html-atelier-selection-box')].map(b=>b.style.getPropertyValue('--html-atelier-border'));
+  const inEdit=boxes().length;
+  // 大纲/搜索定位留下的悬停高亮(程序设置,指针并不在预览里)
+  v.hovered=[...v.textNodes].find(([id,n])=>id!==v.selected?.segmentId&&n.data.trim())?.[0]??null;
+  v.drawSelection();
+  const hoverDrawn=boxes();
+  v.setMode('preview');await new Promise(r=>setTimeout(r,150));
+  const inPreview=boxes().length;
+  v.setMode('edit');await new Promise(r=>setTimeout(r,150));
+  return {inEdit,hoverDrawn,inPreview,backInEdit:boxes()};
+ });
+ assert.ok(boxesAfterPreview.inEdit>0,'编辑模式点选后应画出选中框(本回归前提): '+JSON.stringify(boxesAfterPreview));
+ assert.ok(boxesAfterPreview.hoverDrawn.some(b=>b.includes('dashed')),'悬停框未画出(本回归前提): '+JSON.stringify(boxesAfterPreview));
+ assert.equal(boxesAfterPreview.inPreview,0,'切到预览模式后选中框残留: '+JSON.stringify(boxesAfterPreview));
+ assert.ok(boxesAfterPreview.backInEdit.length>0&&boxesAfterPreview.backInEdit.every(b=>b.includes('solid')),
+  '切回编辑后又画出了切模式前的悬停框(应只剩选中框): '+JSON.stringify(boxesAfterPreview));
+
+ // 搜索命中点击 = 在预览里选中那段文字(宣传片 08 镜头实测:此前只改全局选择,
+ // 视图的 selected 还是旧段落,切到编辑后实线框画在旧选择上,命中处什么都不显示)
+ const searchSelect=await page.evaluate(async()=>{
+  const v=window.harness.main.view;
+  const box=document.querySelector('.html-atelier-panel input[aria-label="搜索文案"]');
+  if(!box)return {error:'no search box'};
+  const words=(v.iframe.contentDocument.querySelector('p')?.textContent??'').trim();
+  const q=words.slice(0,2);
+  box.value=q;box.dispatchEvent(new Event('input',{bubbles:true}));
+  await new Promise(r=>setTimeout(r,400));
+  const hit=document.querySelector('.html-atelier-panel .html-atelier-searchhit');
+  if(!hit)return {error:'no hit',q};
+  hit.click();
+  await new Promise(r=>setTimeout(r,250));
+  const sel=v.selected;
+  const node=sel?.kind==='text'?v.textNodes.get(sel.segmentId):null;
+  const out={q,mode:v.mode,kind:sel?.kind??null,nodeHasQuery:!!node&&node.data.includes(q),
+   boxes:v.overlay.querySelectorAll('html-atelier-selection-box').length,
+   form:document.querySelector('.html-atelier-panel textarea')?.value.includes(q)??false};
+  box.value='';box.dispatchEvent(new Event('input',{bubbles:true}));
+  return out;
+ });
+ assert.equal(searchSelect.error,undefined,'搜索回归前提不成立: '+JSON.stringify(searchSelect));
+ assert.equal(searchSelect.mode,'edit','预览模式下点搜索结果应切到编辑以显示选中: '+JSON.stringify(searchSelect));
+ assert.equal(searchSelect.kind,'text','点搜索结果后视图应选中文字: '+JSON.stringify(searchSelect));
+ assert.ok(searchSelect.nodeHasQuery,'视图选中的不是命中的那段文字: '+JSON.stringify(searchSelect));
+ assert.ok(searchSelect.boxes>0,'命中处没有选中框: '+JSON.stringify(searchSelect));
+ assert.ok(searchSelect.form,'侧栏表单没有换成命中的那段文字: '+JSON.stringify(searchSelect));
+
+
  // 回到原文件,后面的检查继续针对它
+ await page.evaluate(async()=>{const h=window.harness;const f=new window.TFileCtor('demo/studio.html');h.main.view.file=f;await h.main.view.onLoadFile(f);});
+
+ // 草稿状态栏回归(2026-09-30 真机反馈):干净文件不得显示误导性草稿文案;
+ // 只有设置关闭备份才显示"备份已关闭";待备份/草稿已备份的行为不变。
+ const draftStatus=await page.evaluate(async()=>{
+  const h=window.harness;const p=h.plugin;
+  const el=()=>document.querySelector('.html-atelier-statusdraft')?.textContent??'(none)';
+  const s=p.sessions.get('demo/studio.html');
+  const out={opened:el(),status:s.draftStatus};
+  const start=s.workingSource.indexOf('好想法');
+  s.applyEdit([{start,end:start+3,expected:'好想法',replacement:'想法好'}],{origin:'edit',kind:'text'});
+  p.drafts.scheduleSave(s); // 与 onSessionEdited 等价(直接 applyEdit 不走视图管线)
+  p.refreshPanels();out.afterEdit=el();
+  await new Promise(r=>setTimeout(r,950)); // 默认防抖 750ms;此后状态更新靠 onStatusChange 回调,不手动刷面板
+  out.afterDebounce=el();
+  document.querySelector('.html-atelier-panel .html-atelier-savebtn').click();
+  await new Promise(r=>setTimeout(r,350));
+  out.afterSave=el();out.dirtyAfterSave=s.dirty;
+  // 设置关闭备份:重新加载的会话应显示"备份已关闭",且只在此时显示
+  p.applySettings({...p.settings,drafts:{...p.settings.drafts,enabled:false}});
+  p.sessions.clear();await h.main.view.onLoadFile(h.file);
+  out.disabledOpen=el();out.disabledStatus=p.sessions.get('demo/studio.html').draftStatus;
+  // 还原:重开备份,干净文件回到空文案
+  p.applySettings({...p.settings,drafts:{...p.settings.drafts,enabled:true}});
+  p.sessions.clear();await h.main.view.onLoadFile(h.file);
+  out.reenabledOpen=el();
+  return out;
+ });
+ assert.equal(draftStatus.opened,'','刚打开的干净文件显示了草稿文案: '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.status,'idle','初始 draftStatus 应为 idle: '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.afterEdit,'待备份','编辑后应显示待备份: '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.afterDebounce,'草稿已备份','防抖落盘后面板必须自动跟上(onStatusChange): '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.afterSave,'','保存清草稿后不得残留草稿文案: '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.dirtyAfterSave,false,'保存应成功: '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.disabledOpen,'备份已关闭','设置关闭备份才显示"备份已关闭": '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.disabledStatus,'disabled','关闭备份时 draftStatus=disabled: '+JSON.stringify(draftStatus));
+ assert.equal(draftStatus.reenabledOpen,'','重开备份后干净文件回到空文案: '+JSON.stringify(draftStatus));
+
+ // 撤销回已保存内容:旧草稿必须立即删除(2026-09-30 复查:此前撤销/重做不碰草稿层,
+ // 磁盘残留撤销前草稿,onunload 只 flush 脏会话删不掉它,重启后被 recover 当未保存修改复活)
+ const undoDraft=await page.evaluate(async()=>{
+  const h=window.harness;const p=h.plugin;
+  const s=p.sessions.get('demo/studio.html');
+  const start=s.workingSource.indexOf('想法好'); // 前一块保存后磁盘上是"想法好"
+  s.applyEdit([{start,end:start+3,expected:'想法好',replacement:'好想法'}],{origin:'edit',kind:'text'});
+  p.drafts.scheduleSave(s);p.refreshPanels();
+  await new Promise(r=>setTimeout(r,950));
+  const before={drafts:(await p.drafts.list()).records.filter(r=>r.filePath==='demo/studio.html').length,text:document.querySelector('.html-atelier-statusdraft')?.textContent};
+  const btn=[...document.querySelectorAll('.html-atelier-panel button')]
+   .find(b=>b.getAttribute('aria-label')==='撤销'||b.textContent==='撤销');
+  btn?.click();
+  await new Promise(r=>setTimeout(r,450));
+  const count=async()=>(await p.drafts.list()).records.filter(r=>r.filePath==='demo/studio.html').length;
+  return {before,after:{drafts:await count(),status:s.draftStatus,
+   text:document.querySelector('.html-atelier-statusdraft')?.textContent,dirty:s.dirty}};
+ });
+ assert.equal(undoDraft.before.drafts,1,'预置草稿失败(应只有 studio 自己的一条): '+JSON.stringify(undoDraft));
+ assert.equal(undoDraft.before.text,'草稿已备份','预置状态失败: '+JSON.stringify(undoDraft));
+ assert.ok(!undoDraft.after.dirty,'撤销后应回到干净: '+JSON.stringify(undoDraft));
+ assert.equal(undoDraft.after.drafts,0,'撤销回原样后旧草稿必须删除(否则重启后复活为未保存修改): '+JSON.stringify(undoDraft));
+ assert.equal(undoDraft.after.status,'idle','撤销回原样后状态应回 idle: '+JSON.stringify(undoDraft));
+ assert.equal(undoDraft.after.text,'','撤销回原样后不得残留草稿文案: '+JSON.stringify(undoDraft));
+
+ // 本地外部样式表内联回归(2026-09-30 真机定因):宿主 CSP 拦截 app:// 样式表加载;
+ // harness 父页面已挂同款 style-src meta CSP,内联 <style> 后样式必须真正生效,
+ // @import 链按被导入文件目录展开,缺失文件的 link 保持原样。
+ const cssApplied=await page.evaluate(async()=>{
+  const h=window.harness;const f=new window.TFileCtor('demo/css.html');
+  h.files.set('demo/assets/theme.css','@import "deep.css";h1{color:rgb(255,0,0)}');
+  h.files.set('demo/assets/deep.css','h2{color:rgb(0,0,255)}');
+  h.files.set('demo/css.html','<!doctype html><html><head><link rel="stylesheet" href="assets/theme.css"><link rel="stylesheet" href="assets/none.css"></head><body><h1>A</h1><h2>B</h2></body></html>');
+  h.main.view.file=f;await h.main.view.onLoadFile(f);
+  await new Promise(r=>setTimeout(r,700));
+  const v=h.main.view;const doc=v.iframe.contentDocument;
+  const cs=(el)=>doc.defaultView.getComputedStyle(el).color;
+  return {h1:cs(doc.querySelector('h1')),h2:cs(doc.querySelector('h2')),
+   inlineStyles:doc.querySelectorAll('head style').length,
+   keptLinks:doc.querySelectorAll('link[rel="stylesheet"]').length,
+   hostCsp:!!document.querySelector('meta[http-equiv="Content-Security-Policy"]')};
+ });
+ assert.equal(cssApplied.hostCsp,true,'harness 必须带宿主同款 CSP,否则本回归测不出拦截');
+ assert.equal(cssApplied.h1,'rgb(255, 0, 0)','本地 link 样式表未内联生效(被宿主 CSP 拦截): '+JSON.stringify(cssApplied));
+ assert.equal(cssApplied.h2,'rgb(0, 0, 255)','@import 链未递归内联: '+JSON.stringify(cssApplied));
+ assert.equal(cssApplied.keptLinks,1,'缺失文件的 link 应保持原样: '+JSON.stringify(cssApplied));
+ // 收尾:回到 studio.html,后续检查继续
  await page.evaluate(async()=>{const h=window.harness;const f=new window.TFileCtor('demo/studio.html');h.main.view.file=f;await h.main.view.onLoadFile(f);});
 
  // 手动收起记忆:收起时抑制;但用户**自己重新展开**侧栏后必须解除,

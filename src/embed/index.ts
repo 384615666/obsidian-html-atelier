@@ -1,5 +1,6 @@
 import {MarkdownRenderChild,Notice,TFile} from 'obsidian';
 import {makePreview,parseDocument} from '../model';
+import {inlineLocalStylesheets,CssInlineIO} from '../services/cssInline';
 
 // Markdown 嵌入(F21,§10.1):html-atelier 代码块。
 // 阅读模式与 Live Preview 都会调用处理器;组件销毁时清理观察器与 frame。
@@ -66,10 +67,25 @@ export class EmbedRenderChild extends MarkdownRenderChild {
   void this.app;
   const resource=(this.hooks.getResourcePath)(file);
   const base=resource.slice(0,resource.lastIndexOf('/')+1);
-  void this.app.vault?.cachedRead(file).then(content=>{
+  void this.app.vault?.cachedRead(file).then(async content=>{
    if(!this.host)return;
    const ds=(this.host as HTMLElement&{dataset:{path:string; anchor:string; width:string; height:string; allow:string}}).dataset;
-   this.frame=HtmlAtelierRenderEmbed(this.host,content,base,
+   // 与 HtmlFileView 同策:库内样式表内联成 <style>,绕开宿主 CSP 对 app:// 样式表的拦截
+   const io:CssInlineIO={
+    readCss:async p=>{
+     const f=this.hooks.getFileByPath(p);
+     return f?await this.app.vault.cachedRead(f).catch(()=>null):null;
+    },
+    resourceUrl:p=>{
+     const f=this.hooks.getFileByPath(p);
+     return f?this.hooks.getResourcePath(f):null;
+    },
+   };
+   const inlined=await inlineLocalStylesheets(content,file.path,io);
+   // 内联期间组件可能被卸载(Live Preview 重渲染/关笔记):host 已清空,
+   // 再往里挂帧会抛错落进 catch 弹"嵌入读取失败"误报(审计 m1)
+   if(!this.host)return;
+   this.frame=HtmlAtelierRenderEmbed(this.host,inlined,base,
     ds.height==='auto'?'auto':Number(ds.height),this.opts.autoHeightMax,true,`${this.opts.nonce}-${ds.anchor||''}`);
    const anchor=ds.anchor;
    if(anchor)this.frame.addEventListener('load',()=>{

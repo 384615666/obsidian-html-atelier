@@ -5,7 +5,10 @@ import {ObjectLocator} from './locator';
 
 export type ContentState='clean'|'dirty'|'conflict'|'missing';
 export type OperationState='idle'|'saving'|'merging';
-export type DraftStatus='pending'|'writing'|'saved'|'failed'|'disabled';
+// draftStatus 语义:idle=干净且无草稿(刚打开/保存后/撤销回原样,不显示任何草稿文案);
+// pending/writing/saved/failed 是"有未保存修改正在备份"的生命周期;disabled 只在
+// 设置里关闭草稿备份时出现。此前初始值是 'disabled',干净文件一打开就谎报"备份已关闭"。
+export type DraftStatus='idle'|'pending'|'writing'|'saved'|'failed'|'disabled';
 
 export interface SaveOutcome {result:'written'|'conflict'|'missing'|'io-error'|'clean'|'blocked'}
 
@@ -41,7 +44,7 @@ export class DocumentSession {
  contentState:ContentState='clean';
  operation:OperationState='idle';
  lastError:{action:string; message:string}|null=null;
- draftStatus:DraftStatus='disabled';
+ draftStatus:DraftStatus='idle';
  index:unknown=null;
  baseHash:string;
  private pendingExternal=false;
