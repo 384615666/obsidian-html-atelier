@@ -351,7 +351,9 @@ export default class HtmlAtelier extends Plugin {
    for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).syncToolbarPlacement();
    if(this.panelNeeded())void this.showPanel(false);
   }
-  if(networkChanged)this.rerenderFrames();
+  // 网络开关也写进嵌入的 CSP(此前嵌入写死放行,不受开关控制——README 曾以注记兜底,
+  // 现已改为遵循设置);已渲染的嵌入随开关重绘
+  if(networkChanged){this.rerenderFrames();this.refreshEmbedHosts();}
   if(highlightChanged)for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).applyChangeHighlights();
   if(sourceChanged)for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).reconfigureSourceEditor();
   if(embeddingsChanged)this.refreshEmbedHosts();
@@ -574,7 +576,7 @@ export default class HtmlAtelier extends Plugin {
    if(!this.settings.embeds.enabled)return;
    const child=new EmbedRenderChild({vault:this.app.vault},el,src,ctx.sourcePath,
     {showDrafts:this.settings.embeds.showDrafts,defaultHeight:this.settings.embeds.defaultHeight,autoHeightMax:this.settings.embeds.autoHeightMax,
-     showToolbar:this.settings.embeds.showToolbar,nonce:Math.random().toString(36).slice(2,8)},
+     showToolbar:this.settings.embeds.showToolbar,nonce:Math.random().toString(36).slice(2,8),allowNetwork:this.settings.preview.allowNetworkAssets},
     {getFileByPath:(p)=>{const f=this.app.vault.getAbstractFileByPath(p);return f instanceof TFile?f:null;},
      getResourcePath:(f)=>this.app.vault.getResourcePath(f),
      openHtml:(p)=>{void this.app.workspace.openLinkText(p,'',false);},

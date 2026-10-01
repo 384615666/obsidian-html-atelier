@@ -16,7 +16,7 @@ export class EmbedRenderChild extends MarkdownRenderChild {
  private mounted=false;
 
  constructor(public app:{vault:{cachedRead(f:TFile):Promise<string>}},containerEl:HTMLElement,private src:string,private sourcePath:string,
-  private opts:{showDrafts:boolean; defaultHeight:number; autoHeightMax:number; showToolbar:boolean; nonce:string},
+  private opts:{showDrafts:boolean; defaultHeight:number; autoHeightMax:number; showToolbar:boolean; nonce:string; allowNetwork:boolean},
   private hooks:{getFileByPath:(p:string)=>TFile|null; getResourcePath:(f:TFile)=>string;
    openHtml:(path:string)=>void; isDirty:(path:string)=>boolean}){super(containerEl);}
 
@@ -86,7 +86,7 @@ export class EmbedRenderChild extends MarkdownRenderChild {
    // 再往里挂帧会抛错落进 catch 弹"嵌入读取失败"误报(审计 m1)
    if(!this.host)return;
    this.frame=HtmlAtelierRenderEmbed(this.host,inlined,base,
-    ds.height==='auto'?'auto':Number(ds.height),this.opts.autoHeightMax,true,`${this.opts.nonce}-${ds.anchor||''}`);
+    ds.height==='auto'?'auto':Number(ds.height),this.opts.autoHeightMax,this.opts.allowNetwork,`${this.opts.nonce}-${ds.anchor||''}`);
    const anchor=ds.anchor;
    if(anchor)this.frame.addEventListener('load',()=>{
     try{this.frame?.contentDocument?.getElementById(anchor)?.scrollIntoView();}catch{/* ignore */}
