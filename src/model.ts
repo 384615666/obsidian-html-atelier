@@ -82,12 +82,13 @@ export function applyText(model:DocumentModel, changes:Map<string,string>):strin
   if(value!==undefined&&value!==s.text)source=source.slice(0,s.start)+escapeText(value)+source.slice(s.end);
  }return source;
 }
-export function makePreview(model:DocumentModel, base:string, nonce:string, opts?:{allowNetwork?:boolean}):string {
+export function makePreview(model:DocumentModel, base:string, nonce:string, opts?:{allowNetwork?:boolean; allowScripts?:boolean}):string {
+ const allowScripts=opts?.allowScripts===true;
  const doc=parse(model.source,{sourceCodeLocationInfo:true}) as unknown as P5Node;
  const byStart=new Map(model.segments.map(s=>[s.start,s]));
  function visit(node:P5Node){
-  if(node.attrs)node.attrs=node.attrs.filter(a=>!a.name.startsWith('on')&&!['contenteditable','autofocus'].includes(a.name));
-  if(node.childNodes)node.childNodes=node.childNodes.filter(n=>!['script','base','iframe','object','embed'].includes(n.tagName??'')&&!(n.tagName==='meta'&&n.attrs?.some(a=>a.name==='http-equiv')));
+  if(node.attrs)node.attrs=node.attrs.filter(a=>!(a.name.startsWith('on')&&!allowScripts)&&!['contenteditable','autofocus'].includes(a.name));
+  if(node.childNodes)node.childNodes=node.childNodes.filter(n=>!['base','iframe','object','embed'].includes(n.tagName??'')&&!(n.tagName==='script'&&!allowScripts)&&!(n.tagName==='meta'&&n.attrs?.some(a=>a.name==='http-equiv')));
   const kids=node.childNodes;
   if(!kids)return;
   for(let i=0;i<kids.length;i++){
@@ -98,7 +99,14 @@ export function makePreview(model:DocumentModel, base:string, nonce:string, opts
  const safeBase=base.replace(/&/g,'&amp;').replace(/"/g,'&quot;');
  // allowNetwork=false 时拦截远程资源(F17 设置 preview.allowNetworkAssets)
  const remote=opts?.allowNetwork===false?'':' https: http:';
- const policy=`default-src 'none'; img-src app: obsidian: data: blob:${remote}; media-src app: obsidian: data: blob:${remote}; style-src 'unsafe-inline' app: obsidian: data:${remote}; font-src app: obsidian: data:${remote}; script-src 'none'; frame-src 'none'; connect-src 'none'; form-action 'none'; base-uri app: obsidian:;`;
+ // allowScripts=true(设置 preview.allowScripts):页面脚本运行在**不透明源**沙箱帧里
+ // (sandbox 仅 allow-scripts,无 allow-same-origin,帧与宿主跨源),放开 script-src 与
+ // connect-src;嵌套 iframe/表单提交维持拦截。远程脚本/请求仍受 allowNetwork 约束。
+ // 不透明源加载不了 app://,本地 <script src>/图片/字体/媒体在预览构建时已内联成
+ // data: URL(services/previewAssets.ts),所以 script-src 必须同时允许 data:。
+ const policy=allowScripts
+  ?`default-src 'none'; img-src app: obsidian: data: blob:${remote}; media-src app: obsidian: data: blob:${remote}; style-src 'unsafe-inline' app: obsidian: data:${remote}; font-src app: obsidian: data:${remote}; script-src 'unsafe-inline' app: blob: data:${remote}; frame-src 'none'; connect-src blob: data:${remote}; form-action 'none'; base-uri app: obsidian:;`
+  :`default-src 'none'; img-src app: obsidian: data: blob:${remote}; media-src app: obsidian: data: blob:${remote}; style-src 'unsafe-inline' app: obsidian: data:${remote}; font-src app: obsidian: data:${remote}; script-src 'none'; frame-src 'none'; connect-src 'none'; form-action 'none'; base-uri app: obsidian:;`;
  // CSP 与 base 以真实节点插入 head 子节点首部(audit R1:字符串替换 '<head>' 在
  // head 带属性或大小写不同时静默失败);nonce 防止用户源码中的同名注释被当作标记(audit R2)。
  const meta:P5Node={nodeName:'meta',tagName:'meta',attrs:[{name:'http-equiv',value:'Content-Security-Policy'},{name:'content',value:policy}],childNodes:[]};

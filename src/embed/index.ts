@@ -1,6 +1,7 @@
 import {MarkdownRenderChild,Notice,TFile} from 'obsidian';
 import {makePreview,parseDocument} from '../model';
-import {inlineLocalStylesheets,CssInlineIO} from '../services/cssInline';
+import {inlineLocalStylesheets} from '../services/cssInline';
+import {createDataUrlFor,createInlineBudget,inlineLocalPreviewAssets,PreviewInlineIO} from '../services/previewAssets';
 
 // Markdown 嵌入(F21,§10.1):html-atelier 代码块。
 // 阅读模式与 Live Preview 都会调用处理器;组件销毁时清理观察器与 frame。
@@ -15,8 +16,8 @@ export class EmbedRenderChild extends MarkdownRenderChild {
  private frame:HTMLIFrameElement|null=null;
  private mounted=false;
 
- constructor(public app:{vault:{cachedRead(f:TFile):Promise<string>}},containerEl:HTMLElement,private src:string,private sourcePath:string,
-  private opts:{showDrafts:boolean; defaultHeight:number; autoHeightMax:number; showToolbar:boolean; nonce:string; allowNetwork:boolean},
+ constructor(public app:{vault:{cachedRead(f:TFile):Promise<string>; readBinary(f:TFile):Promise<ArrayBuffer>}},containerEl:HTMLElement,private src:string,private sourcePath:string,
+  private opts:{showDrafts:boolean; defaultHeight:number; autoHeightMax:number; showToolbar:boolean; nonce:string; allowNetwork:boolean; allowScripts:boolean},
   private hooks:{getFileByPath:(p:string)=>TFile|null; getResourcePath:(f:TFile)=>string;
    openHtml:(path:string)=>void; isDirty:(path:string)=>boolean}){super(containerEl);}
 
@@ -70,23 +71,31 @@ export class EmbedRenderChild extends MarkdownRenderChild {
   void this.app.vault?.cachedRead(file).then(async content=>{
    if(!this.host)return;
    const ds=(this.host as HTMLElement&{dataset:{path:string; anchor:string; width:string; height:string; allow:string}}).dataset;
-   // 与 HtmlFileView 同策:库内样式表内联成 <style>,绕开宿主 CSP 对 app:// 样式表的拦截
-   const io:CssInlineIO={
-    readCss:async p=>{
+   // 与 HtmlFileView 同策:库内样式表内联成 <style>,绕开宿主 CSP 对 app:// 样式表的拦截;
+   // 脚本模式再把本地图片/字体/媒体/脚本转成 data: URL(不透明源沙箱读不了 app://)
+   const io:PreviewInlineIO={
+    readCss:async p=>this.readVaultText(p),
+    readText:async p=>this.readVaultText(p),
+    readBinary:async p=>{
      const f=this.hooks.getFileByPath(p);
-     return f?await this.app.vault.cachedRead(f).catch(()=>null):null;
+     return f?await this.app.vault.readBinary(f).catch(()=>null):null;
     },
     resourceUrl:p=>{
      const f=this.hooks.getFileByPath(p);
      return f?this.hooks.getResourcePath(f):null;
     },
    };
-   const inlined=await inlineLocalStylesheets(content,file.path,io);
+   const budget=createInlineBudget();
+   const cssIo:PreviewInlineIO=this.opts.allowScripts?{...io,dataUrlFor:createDataUrlFor(io,budget)}:io;
+   let inlined=await inlineLocalStylesheets(content,file.path,cssIo);
+   if(this.opts.allowScripts)inlined=await inlineLocalPreviewAssets(inlined,file.path,cssIo,budget);
    // 内联期间组件可能被卸载(Live Preview 重渲染/关笔记):host 已清空,
    // 再往里挂帧会抛错落进 catch 弹"嵌入读取失败"误报(审计 m1)
    if(!this.host)return;
+   // 脚本模式跨源帧量不到内容高度:auto 退回设置的默认高度(而不是写死 300)
+   const height=ds.height==='auto'?(this.opts.allowScripts?this.opts.defaultHeight:'auto'):Number(ds.height);
    this.frame=HtmlAtelierRenderEmbed(this.host,inlined,base,
-    ds.height==='auto'?'auto':Number(ds.height),this.opts.autoHeightMax,this.opts.allowNetwork,`${this.opts.nonce}-${ds.anchor||''}`);
+    height,this.opts.autoHeightMax,this.opts.allowNetwork,`${this.opts.nonce}-${ds.anchor||''}`,this.opts.allowScripts);
    const anchor=ds.anchor;
    if(anchor)this.frame.addEventListener('load',()=>{
     try{this.frame?.contentDocument?.getElementById(anchor)?.scrollIntoView();}catch{/* ignore */}
@@ -100,6 +109,11 @@ export class EmbedRenderChild extends MarkdownRenderChild {
   return this.hooks.getFileByPath(ds.path);
  }
 
+ private readVaultText(path:string):Promise<string|null>{
+  const f=this.hooks.getFileByPath(path);
+  return f?this.app.vault.cachedRead(f).catch(()=>null):Promise.resolve(null);
+ }
+
  onunload(){
   this.observer?.disconnect();
   this.observer=null;
@@ -110,11 +124,13 @@ export class EmbedRenderChild extends MarkdownRenderChild {
  }
 }
 
-// 独立函数便于测试;与 HtmlFileView.renderEmbed 共用 makePreview
+// 独立函数便于测试;与 HtmlFileView.renderEmbed 共用 makePreview。
+// allowScripts 时帧为纯 allow-scripts 沙箱(无 allow-same-origin,跨源隔离,见 HtmlFileView);
+// 跨源帧 contentDocument 为 null,height:auto 退回初始高度(内容高度不可测)
 export function HtmlAtelierRenderEmbed(container:HTMLElement,content:string,base:string,
- height:number|'auto',maxHeight:number,allowNetwork:boolean,nonce:string):HTMLIFrameElement{
+ height:number|'auto',maxHeight:number,allowNetwork:boolean,nonce:string,allowScripts=false):HTMLIFrameElement{
  container.empty();
- const frame=container.createEl('iframe',{cls:'html-atelier-frame html-atelier-embed',attr:{sandbox:'allow-same-origin',referrerpolicy:'no-referrer'}});
+ const frame=container.createEl('iframe',{cls:'html-atelier-frame html-atelier-embed',attr:{sandbox:allowScripts?'allow-scripts':'allow-same-origin',referrerpolicy:'no-referrer'}});
  (frame.style).setProperty('height',height==='auto'?'300px':`${height}px`);
  frame.addEventListener('load',()=>{
   if(height!=='auto')return;
@@ -123,7 +139,7 @@ export function HtmlAtelierRenderEmbed(container:HTMLElement,content:string,base
   const h=autoEmbedHeight(frame,doc,maxHeight);
   if(h!==null)(frame.style).setProperty('height',`${h}px`);
  });
- frame.srcdoc=makePreview(parseDocument(content),base,nonce,{allowNetwork});
+ frame.srcdoc=makePreview(parseDocument(content),base,nonce,{allowNetwork,allowScripts});
  return frame;
 }
 

@@ -35,6 +35,9 @@ export interface CssInlineIO {
  readCss(path:string):Promise<string|null>;
  // 库内文件 → 绝对资源 URL(app://…);解析不了返回 null(调用方保留原引用)
  resourceUrl(path:string):string|null;
+ // 脚本模式(preview.allowScripts):不透明源沙箱加载不了 app://,本地 url() 直接
+ // 换成 data: URL。未提供时维持原行为(绝对 app:// 地址)。
+ dataUrlFor?(path:string):Promise<string|null>;
 }
 
 // @import 两种合法形态:url(...) 与字符串;[^;]* 吃掉 layer()/supports() 等条件到分号。
@@ -44,18 +47,44 @@ const URL_RE=/url\(\s*(['"]?)([^'")]+)\1\s*\)/gi;
 
 const MAX_DEPTH=5;
 
-// 库内引用 → 绝对资源 URL;非本地引用或解析失败原样返回
-function rewriteUrl(whole:string,target:string,cssPath:string,io:CssInlineIO):string {
+// 库内引用 → 绝对资源 URL;非本地引用或解析失败原样返回。
+// 脚本模式优先换成 data: URL(不透明沙箱里 app:// 加载不了,2026-10-26 真机定因)。
+async function rewriteUrl(whole:string,target:string,cssPath:string,io:CssInlineIO):Promise<string> {
  const kind=classifyRef(target);
  if(kind!=='relative'&&kind!=='vault-root')return whole;
- const abs=io.resourceUrl(resolveVaultRef(dirOf(cssPath),target));
+ const path=resolveVaultRef(dirOf(cssPath),target);
+ if(io.dataUrlFor){
+  let data:string|null=null;
+  try{data=await io.dataUrlFor(path);}catch{data=null;}
+  if(data)return `url("${data.replace(/"/g,'%22')}")`;
+ }
+ const abs=io.resourceUrl(path);
  if(!abs)return whole;
  return `url("${abs.replace(/"/g,'%22')}")`;
 }
 
-function rewriteUrls(css:string,cssPath:string,io:CssInlineIO):string {
- URL_RE.lastIndex=0;
- return css.replace(URL_RE,(whole:string,_q:string,target:string)=>rewriteUrl(whole,target,cssPath,io));
+// 正则实例必须局部:expandCssText/rewriteUrls 里都 await,I/O 期间另一个预览
+// 构建若复用同一个全局正则的 lastIndex,循环会跳段或漏匹配(并发构建的隐患)。
+async function rewriteUrls(css:string,cssPath:string,io:CssInlineIO):Promise<string> {
+ const re=new RegExp(URL_RE.source,'gi');
+ const parts:string[]=[];
+ let last=0;
+ let m:RegExpExecArray|null;
+ while((m=re.exec(css))!==null){
+  parts.push(css.slice(last,m.index));
+  parts.push(await rewriteUrl(m[0],m[2],cssPath,io));
+  last=m.index+m[0].length;
+ }
+ parts.push(css.slice(last));
+ return parts.join('');
+}
+
+// 供预览资源内联复用:改写一段 CSS(通常是 style 属性)里的本地 url()。
+// 与样式表内联共用同一套词法切分,字符串/注释里的伪 url() 不碰。
+export async function rewriteCssUrls(css:string,ownerPath:string,io:CssInlineIO):Promise<string> {
+ const out:string[]=[];
+ for(const span of splitCssLex(css))out.push(span.code?await rewriteUrls(span.s,ownerPath,io):span.s);
+ return out.join('');
 }
 
 // CSS 词法切分(审计 m6):块注释与字符串是 protected,不参与 @import/url() 匹配;
@@ -109,9 +138,9 @@ async function expandCssText(text:string,ownerPath:string,depth:number,visited:S
  for(const span of splitCssLex(text)){
   if(!span.code){parts.push({s:span.s,final:true});continue;}
   let last=0;
-  IMPORT_RE.lastIndex=0;
+  const importRe=new RegExp(IMPORT_RE.source,'gi');
   let m:RegExpExecArray|null;
-  while((m=IMPORT_RE.exec(span.s))!==null){
+  while((m=importRe.exec(span.s))!==null){
    const target=(m[2]??m[4]??'').trim();
    const kind=classifyRef(target);
    if(kind!=='relative'&&kind!=='vault-root')continue;
@@ -126,7 +155,9 @@ async function expandCssText(text:string,ownerPath:string,depth:number,visited:S
   }
   parts.push({s:span.s.slice(last),final:false});
  }
- return parts.map(p=>p.final?p.s:rewriteUrls(p.s,ownerPath,io)).join('');
+ const out:string[]=[];
+ for(const p of parts)out.push(p.final?p.s:await rewriteUrls(p.s,ownerPath,io));
+ return out.join('');
 }
 
 // 从 <link href> 指向的库内 CSS 读出并展开;读不到返回 null(调用方保留原 link)

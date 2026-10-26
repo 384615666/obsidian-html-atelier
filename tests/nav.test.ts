@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {NavigationService,NavEntry} from '../src/services/nav';
+import {NavigationService,NavEntry,docOfWindow} from '../src/services/nav';
 
 // F06 导航栈契约。AC10 的根因是"遍历造成的加载"被当成普通导航压栈:
 // 后退后重新压入同一路径,会把前进分支截断到只剩两项,forward() 随即返回 null。
@@ -159,4 +159,17 @@ test('A10 自检回归:iframe 被移除后的死窗口不得让滚动读写抛�
  // 活窗口仍按比例计算
  const live={document:{documentElement:{scrollHeight:1000}},innerHeight:200,scrollY:400} as unknown as Window;
  assert.equal(nav.scrollRatioOf(live),0.5);
+});
+
+test('跨源帧(脚本模式沙箱)读 document 抛 SecurityError 时统一返回 null',()=>{
+ // allowScripts 的帧没有 allow-same-origin,父窗口访问 document 直接抛 SecurityError
+ // 而不是返回 null。视图层的保存高亮/大纲定位若不兜底会中断保存与面板操作。
+ const cross={get document():Document{throw new DOMException('blocked','SecurityError');}} as unknown as Window;
+ assert.equal(docOfWindow(cross),null);
+ assert.equal(docOfWindow(null),null);
+ assert.equal(docOfWindow(undefined),null);
+ assert.equal(docOfWindow({document:null} as unknown as Window),null);
+ const nav=new NavigationService();
+ assert.equal(nav.scrollRatioOf(cross),0);
+ assert.doesNotThrow(()=>nav.restoreScroll(cross,0.5));
 });

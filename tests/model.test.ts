@@ -38,6 +38,27 @@ test('preview removes executable embeds and handlers and maps editable text',()=
  assert.equal((preview.match(/<!--html-atelier-text:/g)||[]).length,2);assert.equal(doc.querySelector('h1')?.children.length,1);assert.equal(doc.querySelector('base')?.href,'app://local/vault/pages/');
  assert.equal(doc.querySelector('img')?.src,'app://local/vault/pages/a.png');assert.match(doc.querySelector('meta')!.content,/script-src 'none'/);
 });
+test('allowScripts keeps scripts and inline handlers, CSP allows inline/app/blob sources',()=>{
+ const input='<html><head><script src="lib/app.js"></script></head><body onload="init()"><h1 id="t">Hi</h1><button onclick="go()">x</button><iframe src="https://example.com"></iframe><img src="a.png" onerror="bad()"></body></html>';
+ const preview=makePreview(parseDocument(input),'app://local/vault/pages/','n',{allowScripts:true});
+ const doc=new JSDOM(preview).window.document;
+ assert.equal(doc.querySelector('script')?.getAttribute('src'),'lib/app.js');
+ assert.equal(doc.querySelector('body')?.getAttribute('onload'),'init()');
+ assert.equal(doc.querySelector('button')?.getAttribute('onclick'),'go()');
+ // 嵌套框架与用户源码里的 CSP 覆盖仍然剔除
+ assert.equal(doc.querySelector('iframe'),null);assert.equal(doc.querySelectorAll('meta[http-equiv]').length,1);
+ const csp=doc.querySelector('meta')!.content;
+ assert.match(csp,/script-src 'unsafe-inline' app: blob: data:/);assert.match(csp,/connect-src blob: data:/);
+});
+test('allowScripts respects allowNetwork=false for remote scripts and connections',()=>{
+ const input='<body><script src="https://cdn.example.com/x.js"></script></body>';
+ const csp=(doc:Document)=>doc.querySelector('meta')!.content;
+ const off=new JSDOM(makePreview(parseDocument(input),'app://local/x/','n',{allowScripts:true,allowNetwork:false})).window.document;
+ const on=new JSDOM(makePreview(parseDocument(input),'app://local/x/','n',{allowScripts:true,allowNetwork:true})).window.document;
+ assert.match(csp(off),/script-src 'unsafe-inline' app: blob: data:;/);assert.match(csp(off),/connect-src blob: data:;/);
+ assert.match(csp(on),/script-src 'unsafe-inline' app: blob: data: https: http:/);
+ assert.doesNotMatch(csp(off),/script-src[^;]*https/);
+});
 test('malformed HTML and table text still produce usable preview mappings',()=>{
  const source='<table><tr><td>一<td>二</table><p>三';const m=parseDocument(source);const doc=new JSDOM(makePreview(m,'app://local/')).window.document;
  const walker=doc.createTreeWalker(doc,128);const text=[];let node;while((node=walker.nextNode()))if(node.nodeValue?.startsWith('html-atelier-text:'))text.push(node.nextSibling?.textContent);

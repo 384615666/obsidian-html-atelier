@@ -23,7 +23,7 @@ export class AtelierSettingTab extends PluginSettingTab {
    ['links',['externalTarget','internalTarget','respectBlankTarget','browserGesture','showHoverTarget','browserApplication','unsavedBrowserAction']],
    ['editor',['defaultMode','defaultTextMode','toolbarPlacement','historyLimit','mergeDelayMs','showChangeHighlights','restoreFocusAfterSave']],
    ['search',['includeHidden']],
-   ['preview',['defaultWidth','defaultZoom','rememberViewport','rememberPosition','positionLimit','autoRefreshAssets','allowNetworkAssets']],
+   ['preview',['defaultWidth','defaultZoom','rememberViewport','rememberPosition','positionLimit','autoRefreshAssets','allowNetworkAssets','allowScripts']],
    ['drafts',['enabled','debounceMs','maxWaitMs','storageWarningMiB','closeBehavior']],
    ['saveAs',['rebaseRelativeUrls','openCopy']],
    ['embeds',['enabled','defaultHeight','autoHeightMax','showToolbar','showDrafts']],

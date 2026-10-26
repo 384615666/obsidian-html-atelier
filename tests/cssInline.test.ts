@@ -142,3 +142,27 @@ test('CSS 含 </style> 时转义,不得提前闭合标签逃逸进预览标记�
  const model=parseDocument(out);
  assert.ok(model.segments.every(x=>!/onerror/.test(x.text??'')),'逃逸出的标记文本不得成为可编辑文本段');
 });
+
+test('脚本模式:本地 url() 内联为 data: URL,不再输出 app://(真机不透明沙箱读不了)',async()=>{
+ const files={'assets/coffee.css':'h1{background:url(bg.png)}'};
+ const src='<html><head><link rel="stylesheet" href="/assets/coffee.css"></head><body><style>h2{background:url(/assets/bg.png)}</style></body></html>';
+ const out=await inlineLocalStylesheets(src,'x.html',{
+  readCss:async p=>files[p]??null,
+  resourceUrl:p=>`app://hash/${p}`,
+  dataUrlFor:async p=>p==='assets/bg.png'?'data:image/png;base64,AAAA':null,
+ });
+ assert.match(out,/h1\{background:url\("data:image\/png;base64,AAAA"\)\}/,'样式表内 url() 应 data 化');
+ assert.match(out,/h2\{background:url\("data:image\/png;base64,AAAA"\)\}/,'页内 style 的 url() 同样 data 化');
+ assert.doesNotMatch(out,/app:\/\/hash\/assets\/bg\.png/,'不得再留下 app:// 引用');
+});
+
+test('脚本模式:dataUrlFor 失败时回退绝对 app:// 地址(与旧行为一致)',async()=>{
+ const files={'assets/coffee.css':'h1{background:url(bg.png)}'};
+ const src='<html><head><link rel="stylesheet" href="/assets/coffee.css"></head><body></body></html>';
+ const out=await inlineLocalStylesheets(src,'x.html',{
+  readCss:async p=>files[p]??null,
+  resourceUrl:p=>`app://hash/${p}`,
+  dataUrlFor:async()=>null,
+ });
+ assert.match(out,/url\("app:\/\/hash\/assets\/bg\.png"\)/);
+});

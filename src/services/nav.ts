@@ -126,15 +126,23 @@ export class NavigationService {
  // (Chromium 108+ 丢弃浏览上下文)。调用方(菜单/滚动抓取/重绘)持有的是旧窗口引用,
  // 不设防就会抛 "Cannot read properties of null (reading 'scrollHeight')"。
  // 见 audit/runtime/selfcheck-newpaths.mjs 第 6 节。
+ // 另:preview.allowScripts 模式下帧是跨源(不透明源)沙箱,读 document 属性直接抛
+ // SecurityError 而非返回 null,同样在这里兜底(表现为"读不到",返回 0)。
+ private docOf(win:Window|null|undefined):Document|null{
+  return navDocOf(win);
+ }
+
  scrollRatioOf(win:Window|null|undefined):number {
-  if(!win||!win.document||!win.document.documentElement)return 0;
-  const max=win.document.documentElement.scrollHeight-win.innerHeight;
+  const doc=this.docOf(win);
+  if(!win||!doc||!doc.documentElement)return 0;
+  const max=doc.documentElement.scrollHeight-win.innerHeight;
   return max>0?Math.min(1,Math.max(0,win.scrollY/max)):0;
  }
 
  restoreScroll(win:Window|null|undefined,ratio:number){
-  if(!win||!win.document||!win.document.documentElement)return;
-  const max=win.document.documentElement.scrollHeight-win.innerHeight;
+  const doc=this.docOf(win);
+  if(!win||!doc||!doc.documentElement)return;
+  const max=doc.documentElement.scrollHeight-win.innerHeight;
   win.scrollTo(0,max*ratio);
  }
 }
@@ -145,8 +153,15 @@ export function isNavEntry(v:unknown):v is NavEntry {
  return !!e&&typeof e.path==='string'&&typeof e.scrollRatio==='number';
 }
 
+// 同源帧:document 随帧销毁变 null;跨源帧(allowScripts 沙箱):读 document 抛
+// SecurityError。统一兜底为 null。视图层的定位/高亮也要用同一判定,故导出。
+export function docOfWindow(win:Window|null|undefined):Document|null{
+ try{return win?.document??null;}catch{return null;}
+}
+const navDocOf=docOfWindow;
+
 export type NavOwner=object;
 export function currentNavEntry(file:TFile|null,anchor:string,win:Window|null,zoom:number,width:number|'auto'):NavEntry|null {
  if(!file)return null;
- return {path:file.path,anchor,scrollRatio:win?Math.min(1,Math.max(0,(()=>{const max=win.document.documentElement.scrollHeight-win.innerHeight;return max>0?win.scrollY/max:0;})())):0,zoom,width};
+ return {path:file.path,anchor,scrollRatio:win?Math.min(1,Math.max(0,(()=>{const doc=navDocOf(win);if(!doc||!doc.documentElement)return 0;const max=doc.documentElement.scrollHeight-win.innerHeight;return max>0?win.scrollY/max:0;})())):0,zoom,width};
 }

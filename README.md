@@ -4,7 +4,7 @@
 
 Preview and edit static HTML files in Obsidian. Open pages in the main workspace, edit text, links and images visually, and use the sidebar workbench to navigate headings, search content, review changes and inspect resources.
 
-Visual edits update the affected source ranges without reformatting the entire file. Page scripts do not run in the plugin's preview.
+Visual edits update the affected source ranges without reformatting the entire file. Page scripts run only when you enable the opt-in "Allow page scripts" setting, inside an isolated cross-origin sandbox.
 
 Requires **Obsidian Desktop 1.7.2 or later**. Supports `.html` and `.htm` files, with interface options for English and 简体中文.
 
@@ -12,7 +12,7 @@ Requires **Obsidian Desktop 1.7.2 or later**. Supports `.html` and `.htm` files,
 
 ### Preview & navigation
 
-- Preview static HTML in a sandboxed frame with page scripts disabled.
+- Preview static HTML in a sandboxed frame with page scripts disabled by default.
 - Zoom in, zoom out or reset the zoom, and adjust the page width for reading or checking layouts.
 - Local stylesheets referenced by `<link rel="stylesheet">` and CSS `@import` are inlined into the preview. Relative images and other assets resolve from the page's folder; references inside CSS resolve from the stylesheet's folder.
 - Follow page anchors and links to other vault files. Back and forward navigation remembers each page's scroll position by default.
@@ -99,7 +99,7 @@ Restart Obsidian, then enable **HTML Atelier** under **Settings → Community pl
 - Visual editing covers selectable page text, link addresses and image attributes. It is not a general page layout editor; use source mode for CSS, arbitrary HTML structure, form field values and text inside SVG or other excluded elements.
 - Segment editing follows the original text nodes. Paragraph editing retains inline tags while changing text across nodes; the distribution of changed text across formatting spans may change.
 - In visual text fields, `<`, `>` and `&` are escaped as text. In source mode, you edit HTML directly. Segment line breaks follow HTML whitespace rules; paragraph mode can insert `<br>` line breaks.
-- Page scripts and inline event handlers do not run in the plugin's preview. Form submissions are blocked, and nested frames are removed. Pages that rely on JavaScript to generate content or interactions are not supported.
+- By default, page scripts and inline event handlers do not run in the plugin's preview. Form submissions are blocked, and nested frames are removed. The opt-in "Allow page scripts" setting runs scripts inside an isolated cross-origin sandbox (no direct access to the app, the vault or the local system; the page's own static local resources are embedded so it can use them); visual editing, reading-position memory, in-page link routing and embed auto-height are unavailable in this mode. Only enable it for files you trust. Static local scripts, images and fonts referenced by the page are embedded into the preview as data URLs so they can load inside the sandbox; local resources created dynamically at runtime (for example a script injecting a new `<script src>`) and module imports across files are not embedded. `height: auto` in note embeds falls back to the configured default height.
 - Remote images, styles, fonts and media are allowed by default in the main preview and in note embeds, and can be blocked in settings.
 - Opening a page in an external browser uses that browser's normal behavior, including script execution.
 - Desktop only; mobile Obsidian is not supported.
@@ -128,7 +128,7 @@ The build produces `main.js`, including the bundled worker. Install it alongside
 
 在 Obsidian 中预览和编辑静态 HTML 文件。在主工作区打开页面，可视化修改文字、链接和图片，通过侧栏工作台浏览大纲、搜索内容、查看改动与检查资源。
 
-可视化编辑只更新受影响的源码区间，不会重新格式化整份文件。插件预览中不执行页面脚本。
+可视化编辑只更新受影响的源码区间，不会重新格式化整份文件。插件预览默认不执行页面脚本；开启「允许页面脚本」设置后，脚本运行在与应用隔离的跨源沙箱中。
 
 适用于 **Obsidian 桌面版 1.7.2 及以上**，支持 `.html` 和 `.htm` 文件，界面可选择简体中文或 English。
 
@@ -136,7 +136,7 @@ The build produces `main.js`, including the bundled worker. Install it alongside
 
 ### 预览与导航
 
-- 在沙箱框架中预览静态 HTML，禁用页面脚本。
+- 在沙箱框架中预览静态 HTML，默认禁用页面脚本。
 - 支持放大、缩小和重置缩放，可调整页面宽度，方便阅读与检查布局。
 - 通过 `<link rel="stylesheet">` 和 CSS `@import` 引用的库内样式表会内联到预览中。图片等相对资源按页面所在目录解析，CSS 内的相对资源按样式表所在目录解析。
 - 支持页内锚点和库内文件链接；后退、前进导航默认记住每页的滚动位置。
@@ -223,7 +223,7 @@ The build produces `main.js`, including the bundled worker. Install it alongside
 - 可视化编辑支持可选择的页面文字、链接地址与图片属性，不提供通用的页面布局编辑。CSS、任意 HTML 结构、表单字段值，以及 SVG 等排除元素内的文字，请使用源码模式修改。
 - 片段编辑遵循原有文字节点；整段编辑保留内联标签，但修改后的文字在格式区间之间的分布可能变化。
 - 可视化文字输入中的 `<`、`>`、`&` 会转义为文字；源码模式则直接编辑 HTML。片段中的换行遵循 HTML 空白规则，整段模式可插入 `<br>` 换行。
-- 插件预览不执行页面脚本与内联事件处理代码，禁止表单提交，并移除内嵌框架。不支持依赖 JavaScript 生成内容或实现交互的页面。
+- 插件预览默认不执行页面脚本与内联事件处理代码，禁止表单提交，并移除内嵌框架。可选设置「允许页面脚本」开启后，脚本运行在与应用隔离的跨源沙箱中（无法直接访问应用、仓库或本地系统；页面静态引用的库内资源会被内联供其使用）；此模式下可视化编辑、阅读位置记忆、页内链接路由与嵌入自动高度不可用，仅应对可信文件开启。开启时，页面静态引用的库内脚本、图片与字体会以 data URL 形式内联进预览，保证在沙箱内仍可加载；运行时动态创建的本地资源（例如脚本再注入 `<script src>`）与跨文件模块导入不会被内联。笔记嵌入的 `height: auto` 退回设置的默认高度。
 - 主预览与笔记嵌入默认允许加载远程图片、样式、字体和媒体，可在设置中统一关闭。
 - 在外部浏览器打开页面时，遵循浏览器的正常行为，包括执行页面脚本。
 - 仅支持桌面版 Obsidian，不支持移动端。

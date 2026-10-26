@@ -9,9 +9,10 @@ import {SourceIndex,SourceNode} from '../parsing/sourceIndex';
 import {buildTextMap,TextContainer} from '../parsing/textMap';
 import {escapeAttrValue} from '../parsing/escape';
 import {debugLog} from '../services/debug';
-import {inlineLocalStylesheets,CssInlineIO} from '../services/cssInline';
+import {inlineLocalStylesheets} from '../services/cssInline';
+import {createDataUrlFor,createInlineBudget,inlineLocalPreviewAssets,PreviewInlineIO} from '../services/previewAssets';
 import {resolveLink,LinkRouter} from '../services/links';
-import {currentNavEntry,NavigationService,NavEntry} from '../services/nav';
+import {currentNavEntry,docOfWindow,NavigationService,NavEntry} from '../services/nav';
 import type {AtelierSettings} from '../settings/schema';
 import type {Translator} from '../i18n';
 
@@ -382,10 +383,12 @@ export class HtmlFileView extends FileView {
  private restoreScrollWhenReady(win:Window|null,ratio:number,attempt=0){
   if(!win||!this.session)return;
   // 重试期间帧可能已被重绘/卸载:此时窗口的 documentElement 已为 null,
-  // 再读就是未捕获异常(定时器里的抛错还会污染全局错误处理)
-  if(!win.document||!win.document.documentElement)return;
+  // 再读就是未捕获异常(定时器里的抛错还会污染全局错误处理);脚本模式的
+  // 跨源帧更会直接抛 SecurityError,统一按"读不到"放弃恢复
+  const doc=docOfWindow(win);
+  if(!doc||!doc.documentElement)return;
   if(this.iframe&&this.iframe.contentWindow!==win)return;
-  const max=()=>win.document.documentElement.scrollHeight-win.innerHeight;
+  const max=()=>doc.documentElement.scrollHeight-win.innerHeight;
   if(ratio<=0)return;
   const target=max()*ratio;
   if(max()>0)win.scrollTo(0,target);
@@ -448,9 +451,13 @@ export class HtmlFileView extends FileView {
   if(!win)return;
   this.currentAnchor=anchor;
   const id=anchor.replace(/^#/,'');
+  // 脚本模式是跨源沙箱帧:document 读不到、scrollTo 也不可调用。锚点仍记录在
+  // 导航条目里,但定位降级为无操作,不能抛 SecurityError 打断大纲/搜索面板。
+  const doc=docOfWindow(win);
+  if(!doc)return;
   if(!id){win.scrollTo(0,0);return;}
   let target:Element|null=null;
-  try{target=win.document.getElementById(decodeURIComponent(id));}catch{target=win.document.getElementById(id);}
+  try{target=doc.getElementById(decodeURIComponent(id));}catch{target=doc.getElementById(id);}
   // 大纲/搜索给的是文字标记 id(不是元素 id),此前一律找不到而静默回到页首
   // (审计复检 §3.22:F10 文字列表与 F12 搜索命中的点击定位都不工作)。
   if(!target){
@@ -531,9 +538,10 @@ export class HtmlFileView extends FileView {
   // 旧窗口可能已被丢弃(mountMain/empty 之后):只有文档还在时才用它算滚动比例。
   // 必须读可见帧:预加载期间 this.iframe 指向隐藏的空白帧,读它会得到比例 0,
   // 连续两次外部重绘(双次 renderFrame 重叠)时第二次就把跳顶 bug 复活(审计 M1)
-  const oldWin=(this.visibleFrame??this.iframe)?.contentWindow??null;
-  let ratio=0;
-  if(oldWin?.document?.documentElement&&reposition)ratio=this.callbacks.nav.scrollRatioOf(oldWin);
+ const oldWin=(this.visibleFrame??this.iframe)?.contentWindow??null;
+ let ratio=0;
+ // 跨源帧(preview.allowScripts 沙箱)与已销毁帧都由 nav.scrollRatioOf 内部兜底为 0
+ if(oldWin&&reposition)ratio=this.callbacks.nav.scrollRatioOf(oldWin);
   // 预加载替换(2026-09-30 复查:保存后闪白帧的根因是先 empty 再等 srcdoc 异步构建,
   // 中间约 7ms 预览区空白):旧帧保持可见,新帧隐藏加载,load 完成初始化后再原子替换。
   // 期间再次 renderFrame 时,尚未就绪的隐藏帧被同步丢弃,可见帧不动。
@@ -542,25 +550,39 @@ export class HtmlFileView extends FileView {
   this.nonce=Math.random().toString(36).slice(2,10);
   const resource=this.app.vault.getResourcePath(this.file);
   const base=resource.slice(0,resource.lastIndexOf('/')+1);
-  const frame=this.iframeWrap.createEl('iframe',{cls:'html-atelier-frame',attr:{sandbox:'allow-same-origin',title:`${this.file.name} — HTML Atelier`,referrerpolicy:'no-referrer'}});
+ // allowScripts 时帧改为**纯 allow-scripts**(无 allow-same-origin):srcdoc 文档落在
+ // 不透明源,脚本可运行但与宿主跨源隔离;二者同时开启等于放弃沙箱,绝不允许
+ const frame=this.iframeWrap.createEl('iframe',{cls:'html-atelier-frame',attr:{sandbox:this.callbacks.settings().preview.allowScripts?'allow-scripts':'allow-same-origin',title:`${this.file.name} — HTML Atelier`,referrerpolicy:'no-referrer'}});
   frame.addClass('html-atelier-hidden');
   this.iframe=frame;
-  frame.addEventListener('load',()=>{
-   // 插入即触发的 about:blank 初始 load(srcdoc 未设置):不算内容就绪
-   if(!frame.getAttribute('srcdoc'))return;
-   const doc=frame.contentDocument;
-   if(!doc)return;
-   if(this.iframe!==frame){frame.remove();return;} // 已被更新的渲染淘汰
-   // 先替换显示,再做依赖布局的初始化:滚动恢复/选中框都要求新帧可见可布局,
-   // 隐藏帧的 scrollHeight 为 0,先恢复会全部落空
-   previous?.remove();
-   frame.toggleClass('html-atelier-hidden',false);
-   this.visibleFrame=frame;
-   // 导航/滚动抓取的目标窗口跟随可见帧切换(此前在 renderFrame 末尾就指向隐藏帧,
-   // 预加载窗口里抓到的 scrollRatio 恒为 0,污染导航栈与保存焦点——审计 M1)
-   this.lastNavWin=frame.contentWindow;
-   this.applyViewport();
+ frame.addEventListener('load',()=>{
+  // 插入即触发的 about:blank 初始 load(srcdoc 未设置):不算内容就绪
+  if(!frame.getAttribute('srcdoc'))return;
+  if(this.iframe!==frame){frame.remove();return;} // 已被更新的渲染淘汰
+  const doc=frame.contentDocument;
+  // 先替换显示,再做依赖布局的初始化:滚动恢复/选中框都要求新帧可见可布局,
+  // 隐藏帧的 scrollHeight 为 0,先恢复会全部落空
+  previous?.remove();
+  frame.toggleClass('html-atelier-hidden',false);
+  this.visibleFrame=frame;
+  // 导航/滚动抓取的目标窗口跟随可见帧切换(此前在 renderFrame 末尾就指向隐藏帧,
+  // 预加载窗口里抓到的 scrollRatio 恒为 0,污染导航栈与保存焦点——审计 M1)
+  this.lastNavWin=frame.contentWindow;
+  if(!doc){
+   // 脚本模式(preview.allowScripts):帧为跨源沙箱,内部 DOM 不可访问,
+   // 文本标记/选中层/滚动恢复也不适用于脚本动态页面;保留视口(宽度/缩放)。
+   // 旧帧的可编辑节点与高亮样式随帧销毁,清引用防悬挂。
    this.textNodes.clear();
+   this.overlay=null;
+   this.hovered=null;
+   this.changeStyle=null;
+   this.emptySlotStyle=null;
+   this.applyViewport();
+   this.refreshToolbar();
+   return;
+  }
+  this.applyViewport();
+  this.textNodes.clear();
    const re=markerRegex(this.nonce);
    const walker=doc.createTreeWalker(doc,128);
    let comment:Node|null;
@@ -608,16 +630,17 @@ export class HtmlFileView extends FileView {
   const buildToken=++this.previewBuildToken;
   const source=this.session.workingSource;
   const filePath=this.file.path;
-  const allowNetwork=this.callbacks.settings().preview.allowNetworkAssets;
-  const commit=(preview:string)=>{
-   if(buildToken!==this.previewBuildToken||this.iframe!==frame)return;
-   if(this.session&&this.session.workingSource!==source){void this.renderFrame(reposition);return;}
-   frame.srcdoc=preview;
-  };
-  void this.buildPreviewSource(source,filePath,base).then(commit).catch(e=>{
-   console.error('预览构建失败,回退不内联',e);
-   commit(makePreview(parseDocument(source),base,this.nonce,{allowNetwork}));
-  });
+ const allowNetwork=this.callbacks.settings().preview.allowNetworkAssets;
+ const allowScripts=this.callbacks.settings().preview.allowScripts;
+ const commit=(preview:string)=>{
+  if(buildToken!==this.previewBuildToken||this.iframe!==frame)return;
+  if(this.session&&this.session.workingSource!==source){void this.renderFrame(reposition);return;}
+  frame.srcdoc=preview;
+ };
+ void this.buildPreviewSource(source,filePath,base).then(commit).catch(e=>{
+  console.error('预览构建失败,回退不内联',e);
+  commit(makePreview(parseDocument(source),base,this.nonce,{allowNetwork,allowScripts}));
+ });
  }
 
  private previewBuildToken=0;
@@ -626,20 +649,34 @@ export class HtmlFileView extends FileView {
 
  // 预览源生成:库内本地样式表先内联成 <style>(宿主 CSP 拦截 app:// 样式表加载,
  // 2026-09-30 真机定因,见 services/cssInline.ts);内联失败回退原始源,与旧行为一致。
+ // 脚本模式再加一层资源内联:不透明源沙箱读不了 app://,本地图片/字体/媒体/脚本
+ // 必须变成 data: URL(2026-10-26 真机定因,见 services/previewAssets.ts)。
  private async buildPreviewSource(source:string,filePath:string,base:string):Promise<string>{
-  const io:CssInlineIO={
-   readCss:async p=>{
+  const settings=this.callbacks.settings();
+  const allowNetwork=settings.preview.allowNetworkAssets;
+  const allowScripts=settings.preview.allowScripts;
+  const io:PreviewInlineIO={
+   readCss:async p=>this.readVaultText(p),
+   readText:async p=>this.readVaultText(p),
+   readBinary:async p=>{
     const f=this.app.vault.getAbstractFileByPath(p);
-    return f instanceof TFile?await this.app.vault.cachedRead(f).catch(()=>null):null;
+    return f instanceof TFile?await this.app.vault.readBinary(f).catch(()=>null):null;
    },
    resourceUrl:p=>{
     const f=this.app.vault.getAbstractFileByPath(p);
     return f instanceof TFile?this.app.vault.getResourcePath(f):null;
    },
   };
-  const inlined=await inlineLocalStylesheets(source,filePath,io);
-  return makePreview(parseDocument(inlined),base,this.nonce,
-   {allowNetwork:this.callbacks.settings().preview.allowNetworkAssets});
+  const budget=createInlineBudget();
+  const cssIo:PreviewInlineIO=allowScripts?{...io,dataUrlFor:createDataUrlFor(io,budget)}:io;
+  let inlined=await inlineLocalStylesheets(source,filePath,cssIo);
+  if(allowScripts)inlined=await inlineLocalPreviewAssets(inlined,filePath,cssIo,budget);
+  return makePreview(parseDocument(inlined),base,this.nonce,{allowNetwork,allowScripts});
+ }
+
+ private readVaultText(path:string):Promise<string|null>{
+  const f=this.app.vault.getAbstractFileByPath(path);
+  return f instanceof TFile?this.app.vault.cachedRead(f).catch(()=>null):Promise.resolve(null);
  }
 
  // 事件:选择(F20 编辑入口)、链接路由(F02/F04)、菜单(F03)、悬停(F05)
@@ -799,6 +836,9 @@ export class HtmlFileView extends FileView {
 
  syncTextNodes(){
   if(!this.session)return;
+  // 脚本模式帧跨源,没有可原地更新的文本节点:内容变化(源码编辑/撤销/替换)
+  // 只能重建预览,否则预览永远停在旧内容
+  if(this.callbacks.settings().preview.allowScripts){this.renderFrame(false);return;}
   const model=this.currentModel();
   for(const [id,node] of this.textNodes){
    const seg=model.segments.find(x=>x.id===id);
@@ -864,10 +904,12 @@ export class HtmlFileView extends FileView {
  }
 
  applyChangeHighlights(){
-  const win=this.iframe?.contentWindow;
-  const doc=win?.document;
+  // 脚本模式的跨源帧读 document 会抛 SecurityError(保存成功、源码编辑、
+  // 切换高亮设置都会走到这里);统一按"读不到"返回空文档。
+  const doc=docOfWindow(this.iframe?.contentWindow);
   const CH='html-atelier-changed';
   if(!doc||!this.session)return;
+  const win=doc.defaultView;
   if(this.changeStyle){this.changeStyle.remove();this.changeStyle=null;}
   const highlights=(win as unknown as {CSS?:{highlights?:{delete(n:string):void;set(n:string,h:unknown):void}}}).CSS?.highlights;
   const HighlightCtor=(win as unknown as {Highlight?:new(...ranges:Range[])=>unknown}).Highlight;

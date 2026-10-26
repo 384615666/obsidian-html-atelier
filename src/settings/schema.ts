@@ -37,6 +37,7 @@ export interface PreviewSettings {
  positionLimit:number;
  autoRefreshAssets:boolean;
  allowNetworkAssets:boolean;
+ allowScripts:boolean;
 }
 export interface DraftsSettings {
  enabled:boolean;
@@ -74,7 +75,7 @@ export const DEFAULT_SETTINGS:AtelierSettings={
  links:{externalTarget:'browser',internalTarget:'current',respectBlankTarget:true,browserGesture:'Mod',showHoverTarget:true,browserApplication:'auto',unsavedBrowserAction:'ask'},
  editor:{defaultMode:'preview',defaultTextMode:'segment',historyLimit:200,mergeDelayMs:800,showChangeHighlights:true,restoreFocusAfterSave:true,toolbarPlacement:'sidebar'},
  search:{includeHidden:false},
- preview:{defaultWidth:'auto',defaultZoom:100,rememberViewport:true,rememberPosition:true,positionLimit:200,autoRefreshAssets:true,allowNetworkAssets:true},
+ preview:{defaultWidth:'auto',defaultZoom:100,rememberViewport:true,rememberPosition:true,positionLimit:200,autoRefreshAssets:true,allowNetworkAssets:true,allowScripts:false},
  drafts:{enabled:true,debounceMs:750,maxWaitMs:3000,storageWarningMiB:50,closeBehavior:'keep'},
  saveAs:{rebaseRelativeUrls:true,openCopy:true},
  embeds:{enabled:true,defaultHeight:480,autoHeightMax:1200,showToolbar:true,showDrafts:false},
@@ -234,6 +235,7 @@ export function normalizeSettings(input:unknown):ParsedSettings {
     positionLimit:num(preview,'positionLimit',200,PREVIEW_BOUNDS.positionLimit[0],PREVIEW_BOUNDS.positionLimit[1],warnings),
     autoRefreshAssets:bool(preview,'autoRefreshAssets',true,warnings),
     allowNetworkAssets:bool(preview,'allowNetworkAssets',true,warnings),
+    allowScripts:bool(preview,'allowScripts',false,warnings),
    },
    drafts:{
     enabled:draftsEnabled,

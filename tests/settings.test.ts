@@ -52,7 +52,7 @@ test('A22 设置页的分组标题与"恢复本组默认"按钮都有双语',()=
  }
 });
 
-test('A22 默认值与 44 项设置键完整性',()=>{
+test('A22 默认值与 45 项设置键完整性',()=>{
  const {settings,warnings}=normalizeSettings(undefined);
  assert.deepEqual(warnings,[]);
  assert.equal(settings.sidebar.autoShowHtml,true);
@@ -69,8 +69,11 @@ test('A22 默认值与 44 项设置键完整性',()=>{
  // 44→43:preview.defaultHeight 与本插件预览的实际布局无关(高度由分栏布局决定),
  // 且与 embeds.defaultHeight 同名不同义,已按审计 round4 缺陷 38 移除。
  // 43→44:新增 editor.toolbarPlacement(工具栏承载在侧栏还是视图内)。
+ // 44→45:新增 preview.allowScripts(默认关;开启后页面脚本运行于不透明源沙箱)。
  const count=(o:unknown):number=>typeof o==='object'&&o!==null?Object.values(o as Record<string,unknown>).reduce((n,v)=>n+count(v),0):1;
- assert.equal(count(DEFAULT_SETTINGS),44);
+ assert.equal(count(DEFAULT_SETTINGS),45);
+ assert.equal(normalizeSettings(undefined).settings.preview.allowScripts,false);
+ assert.equal(normalizeSettings({preview:{allowScripts:true}}).settings.preview.allowScripts,true);
 });
 
 test('A22 非法旧值回退默认并给出警告；数字越界收敛',()=>{

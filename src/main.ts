@@ -325,7 +325,9 @@ export default class HtmlAtelier extends Plugin {
   const prev=this.settings;
   const next=JSON.parse(JSON.stringify(incoming)) as AtelierSettings;
   const langChanged=next.ui.language!==prev.ui.language;
-  const networkChanged=next.preview.allowNetworkAssets!==prev.preview.allowNetworkAssets;
+  // 脚本开关与网络开关同样写进预览/嵌入的 CSP 与 sandbox,已渲染内容需重绘
+  const networkChanged=next.preview.allowNetworkAssets!==prev.preview.allowNetworkAssets
+   ||next.preview.allowScripts!==prev.preview.allowScripts;
   const highlightChanged=next.editor.showChangeHighlights!==prev.editor.showChangeHighlights;
   const sourceChanged=next.source.lineNumbers!==prev.source.lineNumbers||next.source.lineWrapping!==prev.source.lineWrapping;
   const toolbarMoved=next.editor.toolbarPlacement!==prev.editor.toolbarPlacement;
@@ -576,7 +578,7 @@ export default class HtmlAtelier extends Plugin {
    if(!this.settings.embeds.enabled)return;
    const child=new EmbedRenderChild({vault:this.app.vault},el,src,ctx.sourcePath,
     {showDrafts:this.settings.embeds.showDrafts,defaultHeight:this.settings.embeds.defaultHeight,autoHeightMax:this.settings.embeds.autoHeightMax,
-     showToolbar:this.settings.embeds.showToolbar,nonce:Math.random().toString(36).slice(2,8),allowNetwork:this.settings.preview.allowNetworkAssets},
+     showToolbar:this.settings.embeds.showToolbar,nonce:Math.random().toString(36).slice(2,8),allowNetwork:this.settings.preview.allowNetworkAssets,allowScripts:this.settings.preview.allowScripts},
     {getFileByPath:(p)=>{const f=this.app.vault.getAbstractFileByPath(p);return f instanceof TFile?f:null;},
      getResourcePath:(f)=>this.app.vault.getResourcePath(f),
      openHtml:(p)=>{void this.app.workspace.openLinkText(p,'',false);},
