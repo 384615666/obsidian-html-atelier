@@ -16,13 +16,13 @@ python -m http.server 8899 --directory site
 
 ## 部署到 GitHub Pages
 
-仓库已带一个**手动触发**的部署工作流 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml)，它会把 `site/` 上传为 Pages 站点。
+仓库带一个**自动部署**工作流 [`.github/workflows/pages.yml`](../.github/workflows/pages.yml)：推送 `site/` 下的任何文件（或工作流本身）到 `main`，就会自动把 `site/` 上传并发布为 Pages 站点。
 
-1. 在 GitHub 仓库的 **Settings → Pages** 中，把 **Source** 设为 **GitHub Actions**。
-2. 打开 **Actions → Deploy product site → Run workflow**。
-3. 部署完成后站点地址为 <https://384615666.github.io/obsidian-html-atelier/>。
+1. 在 GitHub 仓库的 **Settings → Pages** 中，把 **Source** 设为 **GitHub Actions**（已配置）。
+2. 修改 `site/` 后推送到 `main`，等 **Actions → Deploy product site** 跑完即可。
+3. 站点地址为 <https://384615666.github.io/obsidian-html-atelier/>；也可以在 Actions 页面手动运行一次。
 
-`docs/` 是内部设计与审计文档，不要把它设为 Pages 发布目录。若之后希望每次推送 `site/` 自动部署，可把工作流的触发条件从 `workflow_dispatch` 改为 `push`（路径限定 `site/**`）。
+`docs/` 是内部设计与审计文档，不要把它设为 Pages 发布目录。
 
 如果站点改到其他域名，记得同步修改 `index.html` 里的 canonical、`og:url`、`og:image` 和 `sitemap.xml`。
 

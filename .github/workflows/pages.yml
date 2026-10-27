@@ -1,9 +1,13 @@
 name: Deploy product site
 
-# 手动触发，避免未启用 Pages 时每次 push 都出现失败运行。
-# 启用 GitHub Pages（Source: GitHub Actions）后，可按需把 workflow_dispatch
-# 换成 push 触发，或保留手动运行。
+# 自动部署：main 上 site/ 或本工作流发生变化时触发。
+# 也可以在 Actions 页面手动运行。
 on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
   workflow_dispatch:
 
 permissions:
