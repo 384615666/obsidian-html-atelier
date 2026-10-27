@@ -1,0 +1,31 @@
+name: Deploy product site
+
+# 手动触发，避免未启用 Pages 时每次 push 都出现失败运行。
+# 启用 GitHub Pages（Source: GitHub Actions）后，可按需把 workflow_dispatch
+# 换成 push 触发，或保留手动运行。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4

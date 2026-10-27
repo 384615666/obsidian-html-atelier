@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <radialGradient id="crema" cx="50%" cy="46%" r="55%">
+      <stop offset="0%" stop-color="#d39a64"/>
+      <stop offset="55%" stop-color="#9a5f38"/>
+      <stop offset="100%" stop-color="#5e3622"/>
+    </radialGradient>
+    <radialGradient id="porcelain" cx="45%" cy="40%" r="65%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#f3eadf"/>
+    </radialGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#3b2418" flood-opacity=".20"/>
+    </filter>
+    <g id="bean">
+      <ellipse rx="13" ry="18" fill="#5c3825"/>
+      <ellipse rx="10" ry="15" cx="-2" cy="-2" fill="#6d4630" opacity=".55"/>
+      <path d="M0 -15 C -7 -5, 7 5, 0 15" stroke="#341d12" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+    </g>
+  </defs>
+
+  <!-- 散落的咖啡豆 -->
+  <use href="#bean" transform="translate(62 96) rotate(-32)"/>
+  <use href="#bean" transform="translate(96 70) rotate(18) scale(.85)"/>
+  <use href="#bean" transform="translate(344 318) rotate(24)"/>
+  <use href="#bean" transform="translate(318 350) rotate(-40) scale(.8)"/>
+
+  <!-- 碟子 -->
+  <circle cx="200" cy="200" r="150" fill="url(#porcelain)" stroke="#e6d6c1" stroke-width="2" filter="url(#shadow)"/>
+  <circle cx="200" cy="200" r="120" fill="none" stroke="#eee2d2" stroke-width="2"/>
+
+  <!-- 杯柄 -->
+  <path d="M292 180 h26 a20 20 0 0 1 0 40 h-26" fill="none" stroke="#e3d3bf" stroke-width="18" stroke-linecap="round"/>
+  <path d="M292 180 h26 a20 20 0 0 1 0 40 h-26" fill="none" stroke="#fffaf3" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- 杯身 -->
+  <circle cx="200" cy="200" r="100" fill="url(#porcelain)" stroke="#e3d3bf" stroke-width="3"/>
+
+  <!-- 咖啡与奶泡 -->
+  <circle cx="200" cy="200" r="84" fill="url(#crema)"/>
+  <circle cx="200" cy="200" r="82" fill="none" stroke="#f3e4cf" stroke-width="4" opacity=".85"/>
+  <path d="M200 252 C148 216, 142 168, 174 158 C190 153, 200 164, 200 178 C200 164, 210 153, 226 158 C258 168, 252 216, 200 252 Z" fill="#f7ead8"/>
+  <path d="M200 176 Q201 214 200 256" fill="none" stroke="#c08a5c" stroke-width="2.5" stroke-linecap="round" opacity=".8"/>
+</svg>

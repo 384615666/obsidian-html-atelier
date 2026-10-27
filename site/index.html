@@ -1,0 +1,1230 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#fbf7f0">
+  <title>HTML Atelier · 在 Obsidian 里直接改网页</title>
+  <meta name="description" content="在 Obsidian 中预览、点选编辑和保存 HTML 文件：沙箱预览、精确源码修改、大纲搜索、草稿备份与笔记嵌入。Obsidian 桌面版 1.7.2+，MIT 开源。">
+  <link rel="canonical" href="https://384615666.github.io/obsidian-html-atelier/">
+  <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+  <link rel="apple-touch-icon" href="assets/icon-180.png">
+
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="HTML Atelier">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:title" content="HTML Atelier · 在 Obsidian 里直接改网页">
+  <meta property="og:description" content="沙箱预览、点选编辑文字、链接和图片，只写回你动过的那段源码。草稿备份、大纲搜索与笔记嵌入，都在 Obsidian 桌面版里。">
+  <meta property="og:url" content="https://384615666.github.io/obsidian-html-atelier/">
+  <meta property="og:image" content="https://384615666.github.io/obsidian-html-atelier/assets/og-cover.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="HTML Atelier：在 Obsidian 里直接改网页">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="HTML Atelier · 在 Obsidian 里直接改网页">
+  <meta name="twitter:description" content="沙箱预览、点选编辑和草稿备份。Obsidian 桌面版 1.7.2+，MIT 开源。">
+  <meta name="twitter:image" content="https://384615666.github.io/obsidian-html-atelier/assets/og-cover.png">
+
+  <link rel="stylesheet" href="site.css">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "HTML Atelier",
+    "description": "在 Obsidian 中预览、点选编辑和保存 HTML 文件的桌面插件。可视化编辑只更新受影响的源码区间，预览默认在沙箱中运行。",
+    "url": "https://384615666.github.io/obsidian-html-atelier/",
+    "downloadUrl": "https://github.com/384615666/obsidian-html-atelier/releases/latest",
+    "softwareVersion": "2.1.0",
+    "operatingSystem": "Windows, macOS, Linux",
+    "applicationCategory": "DeveloperApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CNY"
+    },
+    "license": "https://opensource.org/license/mit"
+  }
+  </script>
+</head>
+<body>
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<svg class="svg-sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-arrow-right" viewBox="0 0 24 24"><line x1="4" y1="12" x2="20" y2="12"/><polyline points="13 5 20 12 13 19"/></symbol>
+  <symbol id="i-arrow-down" viewBox="0 0 24 24"><line x1="12" y1="4" x2="12" y2="20"/><polyline points="5 13 12 20 19 13"/></symbol>
+  <symbol id="i-arrow-up-right" viewBox="0 0 24 24"><line x1="6" y1="18" x2="18" y2="6"/><polyline points="8 6 18 6 18 16"/></symbol>
+  <symbol id="i-chevron-down" viewBox="0 0 24 24"><polyline points="5 9 12 16 19 9"/></symbol>
+  <symbol id="i-chevron-right" viewBox="0 0 24 24"><polyline points="9 5 16 12 9 19"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m20 6-11 11-5-5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="17" x2="21" y2="17"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-github" viewBox="0 0 24 24"><path d="M12 .5C5.73.5.5 5.73.5 12c0 5.09 3.29 9.4 7.86 10.93.58.1.79-.25.79-.55v-1.93c-3.2.7-3.88-1.54-3.88-1.54-.52-1.33-1.27-1.68-1.27-1.68-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.75 2.68 1.25 3.34.96.1-.75.4-1.25.72-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .96-.31 3.15 1.18a10.9 10.9 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.59.23 2.76.11 3.05.73.81 1.18 1.84 1.18 3.1 0 4.43-2.69 5.4-5.25 5.69.41.36.78 1.07.78 2.16v3.2c0 .3.21.66.8.55A11.51 11.51 0 0 0 23.5 12C23.5 5.73 18.27.5 12 .5Z"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3-1.9 5.1L5 10l5.1 1.9L12 17l1.9-5.1L19 10l-5.1-1.9Z"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></symbol>
+  <symbol id="i-columns" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="3" x2="12" y2="21"/></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/><line x1="14" y1="4" x2="10" y2="20"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-redo" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></symbol>
+  <symbol id="i-folder-open" viewBox="0 0 24 24"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v1"/><path d="M3 9h18l-2.5 10.5a2 2 0 0 1-2 1.5H5.5a2 2 0 0 1-2-1.5Z"/></symbol>
+  <symbol id="i-cursor" viewBox="0 0 24 24"><path d="m4 3 7 17 2.6-6.4L20 11Z"/></symbol>
+  <symbol id="i-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
+  <symbol id="i-diff" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3"/><path d="M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="9" y1="11" x2="9" y2="13"/><line x1="15" y1="11" x2="15" y2="13"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></symbol>
+  <symbol id="i-layers" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.3 7 12 12 20.7 7"/><line x1="12" y1="22" x2="12" y2="12"/></symbol>
+  <symbol id="i-external" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></symbol>
+  <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></symbol>
+  <symbol id="i-merge" viewBox="0 0 24 24"><circle cx="6" cy="5" r="3"/><circle cx="6" cy="19" r="3"/><circle cx="18" cy="12" r="3"/><path d="M6 8v8"/><path d="M9 5h3a3 3 0 0 1 3 3v1"/><path d="M9 19h3a3 3 0 0 0 3-3v-1"/></symbol>
+</svg>
+
+<header class="site-nav" id="siteNav">
+  <div class="nav-shell">
+    <a class="brand" href="#top" aria-label="HTML Atelier 首页">
+      <img src="assets/icon.svg" alt="" width="38" height="38" loading="eager">
+      <span class="brand-name">HTML Atelier</span>
+      <span class="brand-version">v2.1.0</span>
+    </a>
+
+    <nav class="nav-menu" id="navMenu" aria-label="主导航">
+      <a href="#features">功能</a>
+      <a href="#demo">演示</a>
+      <a href="#workflow">工作流</a>
+      <a href="#safety">安全</a>
+      <a href="#install">安装</a>
+      <a href="#faq">常见问题</a>
+      <a class="nav-mobile-link" href="https://github.com/384615666/obsidian-html-atelier" target="_blank" rel="noopener">
+        GitHub 仓库
+        <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
+      </a>
+    </nav>
+
+    <div class="nav-actions">
+      <a class="nav-github" href="https://github.com/384615666/obsidian-html-atelier" target="_blank" rel="noopener" aria-label="在 GitHub 查看 HTML Atelier">
+        <svg class="icon icon-fill" aria-hidden="true"><use href="#i-github"/></svg>
+        <span>GitHub</span>
+      </a>
+      <a class="btn btn-primary btn-sm nav-install" href="#install">
+        安装插件
+        <svg class="icon" aria-hidden="true"><use href="#i-arrow-down"/></svg>
+      </a>
+      <button class="nav-toggle" id="navToggle" type="button" aria-controls="navMenu" aria-expanded="false" aria-label="打开菜单">
+        <svg class="icon nav-toggle-open" aria-hidden="true"><use href="#i-menu"/></svg>
+        <svg class="icon nav-toggle-close" aria-hidden="true"><use href="#i-close"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" tabindex="-1">
+
+  <!-- ================= HERO ================= -->
+  <section class="hero" id="top">
+    <div class="wrap hero-grid">
+      <div class="hero-copy">
+        <p class="eyebrow hero-eyebrow"><span class="live-dot" aria-hidden="true"></span>OBSIDIAN 桌面版 · v2.1.0 · 本地文件</p>
+        <h1>
+          <span class="h1-line">在 Obsidian 里，</span>
+          <span class="h1-line h1-accent">直接改网页<span class="h1-dot">。</span></span>
+        </h1>
+        <p class="hero-lead">HTML Atelier 把 .html 文件变成可读、可改、可搜索的页面。沙箱预览、点选编辑文字、链接和图片，改动只写回你改过的那段源码。</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary btn-lg" href="#install">
+            <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
+            安装到 Obsidian
+          </a>
+          <a class="btn btn-soft btn-lg" href="#demo">
+            <svg class="icon" aria-hidden="true"><use href="#i-cursor"/></svg>
+            先点两下试试
+          </a>
+        </div>
+        <p class="hero-note">
+          <span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>免费开源</span>
+          <span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>桌面版 1.7.2+</span>
+          <span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>文件留在本机</span>
+        </p>
+      </div>
+
+      <div class="hero-art" role="img" aria-label="HTML Atelier 预览示意：咖啡页面标题被紫色选框选中，旁边是同一行的源码、右侧编辑表单和状态标签。">
+        <div class="hero-halo" aria-hidden="true"></div>
+        <div class="hero-orbit" aria-hidden="true"></div>
+
+        <div class="hero-stage" aria-hidden="true">
+          <div class="hero-code">
+            <div class="hero-code-bar">
+              <span class="mini-dots"><i></i><i></i><i></i></span>
+              <span>源码 · 一杯好咖啡的诞生.html</span>
+            </div>
+            <ol class="hero-code-lines">
+              <li><span>&lt;header class="hero"&gt;</span></li>
+              <li><span class="code-line-content"><span>&lt;h1&gt;</span><em>一杯好咖啡的诞生</em><span>&lt;/h1&gt;</span></span></li>
+              <li><span>&lt;p class="lead"&gt;</span></li>
+              <li class="is-dim"><span>&nbsp;&nbsp;从一颗生豆到杯中的风味……</span></li>
+              <li><span>&lt;/p&gt;</span></li>
+              <li class="is-dim"><span>&lt;!-- 图片来自 assets 文件夹 --&gt;</span></li>
+              <li><span>&lt;/header&gt;</span></li>
+            </ol>
+            <span class="code-pin"><svg class="icon" aria-hidden="true"><use href="#i-cursor"/></svg>只改这一行</span>
+          </div>
+
+          <div class="hero-paper">
+            <div class="hero-paper-bar">
+              <span class="mini-dots"><i></i><i></i><i></i></span>
+              <span class="paper-file"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>一杯好咖啡的诞生.html</span>
+              <span class="paper-view">页面</span>
+            </div>
+            <div class="hero-paper-body">
+              <div class="hero-paper-head">
+                <p class="hp-eyebrow">周末手冲笔记 · 第 3 期</p>
+                <h2 class="hp-title is-selected">一杯好咖啡的诞生<span class="sel-label">标题</span></h2>
+                <p class="hp-lead">从一颗生豆到杯中的风味，要经过选豆、烘焙、研磨与萃取。这份笔记把每一步的要点记下来。</p>
+                <div class="hp-meta"><span>阅读约 6 分钟</span><span>2026 年 9 月</span></div>
+              </div>
+              <img class="hp-cup" src="assets/cup.svg" alt="" width="150" height="150">
+            </div>
+            <div class="hero-paper-toc">
+              <span><b>01</b>选豆</span><span><b>02</b>烘焙</span><span><b>03</b>研磨</span><span><b>04</b>萃取</span>
+            </div>
+            <div class="hero-paper-section">
+              <p><b>01</b>选豆：风味从产地开始</p>
+              <i></i><i></i><i class="is-short"></i>
+            </div>
+          </div>
+
+          <div class="hero-form">
+            <div class="hero-form-head">
+              <span class="hero-form-icon"><svg class="icon" aria-hidden="true"><use href="#i-type"/></svg></span>
+              <div><strong>文字内容</strong><span>标题</span></div>
+              <span class="hero-form-mode">编辑</span>
+            </div>
+            <div class="hero-form-field">一杯好咖啡的诞生</div>
+            <div class="hero-form-foot">
+              <span class="hero-form-hint">修改即预览</span>
+              <span class="hero-form-actions"><i>恢复</i><b>保存</b></span>
+            </div>
+          </div>
+
+          <span class="float-chip chip-line"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>只改这一行源码</span>
+          <span class="float-chip chip-draft"><span class="chip-dot" aria-hidden="true"></span>草稿已备份</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <div class="trust-bar" data-reveal>
+        <div class="trust-item">
+          <span class="trust-icon tone-caramel"><svg class="icon" aria-hidden="true"><use href="#i-type"/></svg></span>
+          <div><strong>精确到片段</strong><span>未改动的标签、属性、注释、缩进保持原样</span></div>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon tone-sage"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span>
+          <div><strong>默认沙箱</strong><span>页面脚本默认不执行</span></div>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon tone-amber"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></span>
+          <div><strong>草稿保护</strong><span>自动备份与三方合并</span></div>
+        </div>
+        <div class="trust-item">
+          <span class="trust-icon tone-violet"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
+          <div><strong>笔记内嵌</strong><span>一个代码块把页面放进笔记</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WHY ================= -->
+  <section class="section why" id="why">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow">为什么</p>
+          <h2>HTML 不该只是 Obsidian 里的纯文本。</h2>
+        </div>
+        <p class="lead">在别处，只能在浏览器里看效果、在编辑器里找标签；HTML Atelier 把“看到的样子”和“改的那一行”放进同一个窗口。</p>
+      </div>
+
+      <div class="contrast">
+        <article class="contrast-panel is-before" data-reveal>
+          <span class="panel-label"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>以前</span>
+          <h3>预览在浏览器，<br>标签在编辑器。</h3>
+          <p>想看效果得切到浏览器刷新，想改一句话又要在成片的标签里找位置。预览和源码之间，永远隔着一次复制粘贴。</p>
+          <div class="before-code" aria-hidden="true">
+            <div class="before-bar"><span>index.html</span><span>纯文本</span></div>
+            <pre><code><span class="tok-tag">&lt;section</span> <span class="tok-attr">class</span>=<span class="tok-str">"intro"</span><span class="tok-tag">&gt;</span>
+  <span class="tok-tag">&lt;h1&gt;</span>一杯好咖啡的诞生<span class="tok-tag">&lt;/h1&gt;</span>
+  <span class="tok-tag">&lt;p&gt;</span>从一颗生豆到杯中的风味，要经过选豆、烘焙、
+  研磨与萃取。这份笔记把每一步的要点记下来……<span class="tok-tag">&lt;/p&gt;</span>
+  <span class="tok-tag">&lt;figure&gt;</span><span class="tok-tag">&lt;img</span> <span class="tok-attr">src</span>=<span class="tok-str">"assets/cup.svg"</span> <span class="tok-tag">/&gt;</span><span class="tok-tag">&lt;/figure&gt;</span>
+<span class="tok-tag">&lt;/section&gt;</span></code></pre>
+            <span class="before-note">文字淹没在标签里</span>
+          </div>
+        </article>
+
+        <div class="contrast-arrow" aria-hidden="true"><svg class="icon"><use href="#i-arrow-right"/></svg></div>
+
+        <article class="contrast-panel is-after" data-reveal>
+          <span class="panel-label"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>用 HTML Atelier</span>
+          <h3>看到就是页面，<br>点哪改哪。</h3>
+          <p>预览就在主工作区，点选标题、正文、链接或图片，侧栏面板里直接改。保存时只写回你动过的那段源码。</p>
+          <ol class="quick-steps" aria-hidden="true">
+            <li>
+              <span class="quick-num">01</span>
+              <span class="quick-icon"><svg class="icon"><use href="#i-cursor"/></svg></span>
+              <strong>点选</strong>
+              <small>页面上框出这一段</small>
+            </li>
+            <li>
+              <span class="quick-num">02</span>
+              <span class="quick-icon"><svg class="icon"><use href="#i-type"/></svg></span>
+              <strong>侧栏改</strong>
+              <small>输入时预览同步变化</small>
+            </li>
+            <li>
+              <span class="quick-num">03</span>
+              <span class="quick-icon"><svg class="icon"><use href="#i-save"/></svg></span>
+              <strong>保存</strong>
+              <small>写入原文件，只动这一段</small>
+            </li>
+          </ol>
+          <div class="tag-row"><span>文字片段</span><span>整段编辑</span><span>源码模式</span></div>
+        </article>
+      </div>
+
+      <p class="fine-print" data-reveal>可视化编辑覆盖文字、链接和图片属性，不是通用布局编辑器；CSS 与结构调整请用源码模式。</p>
+    </div>
+  </section>
+
+  <!-- ================= DEMO ================= -->
+  <section class="section demo-section" id="demo" aria-labelledby="demoTitle">
+    <div class="wrap">
+      <div class="section-head demo-head" data-reveal>
+        <div>
+          <p class="eyebrow">交互演示</p>
+          <h2 id="demoTitle">不用安装，先点两下。</h2>
+        </div>
+        <p class="lead">点页面里的标题、段落、图片，面板里会出现对应表单；改字、切标签、看源码都有反馈，不会读写你的文件。</p>
+      </div>
+
+      <div class="demo-shell" data-reveal>
+        <div class="demo-topline">
+          <span class="demo-badge"><span class="demo-live-dot" aria-hidden="true"></span>交互原型 · 只在页面里生效</span>
+          <span class="demo-topnote">建议先点页面里的标题</span>
+        </div>
+
+        <div class="atelier-app" id="demoApp" data-mode="edit">
+          <div class="app-titlebar">
+            <span class="app-window-dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="app-tab">
+              <svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>
+              一杯好咖啡的诞生.html
+              <i class="app-dirty" id="dirtyDot" aria-hidden="true"></i>
+            </span>
+            <span class="app-path">我的笔记 / 页面</span>
+            <span class="app-title-actions" aria-hidden="true">
+              <svg class="icon"><use href="#i-more"/></svg>
+              <svg class="icon"><use href="#i-close"/></svg>
+            </span>
+          </div>
+
+          <div class="app-body">
+            <aside class="app-tree" aria-label="文件列表（演示）">
+              <div class="tree-head"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>我的笔记</div>
+              <div class="tree-scroll">
+                <div class="tree-folder"><svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>读书笔记</div>
+                <div class="tree-folder is-open"><svg class="icon" aria-hidden="true"><use href="#i-chevron-down"/></svg><svg class="icon" aria-hidden="true"><use href="#i-folder-open"/></svg>页面</div>
+                <div class="tree-children">
+                  <button class="tree-file is-current" type="button" aria-current="page">
+                    <svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>
+                    <span>一杯好咖啡的诞生.html</span>
+                    <em>HTML</em>
+                  </button>
+                  <button class="tree-file" type="button" data-tree-file="第 38 周工作周报.html">
+                    <svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>
+                    <span>第 38 周工作周报.html</span>
+                    <em>HTML</em>
+                  </button>
+                  <div class="tree-folder is-small"><svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>assets</div>
+                </div>
+                <div class="tree-folder"><svg class="icon" aria-hidden="true"><use href="#i-chevron-right"/></svg><svg class="icon" aria-hidden="true"><use href="#i-folder"/></svg>日记</div>
+                <button class="tree-file" type="button" data-tree-file="咖啡风味轮.html">
+                  <svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>
+                  <span>咖啡风味轮.html</span>
+                  <em>HTML</em>
+                </button>
+              </div>
+              <div class="tree-foot"><span class="tree-status-dot" aria-hidden="true"></span>本地文件夹</div>
+            </aside>
+
+            <div class="app-workspace">
+              <div class="app-previewpane">
+                <div class="app-previewbar">
+                  <span class="previewbar-label"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>页面预览</span>
+                  <span class="previewbar-hint" id="previewHint">编辑模式 · 点击页面元素</span>
+                </div>
+                <div class="page-scroll" id="pageScroll">
+                  <article class="demo-page coffee" id="demoPage" aria-label="咖啡页面演示">
+                    <header class="coffee-hero">
+                      <div class="coffee-hero-text">
+                        <p class="coffee-eyebrow">周末手冲笔记 · 第 3 期</p>
+                        <h2 class="coffee-title" data-obj="h1" data-label="标题"><span data-text>一杯好咖啡的诞生</span></h2>
+                        <p class="coffee-lead" data-obj="lead" data-label="段落"><span data-text>从一颗生豆到杯中的风味，要经过选豆、烘焙、研磨与萃取。这份笔记把每一步的要点记下来，下次照着做就好。</span></p>
+                        <p class="coffee-meta"><span>阅读约 6 分钟</span><span>2026 年 9 月</span></p>
+                      </div>
+                      <figure class="coffee-art">
+                        <span class="coffee-img" data-obj="img" data-label="图片"><img src="assets/cup.svg" alt="一杯拿铁的俯视图" width="150" height="150"></span>
+                      </figure>
+                    </header>
+
+                    <nav class="coffee-toc" aria-label="页面目录">
+                      <a data-obj="toc1" data-label="链接" href="#beans"><b>01</b><span data-text>选豆</span></a>
+                      <a data-obj="toc2" data-label="链接" href="#roast"><b>02</b><span data-text>烘焙</span></a>
+                      <a data-obj="toc3" data-label="链接" href="#grind"><b>03</b><span data-text>研磨</span></a>
+                      <a data-obj="toc4" data-label="链接" href="#brew"><b>04</b><span data-text>萃取</span></a>
+                    </nav>
+
+                    <div class="coffee-main">
+                      <section class="coffee-section" id="beans">
+                        <span class="coffee-num">01</span>
+                        <h3 class="coffee-h2" data-obj="beansTitle" data-label="标题"><span data-text>选豆：风味从产地开始</span></h3>
+                        <p data-obj="beansP" data-label="段落"><span data-text>咖啡豆是一种农产品，产地的海拔、气候和处理方式，决定了它最初的味道。先从三个产区开始，找到自己喜欢的方向。</span></p>
+                        <div class="coffee-cards">
+                          <article class="coffee-card">
+                            <span class="coffee-origin">埃塞俄比亚</span>
+                            <h4 data-obj="card1t" data-label="标题"><span data-text>耶加雪菲</span></h4>
+                            <p data-obj="card1b" data-label="段落"><span data-text>花香与柑橘调明亮，酸质干净，像一杯温热的茉莉花茶。</span></p>
+                            <span class="coffee-tag">水洗 · 浅烘</span>
+                          </article>
+                          <article class="coffee-card">
+                            <span class="coffee-origin">哥伦比亚</span>
+                            <h4 data-obj="card2t" data-label="标题"><span data-text>慧兰</span></h4>
+                            <p data-obj="card2b" data-label="段落"><span data-text>焦糖与坚果的甜感扎实，酸甜平衡，适合每天一杯。</span></p>
+                            <span class="coffee-tag">水洗 · 中烘</span>
+                          </article>
+                          <article class="coffee-card">
+                            <span class="coffee-origin">中国云南</span>
+                            <h4 data-obj="card3t" data-label="标题"><span data-text>保山小粒</span></h4>
+                            <p data-obj="card3b" data-label="段落"><span data-text>红糖、可可与淡淡的果干，醇厚温润，是家门口的好豆子。</span></p>
+                            <span class="coffee-tag">日晒 · 中深烘</span>
+                          </article>
+                        </div>
+                      </section>
+
+                      <section class="coffee-section" id="roast">
+                        <span class="coffee-num">02</span>
+                        <h3 class="coffee-h2" data-obj="roastTitle" data-label="标题"><span data-text>烘焙：决定一杯咖啡的性格</span></h3>
+                        <p data-obj="roastP" data-label="段落"><span data-text>同一支豆子，烘焙程度不同，喝起来判若两杯。浅烘保留更多果酸与花香，深烘则带来可可、焦糖与更厚的醇度。</span></p>
+                        <div class="coffee-roast" role="img" aria-label="烘焙色阶，从浅烘到深烘">
+                          <div class="coffee-roast-bar"></div>
+                          <div class="coffee-roast-labels"><span>浅烘 — 明亮</span><span>中烘 — 平衡</span><span>深烘 — 醇厚</span></div>
+                        </div>
+                      </section>
+
+                      <section class="coffee-section" id="grind">
+                        <span class="coffee-num">03</span>
+                        <h3 class="coffee-h2" data-obj="grindTitle" data-label="标题"><span data-text>研磨：粗细与新鲜</span></h3>
+                        <p data-obj="grindP" data-label="段落"><span data-text>豆子磨开后，香气在十几分钟内就会大量散失，最好冲之前现磨。另外，烘焙后的第 5 到 14 天通常是风味最好的时候。</span></p>
+                        <p class="is-plain" data-static-hint>手冲建议中细研磨，颗粒大约像细砂糖。喝到苦涩就调粗一格，淡而发酸就调细一格。</p>
+                      </section>
+
+                      <section class="coffee-section" id="brew">
+                        <span class="coffee-num">04</span>
+                        <h3 class="coffee-h2" data-obj="brewTitle" data-label="标题"><span data-text>萃取：手冲四步</span></h3>
+                        <p class="is-plain" data-static-hint>水温越高，萃取越快。浅烘豆可以用 92–94 °C，深烘豆降到 88–90 °C 会更稳。</p>
+                        <ol class="coffee-steps" data-static-hint>
+                          <li><b>温杯湿纸</b><span>用热水冲湿滤纸，去掉纸味，顺便温热分享壶。</span></li>
+                          <li><b>闷蒸 30 秒</b><span>注入粉重两倍的水，让咖啡粉充分排气、均匀吸水。</span></li>
+                          <li><b>分段注水</b><span>以画圈的方式慢慢注水，保持水位平稳，分两到三段完成。</span></li>
+                          <li><b>2 分 30 秒完成</b><span>总时间控制在 2:30 左右，摇匀后就可以享用了。</span></li>
+                        </ol>
+                        <div class="coffee-tablewrap" data-static-hint>
+                          <table class="coffee-table">
+                            <thead><tr><th>参数</th><th>推荐</th><th>备注</th></tr></thead>
+                            <tbody>
+                              <tr><td>粉量</td><td>15 g</td><td>约一人份</td></tr>
+                              <tr><td>水量</td><td>225 ml</td><td>粉水比 1 : 15</td></tr>
+                              <tr><td>水温</td><td>92 °C</td><td>浅烘可提高到 94 °C</td></tr>
+                              <tr><td>研磨</td><td>中细</td><td>类似细砂糖</td></tr>
+                              <tr><td>时间</td><td>2:30</td><td>含 30 秒闷蒸</td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <blockquote class="coffee-quote">好咖啡没有标准答案。记下每一次的参数和感受，下一杯就会更接近你喜欢的味道。<cite>—— 写给下个周末的自己</cite></blockquote>
+                      </section>
+                    </div>
+
+                    <footer class="coffee-foot">
+                      这份笔记用 HTML 写成，和其他笔记一起放在 Obsidian 库里。参考：<a data-obj="footLink" data-label="链接" href="https://example.com/brew-guide"><span data-text>手冲入门指南</span></a>
+                    </footer>
+                  </article>
+                </div>
+              </div>
+
+              <div class="app-sourcepane" id="sourcePane">
+                <div class="app-sourcebar">
+                  <span class="sourcebar-title"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>源码</span>
+                  <span class="sourcebar-file">一杯好咖啡的诞生.html</span>
+                  <span class="sourcebar-type">HTML</span>
+                </div>
+                <div class="source-scroll" id="sourceScroll">
+                  <div class="source-code" id="sourceCode" tabindex="0" role="region" aria-label="页面源码"></div>
+                </div>
+              </div>
+            </div>
+
+            <aside class="app-panel" aria-label="HTML Atelier 侧栏工作台（演示）">
+              <header class="panel-file">
+                <img src="assets/icon.svg" alt="" width="30" height="30" loading="lazy">
+                <div><strong>一杯好咖啡的诞生.html</strong><span>页面 · 页面文件夹</span></div>
+                <span class="panel-file-badge">页面</span>
+              </header>
+
+              <div class="panel-tools">
+                <button class="tool-btn" type="button" data-tool="后退" aria-label="后退"><svg class="icon"><use href="#i-arrow-right"/></svg></button>
+                <button class="tool-btn" type="button" data-tool="前进" aria-label="前进"><svg class="icon"><use href="#i-arrow-right"/></svg></button>
+                <span class="tool-sep" aria-hidden="true"></span>
+                <button class="tool-btn" type="button" data-tool="刷新预览" aria-label="刷新预览"><svg class="icon"><use href="#i-refresh"/></svg></button>
+                <button class="tool-btn tool-collapse" type="button" data-tool="收起文件树" aria-label="收起文件树"><svg class="icon"><use href="#i-layout"/></svg></button>
+                <span class="tool-spacer" aria-hidden="true"></span>
+                <button class="tool-btn" type="button" id="zoomOut" aria-label="缩小预览"><svg class="icon"><use href="#i-minus"/></svg></button>
+                <button class="tool-zoom" type="button" id="zoomReset" aria-label="重置缩放">100%</button>
+                <button class="tool-btn" type="button" id="zoomIn" aria-label="放大预览"><svg class="icon"><use href="#i-plus"/></svg></button>
+                <button class="tool-btn" type="button" data-tool="更多菜单" aria-label="更多菜单"><svg class="icon"><use href="#i-more"/></svg></button>
+              </div>
+
+              <div class="mode-switch" role="group" aria-label="视图模式">
+                <button type="button" data-mode="preview" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>预览</button>
+                <button type="button" data-mode="edit" aria-pressed="true" class="is-active"><svg class="icon" aria-hidden="true"><use href="#i-cursor"/></svg>编辑</button>
+                <button type="button" data-mode="source" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>源码</button>
+                <button type="button" data-mode="split" aria-pressed="false"><svg class="icon" aria-hidden="true"><use href="#i-columns"/></svg>分栏</button>
+              </div>
+
+              <div class="panel-search">
+                <label class="search-box" for="demoSearch">
+                  <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+                  <input id="demoSearch" type="search" placeholder="搜索草稿文字…" autocomplete="off" spellcheck="false" aria-label="搜索草稿文字">
+                  <span class="search-count" id="searchCount">8 项</span>
+                </label>
+                <p class="search-hint" id="searchHint">按 Enter 跳到第一条匹配</p>
+              </div>
+
+              <div class="panel-tabs" role="tablist" aria-label="工作台面板">
+                <button type="button" role="tab" id="tab-edit" aria-controls="panel-edit" aria-selected="true" tabindex="0">编辑</button>
+                <button type="button" role="tab" id="tab-outline" aria-controls="panel-outline" aria-selected="false" tabindex="-1">大纲</button>
+                <button type="button" role="tab" id="tab-changes" aria-controls="panel-changes" aria-selected="false" tabindex="-1">修改<span class="tab-count" id="changesCount" hidden>0</span></button>
+                <button type="button" role="tab" id="tab-resources" aria-controls="panel-resources" aria-selected="false" tabindex="-1">资源</button>
+              </div>
+
+              <div class="panel-body">
+                <div class="panel-section" role="tabpanel" id="panel-edit" aria-labelledby="tab-edit" tabindex="0">
+                  <div class="panel-empty" id="editEmpty">
+                    <span class="empty-icon"><svg class="icon" aria-hidden="true"><use href="#i-cursor"/></svg></span>
+                    <strong>在页面里点一段文字</strong>
+                    <p>标题、正文、链接和图片都能改。选中后，这里会出现对应的表单。</p>
+                    <span class="empty-hint">提示：也可以先切到「分栏」对照源码</span>
+                  </div>
+                  <div class="edit-form" id="editForm" hidden></div>
+                </div>
+
+                <div class="panel-section" role="tabpanel" id="panel-outline" aria-labelledby="tab-outline" tabindex="0" hidden>
+                  <div class="panel-subhead"><span>标题结构</span><span id="outlineCount">8 项</span></div>
+                  <ul class="outline-list" id="outlineList"></ul>
+                  <p class="panel-empty-line" id="outlineEmpty" hidden>没有匹配的标题，换个关键词试试。</p>
+                </div>
+
+                <div class="panel-section" role="tabpanel" id="panel-changes" aria-labelledby="tab-changes" tabindex="0" hidden>
+                  <div class="panel-subhead"><span>未保存的改动</span><span id="changesSummary">0 处</span></div>
+                  <div class="changes-list" id="changesList"></div>
+                  <div class="panel-empty panel-empty-compact" id="changesEmpty">
+                    <span class="empty-icon"><svg class="icon" aria-hidden="true"><use href="#i-diff"/></svg></span>
+                    <strong>还没有改动</strong>
+                    <p>在页面里选一段文字改一改，这里会列出旧值和新值。</p>
+                  </div>
+                </div>
+
+                <div class="panel-section" role="tabpanel" id="panel-resources" aria-labelledby="tab-resources" tabindex="0" hidden>
+                  <div class="panel-subhead"><span>页面资源</span><span>4 项</span></div>
+                  <ul class="res-list">
+                    <li>
+                      <span class="res-icon tone-sage"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg></span>
+                      <div class="res-info"><strong>assets/cup.svg</strong><span>本地图片</span></div>
+                      <span class="res-state is-ok">已加载</span>
+                      <button class="res-source" type="button" data-res="cup">源码</button>
+                    </li>
+                    <li>
+                      <span class="res-icon tone-amber"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg></span>
+                      <div class="res-info"><strong>assets/favicon.png</strong><span>本地图片</span></div>
+                      <span class="res-state is-missing">缺失</span>
+                      <button class="res-source" type="button" data-res="favicon">源码</button>
+                    </li>
+                    <li>
+                      <span class="res-icon tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg></span>
+                      <div class="res-info"><strong>example.com/brew-guide</strong><span>远程链接</span></div>
+                      <span class="res-state is-remote">远程</span>
+                      <button class="res-source" type="button" data-res="remote">源码</button>
+                    </li>
+                    <li>
+                      <span class="res-icon tone-violet"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg></span>
+                      <div class="res-info"><strong>内联 style</strong><span>页面样式</span></div>
+                      <span class="res-state is-inline">内联</span>
+                      <button class="res-source" type="button" data-res="style">源码</button>
+                    </li>
+                  </ul>
+                  <p class="panel-footnote">资源状态在真实插件里会标出本地、缺失、远程或已拦截，点击可跳到对应源码。</p>
+                </div>
+              </div>
+            </aside>
+          </div>
+
+          <div class="app-status">
+            <div class="status-left">
+              <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+              <span class="status-text" id="dirtyStatus" aria-live="polite">无未保存更改</span>
+              <span class="status-draft" id="draftChip"><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>草稿已备份</span>
+            </div>
+            <div class="status-actions">
+              <button class="status-icon" type="button" id="undoBtn" aria-label="撤销" disabled><svg class="icon"><use href="#i-undo"/></svg></button>
+              <button class="status-icon" type="button" id="redoBtn" aria-label="重做" disabled><svg class="icon"><use href="#i-redo"/></svg></button>
+              <button class="status-save" type="button" id="saveBtn"><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg>保存</button>
+            </div>
+            <div class="app-toast" id="demoToast" role="status" aria-live="polite"></div>
+          </div>
+        </div>
+
+        <div class="demo-foot">
+          <p>原型只演示交互；真实插件会把改动写回文件并自动备份草稿。切到「源码」或「分栏」看看整份文件。</p>
+          <div class="demo-foot-actions">
+            <a class="btn btn-primary btn-sm" href="#gallery">看真实截图 <svg class="icon" aria-hidden="true"><use href="#i-arrow-down"/></svg></a>
+            <span class="demo-foot-note">不会读写本地文件</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FEATURES ================= -->
+  <section class="section features" id="features" aria-labelledby="featuresTitle">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow">能力</p>
+          <h2 id="featuresTitle">一个窗口，装下读、改、查、存。</h2>
+        </div>
+        <p class="lead">从打开文件到保存落盘，常用动作都在侧栏工作台里，不用在编辑器、浏览器和文件管理器之间来回切。</p>
+      </div>
+
+      <div class="bento">
+        <article class="feature-card feature-diff tone-caramel" data-reveal>
+          <div class="feature-top">
+            <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-diff"/></svg></span>
+            <span class="feature-tag">精确修改</span>
+          </div>
+          <div class="feature-diff-grid">
+            <div>
+              <h3>只重写你改过的那一段</h3>
+              <p>可视化修改只更新受影响的源码区间；未改动的标签、属性、注释、缩进、换行和实体写法保持原样，不会重新格式化整份文件。</p>
+            </div>
+            <div class="diff-visual" aria-hidden="true">
+              <div class="diff-head"><span>index.html</span><span>只动 1 行</span></div>
+              <div class="diff-line"><span class="diff-sign"> </span><span class="diff-gutter">12</span><code><span class="d-tag">&lt;h1</span> <span class="d-attr">class</span>=<span class="d-str">"coffee-title"</span><span class="d-tag">&gt;</span><mark>一杯好咖啡的诞生</mark><span class="d-tag">&lt;/h1&gt;</span></code></div>
+              <div class="diff-line is-quiet"><span class="diff-sign"> </span><span class="diff-gutter">13</span><code><span class="d-tag">&lt;p&gt;</span>从一颗生豆到杯中的风味……<span class="d-tag">&lt;/p&gt;</span></code></div>
+              <div class="diff-line is-quiet"><span class="diff-sign"> </span><span class="diff-gutter">14</span><code><span class="d-comment">&lt;!-- 注释和缩进保持不变 --&gt;</span></code></div>
+              <div class="diff-line is-quiet"><span class="diff-sign"> </span><span class="diff-gutter">15</span><code><span class="d-tag">&lt;figure&gt;</span><span class="d-tag">&lt;img</span> <span class="d-attr">src</span>=<span class="d-str">"assets/cup.svg"</span> …</code></div>
+            </div>
+          </div>
+          <div class="feature-meta"><span>文字片段</span><span>整段编辑</span><span>源码模式</span></div>
+        </article>
+
+        <article class="feature-card feature-modes tone-violet" data-reveal>
+          <div class="feature-top">
+            <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-layout"/></svg></span>
+            <span class="feature-tag">四种模式</span>
+          </div>
+          <h3>四种模式，随场景切换</h3>
+          <p>阅读用预览，改字用编辑，查结构用源码，对照用分栏。后退、前进时，阅读位置还记得。</p>
+          <div class="mode-demo" aria-hidden="true">
+            <div class="mode-demo-switch"><span>预览</span><span class="is-on">编辑</span><span>源码</span><span>分栏</span></div>
+            <div class="mode-demo-panels">
+              <div class="mdp mdp-preview"><b></b><i></i><i></i></div>
+              <div class="mdp mdp-edit"><i></i><i></i><i></i><i></i><b></b></div>
+              <div class="mdp mdp-source"><i></i><i></i><i></i><i></i></div>
+              <div class="mdp mdp-split"><i></i><i></i><b></b><i></i></div>
+            </div>
+          </div>
+          <div class="feature-meta"><span>缩放与页面宽度</span><span>后退前进</span></div>
+        </article>
+
+        <article class="feature-card feature-small tone-sage" data-reveal>
+          <div class="feature-top">
+            <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg></span>
+          </div>
+          <h3>侧栏工作台</h3>
+          <p>编辑、大纲、搜索、修改、资源都在同一列。搜索支持区分大小写和包含隐藏文字。</p>
+          <ul class="mini-tabs" aria-hidden="true">
+            <li><svg class="icon"><use href="#i-type"/></svg>编辑</li>
+            <li><svg class="icon"><use href="#i-list"/></svg>大纲</li>
+            <li><svg class="icon"><use href="#i-search"/></svg>搜索</li>
+            <li><svg class="icon"><use href="#i-diff"/></svg>修改</li>
+            <li><svg class="icon"><use href="#i-box"/></svg>资源</li>
+          </ul>
+        </article>
+
+        <article class="feature-card feature-small tone-blue" data-reveal>
+          <div class="feature-top">
+            <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-merge"/></svg></span>
+          </div>
+          <h3>草稿与冲突</h3>
+          <p>未保存修改自动备份，重启后也能找回。磁盘变化时，保存前先选合并方式。</p>
+          <div class="merge-visual" aria-hidden="true">
+            <div class="merge-source"><span>磁盘版本</span><i>新</i></div>
+            <div class="merge-source"><span>你的草稿</span><i>未保存</i></div>
+            <div class="merge-source"><span>上次保存</span><i>基准</i></div>
+            <span class="merge-arrow"><svg class="icon"><use href="#i-arrow-down"/></svg></span>
+            <div class="merge-result">三方合并 · 采用磁盘 · 草稿另存</div>
+          </div>
+          <div class="feature-meta"><span>按设备标记</span><span>草稿管理器</span><span>另存为</span></div>
+        </article>
+
+        <article class="feature-card feature-small tone-amber" data-reveal>
+          <div class="feature-top">
+            <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
+          </div>
+          <h3>把页面嵌进笔记</h3>
+          <p>用 <code>html-atelier</code> 代码块嵌入已保存页面，支持高度、宽度、锚点和工具栏。保存后点刷新即可。</p>
+          <div class="embed-visual" aria-hidden="true">
+            <div class="embed-code"><span>```html-atelier</span><em>path: "页面/咖啡.html"</em><em>height: auto</em><span>```</span></div>
+            <span class="embed-arrow"><svg class="icon"><use href="#i-arrow-right"/></svg></span>
+            <div class="embed-card"><span class="embed-dots"><i></i><i></i><i></i></span><b>咖啡页面</b><i class="embed-skel"></i><i class="embed-skel short"></i></div>
+          </div>
+          <div class="feature-meta"><span>height 160–1600</span><span>width 240–3840</span><span>anchor · toolbar</span></div>
+        </article>
+
+        <article class="feature-card feature-safety tone-caramel" data-reveal>
+          <div class="feature-safety-copy">
+            <div class="feature-top">
+              <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span>
+              <span class="feature-tag">安全边界</span>
+            </div>
+            <h3>安全边界先于功能</h3>
+            <p>预览默认沙箱，脚本默认不执行。即使开启「允许页面脚本」，页面也在隔离的跨源不透明源中运行，拿不到应用、仓库和本地系统。</p>
+            <div class="feature-meta"><span>表单提交阻止</span><span>嵌套框架移除</span><span>脚本可选开启</span></div>
+          </div>
+          <div class="shield-visual" aria-hidden="true">
+            <div class="shield-ring ring-1"><span>应用</span>
+              <div class="shield-ring ring-2"><span>仓库</span>
+                <div class="shield-ring ring-3"><span>页面脚本</span>
+                  <svg class="icon"><use href="#i-lock"/></svg>
+                </div>
+              </div>
+            </div>
+            <span class="shield-note">隔离的跨源沙箱</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="feature-chips" data-reveal>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>缩放与页面宽度</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg>锚点与库内链接</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg>本地资源自动刷新</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg>撤销重做</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg>另存为</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>可配置历史记录</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= WORKFLOW / GALLERY ================= -->
+  <section class="section workflow" id="workflow" aria-labelledby="workflowTitle">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow">真实界面</p>
+          <h2 id="workflowTitle">从打开到保存，三步。</h2>
+        </div>
+        <p class="lead">不用先学一套新工具。打开 .html，像看网页一样读；切到编辑，像改文档一样点；最后记得点保存。</p>
+      </div>
+
+      <div class="step-grid">
+        <article class="step-card" data-reveal>
+          <span class="step-num">01</span>
+          <span class="step-icon"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></span>
+          <h3>打开</h3>
+          <p>在库里点开 .html，页面在主工作区渲染，相对资源按文件所在位置解析。</p>
+          <span class="step-foot">.html / .htm</span>
+        </article>
+        <article class="step-card" data-reveal>
+          <span class="step-num">02</span>
+          <span class="step-icon"><svg class="icon" aria-hidden="true"><use href="#i-cursor"/></svg></span>
+          <h3>点选</h3>
+          <p>切到编辑，指到哪段文字就框出哪段。侧栏表单打开，预览随输入更新。</p>
+          <span class="step-foot">文字 · 链接 · 图片</span>
+        </article>
+        <article class="step-card" data-reveal>
+          <span class="step-num">03</span>
+          <span class="step-icon"><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg></span>
+          <h3>保存</h3>
+          <p>点击保存才写回文件。草稿在后台自动备份，意外关闭或重启也能找回。</p>
+          <span class="step-foot">草稿与文件分开</span>
+        </article>
+      </div>
+
+      <div class="gallery" id="gallery">
+        <div class="gallery-head" data-reveal>
+          <div>
+            <p class="eyebrow">截图</p>
+            <h3>在真实界面里看一眼</h3>
+          </div>
+          <span class="gallery-zoom-hint"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击任意截图放大</span>
+        </div>
+
+        <div class="gallery-grid">
+          <button class="shot-card" type="button" data-full="assets/shot-edit.webp" data-caption="点选标题，右侧直接改文字内容，保存后才会写回文件。" aria-label="放大查看截图：点选标题，侧栏直接改" data-reveal>
+            <span class="shot-media">
+              <img src="assets/shot-edit@900.webp" srcset="assets/shot-edit@900.webp 900w, assets/shot-edit.webp 1600w" sizes="(max-width: 860px) 92vw, 560px" width="1600" height="900" loading="lazy" decoding="async" alt="编辑模式：页面中的标题被选中，右侧文字内容表单显示标题。">
+              <span class="shot-hover"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击放大</span>
+            </span>
+            <span class="shot-caption"><strong>点选标题，侧栏直接改</strong><span>编辑模式 · 文字片段</span></span>
+          </button>
+
+          <button class="shot-card" type="button" data-full="assets/shot-split.webp" data-caption="分栏模式下，源码与预览并排对照，选中位置两边同步。" aria-label="放大查看截图：源码与预览并排" data-reveal>
+            <span class="shot-media">
+              <img src="assets/shot-split@900.webp" srcset="assets/shot-split@900.webp 900w, assets/shot-split.webp 1600w" sizes="(max-width: 860px) 92vw, 560px" width="1600" height="900" loading="lazy" decoding="async" alt="分栏模式：左侧源码带行号，右侧是咖啡页面预览。">
+              <span class="shot-hover"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击放大</span>
+            </span>
+            <span class="shot-caption"><strong>源码与预览并排对照</strong><span>分栏模式 · 行号与定位</span></span>
+          </button>
+
+          <button class="shot-card" type="button" data-full="assets/shot-search.webp" data-caption="在当前草稿里搜索文案，结果显示标题与段落摘要。" aria-label="放大查看截图：在当前草稿里搜索文案" data-reveal>
+            <span class="shot-media">
+              <img src="assets/shot-search@900.webp" srcset="assets/shot-search@900.webp 900w, assets/shot-search.webp 1600w" sizes="(max-width: 860px) 92vw, 560px" width="1600" height="900" loading="lazy" decoding="async" alt="搜索面板：关键词“咖啡”搜索出标题与段落结果。">
+              <span class="shot-hover"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击放大</span>
+            </span>
+            <span class="shot-caption"><strong>在当前草稿里搜索文案</strong><span>搜索 · 草稿内容</span></span>
+          </button>
+
+          <button class="shot-card" type="button" data-full="assets/shot-embed.webp" data-caption="在笔记里用 html-atelier 代码块嵌入整页，可调高度、宽度与锚点。" aria-label="放大查看截图：在笔记里嵌入整页内容" data-reveal>
+            <span class="shot-media">
+              <img src="assets/shot-embed@900.webp" srcset="assets/shot-embed@900.webp 900w, assets/shot-embed.webp 1600w" sizes="(max-width: 860px) 92vw, 560px" width="1600" height="900" loading="lazy" decoding="async" alt="笔记中嵌入 HTML 页面：手冲四步与预算出现在同一条笔记里。">
+              <span class="shot-hover"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击放大</span>
+            </span>
+            <span class="shot-caption"><strong>在笔记里嵌入整页内容</strong><span>笔记嵌入 · 已保存文件</span></span>
+          </button>
+        </div>
+        <p class="gallery-note">截图来自 2.1.0 桌面端，亮色主题。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SAFETY ================= -->
+  <section class="section safety" id="safety" aria-labelledby="safetyTitle">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow">安全边界</p>
+          <h2 id="safetyTitle">默认不执行脚本，<br>也不改你未改的源码。</h2>
+        </div>
+        <p class="lead">HTML 能带脚本；HTML Atelier 把“打开就能看”和“运行页面代码”分开。默认状态下，你看到的只是静态页面。</p>
+      </div>
+
+      <div class="safety-grid">
+        <article class="safety-card" data-reveal>
+          <div class="safety-card-head">
+            <span class="safety-num">01</span>
+            <span class="safety-icon tone-sage"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span>
+            <span class="safety-badge">默认</span>
+          </div>
+          <h3>默认预览</h3>
+          <p>页面在沙箱框架里打开，只负责把内容显示出来。</p>
+          <ul class="tick-list">
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>页面脚本与内联事件不运行</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>表单提交被阻止</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>嵌套框架被移除</li>
+          </ul>
+          <span class="safety-foot">阅读与可视化编辑默认走这里</span>
+        </article>
+
+        <article class="safety-card" data-reveal>
+          <div class="safety-card-head">
+            <span class="safety-num">02</span>
+            <span class="safety-icon tone-violet"><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg></span>
+            <span class="safety-badge">可选</span>
+          </div>
+          <h3>允许页面脚本</h3>
+          <p>在设置里手动开启后，脚本运行在隔离的跨源不透明源沙箱中。</p>
+          <ul class="tick-list is-warn">
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>无法直接访问应用、仓库或本地系统</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>静态本地脚本、图片、字体以 data URL 内联</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>可视化编辑、阅读位置记忆、页内链接路由、嵌入自动高度不可用</li>
+          </ul>
+          <span class="safety-foot">只对可信文件开启</span>
+        </article>
+
+        <article class="safety-card" data-reveal>
+          <div class="safety-card-head">
+            <span class="safety-num">03</span>
+            <span class="safety-icon tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg></span>
+            <span class="safety-badge">可配置</span>
+          </div>
+          <h3>网络与本地资源</h3>
+          <p>远程图片、样式、字体和媒体默认允许加载，也可以在设置里统一关掉。</p>
+          <ul class="tick-list is-blue">
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>远程资源默认允许</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>本地 CSS 与 @import 内联到预览</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>资源缺失与拦截状态可在侧栏查看</li>
+          </ul>
+          <span class="safety-foot">离线也能读到本地样式</span>
+        </article>
+      </div>
+
+      <div class="safety-warning" data-reveal>
+        <span class="warning-icon"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg></span>
+        <p><strong>还有一个边界：</strong>运行时动态创建的本地资源与跨文件模块导入不会被内联。只对可信文件开启页面脚本；需要执行脚本的页面，也可以直接用外部浏览器打开。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= INSTALL ================= -->
+  <section class="section install" id="install" aria-labelledby="installTitle">
+    <div class="wrap">
+      <div class="section-head" data-reveal>
+        <div>
+          <p class="eyebrow">安装</p>
+          <h2 id="installTitle">装进 Obsidian，只要一分钟。</h2>
+        </div>
+        <p class="lead">已上架 Obsidian 社区插件市场；桌面版 1.7.2+，支持 .html 和 .htm。</p>
+      </div>
+
+      <div class="install-grid">
+        <article class="install-card install-market" data-reveal>
+          <div class="install-card-head">
+            <div>
+              <span class="install-badge">推荐</span>
+              <h3>从社区插件市场安装</h3>
+              <p>在 Obsidian 里搜索安装，之后跟随商店更新。</p>
+            </div>
+            <span class="install-icon"><svg class="icon" aria-hidden="true"><use href="#i-download"/></svg></span>
+          </div>
+          <ol class="install-steps">
+            <li><span>1</span><p>打开 <strong>设置 → 第三方插件</strong>，进入社区插件市场。</p></li>
+            <li><span>2</span><p>搜索 <strong>HTML Atelier</strong>，点击安装。</p></li>
+            <li><span>3</span><p>启用插件，打开库里任意 .html 或 .htm 文件。</p></li>
+          </ol>
+          <div class="install-actions">
+            <a class="btn btn-primary" href="obsidian://show-plugin?id=html-atelier">
+              <svg class="icon" aria-hidden="true"><use href="#i-external"/></svg>
+              在 Obsidian 中打开
+            </a>
+            <a class="text-link" href="https://community.obsidian.md/plugins/html-atelier" target="_blank" rel="noopener">
+              打开商店页面
+              <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
+            </a>
+          </div>
+          <p class="install-fineprint">商店版本会随审核更新；需要 2.1.0 的最新构建，请按「<span class="nowrap">手动安装</span>」下载。如果按钮没有反应，请在 Obsidian 里手动搜索 HTML Atelier。</p>
+        </article>
+
+        <article class="install-card install-manual" data-reveal>
+          <div class="install-card-head">
+            <div>
+              <span class="install-badge badge-soft">手动</span>
+              <h3>手动安装</h3>
+              <p>从 Releases 下载同一版本的三个文件。</p>
+            </div>
+            <span class="install-icon icon-soft"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></span>
+          </div>
+          <p class="manual-copy">把 <code>main.js</code>、<code>manifest.json</code> 和 <code>styles.css</code> 直接放进插件目录：</p>
+          <pre class="manual-tree"><code>.obsidian/plugins/html-atelier/
+├── main.js
+├── manifest.json
+└── styles.css</code></pre>
+          <div class="install-actions">
+            <a class="btn btn-soft" href="https://github.com/384615666/obsidian-html-atelier/releases/latest" target="_blank" rel="noopener">
+              <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
+              下载最新版
+            </a>
+          </div>
+          <p class="install-fineprint">不要再套一层文件夹；放入后重启 Obsidian，再到第三方插件里启用。</p>
+        </article>
+      </div>
+
+      <div class="req-strip" data-reveal>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-monitor"/></svg><b>Obsidian 桌面版 1.7.2+</b></span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg><b>.html 与 .htm</b></span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg><b>Windows · macOS · Linux</b></span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-close"/></svg><b>不支持移动端</b></span>
+      </div>
+
+      <div class="conflict-note" data-reveal>
+        <span class="conflict-icon"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg></span>
+        <p>如果另一个已启用的插件也接管 .html / .htm，请先停用它，避免文件类型注册冲突。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FAQ ================= -->
+  <section class="section faq-section" id="faq" aria-labelledby="faqTitle">
+    <div class="wrap faq-layout">
+      <div class="faq-intro" data-reveal>
+        <p class="eyebrow">常见问题</p>
+        <h2 id="faqTitle">先看这几个问题。</h2>
+        <p class="lead">如果这里没有你的情况，README 里有完整的编辑范围与安全说明。</p>
+        <div class="faq-actions">
+          <a class="btn btn-soft" href="https://github.com/384615666/obsidian-html-atelier#readme" target="_blank" rel="noopener">
+            <svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>
+            查看 README
+          </a>
+          <a class="text-link" href="https://github.com/384615666/obsidian-html-atelier/issues" target="_blank" rel="noopener">
+            在 GitHub 提问
+            <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="faq-list" data-reveal>
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>可视化编辑会把整份文件重新格式化吗？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>不会。可视化修改只更新受影响的源码区间；未动过的标签、属性、注释、缩进、换行和实体写法都会保持原样。需要大改结构时，切到源码模式即可。</p></div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>页面里的 JavaScript 会执行吗？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>默认不会。预览里页面脚本和内联事件都不运行，表单提交被阻止，嵌套框架会被移除。只有在设置里开启「允许页面脚本」后，脚本才会在隔离的跨源沙箱中运行；这个模式会牺牲可视化编辑等能力，只对可信文件开启。</p></div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>支持手机或平板上的 Obsidian 吗？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>不支持。HTML Atelier 仅支持 Obsidian 桌面版 1.7.2 及以上，Windows、macOS 和 Linux 都可以使用。</p></div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>会和别的 HTML 插件冲突吗？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>同一文件类型只能由一个插件接管。如果另一个已启用的插件也注册了 .html / .htm，请先停用它，再打开页面。</p></div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>草稿备份存在哪里？卸载前要注意什么？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>默认存放在 <code>.obsidian/plugins/html-atelier/drafts/</code>，包含原始与编辑后的 HTML。如果同步工具包含插件目录，这些备份也可能被同步。删除插件目录前，请先保留需要的草稿。</p></div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>怎么把 HTML 页面嵌进笔记？保存后嵌入没更新？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer">
+            <p>在笔记里写一个 <code>html-atelier</code> 代码块：</p>
+            <pre class="faq-code"><code>```html-atelier
+path: "页面/一杯好咖啡的诞生.html"
+height: auto
+anchor: brew
+toolbar: false
+```</code></pre>
+            <p>嵌入读取的是已保存文件，不会显示当前未保存的草稿。保存修改后，点嵌入里的刷新按钮重新载入。</p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>远程图片和字体会加载吗？可以关吗？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>远程图片、样式、字体和媒体默认允许加载，可以在设置里统一关闭。本地通过 <code>&lt;link rel="stylesheet"&gt;</code> 和 CSS <code>@import</code> 引用的样式表会内联到预览中。</p></div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>可视化编辑能改 CSS 和页面结构吗？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>不能。可视化编辑覆盖页面文字、链接文字与地址、图片地址和替代文本；CSS、任意 HTML 结构、表单字段值以及 SVG 内的文字，请用源码模式修改。开启「允许页面脚本」时，可视化编辑也不可用。</p></div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= OPEN SOURCE ================= -->
+  <section class="section open-source" id="open-source" aria-labelledby="openTitle">
+    <div class="wrap">
+      <div class="open-panel" data-reveal>
+        <div class="open-copy">
+          <p class="eyebrow">开源</p>
+          <h2 id="openTitle">文件是你的，<br>工具也是开源的。</h2>
+          <p class="open-lead">MIT 许可，本地运行，不上传文件，没有账号系统。页面、草稿和资源都留在你的仓库里，想检查代码随时可以。</p>
+          <div class="open-badges">
+            <span><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>本地运行</span>
+            <span><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>MIT 许可</span>
+            <span><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>无账号系统</span>
+          </div>
+          <div class="open-links">
+            <a class="btn btn-soft btn-sm" href="https://github.com/384615666/obsidian-html-atelier" target="_blank" rel="noopener">
+              <svg class="icon icon-fill" aria-hidden="true"><use href="#i-github"/></svg>
+              GitHub 仓库
+            </a>
+            <a class="btn btn-soft btn-sm" href="https://github.com/384615666/obsidian-html-atelier/releases" target="_blank" rel="noopener">Releases</a>
+            <a class="btn btn-soft btn-sm" href="https://github.com/384615666/obsidian-html-atelier/issues" target="_blank" rel="noopener">Issues</a>
+            <a class="btn btn-soft btn-sm" href="https://github.com/384615666/obsidian-html-atelier/blob/main/THIRD-PARTY-NOTICES.txt" target="_blank" rel="noopener">第三方声明</a>
+          </div>
+          <span class="open-stamp" aria-hidden="true"><b>MIT</b><i>OPEN SOURCE</i></span>
+        </div>
+
+        <div class="license-panel">
+          <div class="license-head">
+            <span class="license-icon"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
+            <div><strong>许可与组件</strong><span>主要部分</span></div>
+          </div>
+          <ul class="license-list">
+            <li>
+              <div><b>应用代码</b><span>HTML Atelier · MIT</span></div>
+              <a href="https://github.com/384615666/obsidian-html-atelier/blob/main/LICENSE" target="_blank" rel="noopener">LICENSE<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+            </li>
+            <li>
+              <div><b>HTML 解析</b><span>parse5 · MIT</span></div>
+              <a href="https://github.com/384615666/obsidian-html-atelier/blob/main/THIRD-PARTY-NOTICES.txt" target="_blank" rel="noopener">声明<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+            </li>
+            <li>
+              <div><b>Obsidian API</b><span>仅类型 / 运行时由 Obsidian 提供</span></div>
+              <a href="https://github.com/obsidianmd/obsidian-api" target="_blank" rel="noopener">API<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
+            </li>
+          </ul>
+          <p class="license-note"><svg class="icon" aria-hidden="true"><use href="#i-info"/></svg>许可文本与完整的第三方依赖列表都在 GitHub 仓库里。</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="final-cta" aria-labelledby="finalTitle">
+    <div class="wrap">
+      <div class="cta-panel" data-reveal>
+        <div class="cta-copy">
+          <p class="eyebrow">开始</p>
+          <h2 id="finalTitle">把下一份网页，<br>放进 Obsidian。</h2>
+          <p>不用再为了改一行字打开浏览器和编辑器。装好插件，点开 .html，选一段文字，剩下的交给侧栏。</p>
+        </div>
+        <div class="cta-actions">
+          <a class="btn btn-primary btn-lg" href="#install">
+            <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
+            安装到 Obsidian
+          </a>
+          <a class="text-link" href="https://github.com/384615666/obsidian-html-atelier" target="_blank" rel="noopener">
+            在 GitHub 看源码
+            <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
+          </a>
+          <span class="cta-note">免费开源 · 桌面版 1.7.2+ · 本地文件</span>
+        </div>
+        <div class="cta-rings" aria-hidden="true"><i></i><i></i><i></i></div>
+        <svg class="cta-line" viewBox="0 0 900 220" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M-10 178C120 122 210 190 320 154s180-74 288-30 182 58 312-30"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand-block">
+        <div class="footer-brand">
+          <img src="assets/icon.svg" alt="" width="46" height="46" loading="lazy">
+          <div><strong>HTML Atelier</strong><span>在 Obsidian 里直接改网页。</span></div>
+        </div>
+        <p class="footer-tagline">沙箱预览、点选编辑、精确源码修改。免费开源，文件留在本机。</p>
+        <div class="footer-mini"><span class="live-dot" aria-hidden="true"></span>v2.1.0 · MIT License</div>
+      </div>
+
+      <div class="footer-cols">
+        <nav class="footer-col" aria-label="页脚产品导航">
+          <p class="footer-col-title">产品</p>
+          <a href="#features">功能</a>
+          <a href="#demo">演示</a>
+          <a href="#workflow">工作流</a>
+          <a href="#install">安装</a>
+          <a href="#faq">常见问题</a>
+        </nav>
+        <nav class="footer-col" aria-label="页脚资源导航">
+          <p class="footer-col-title">资源</p>
+          <a href="https://github.com/384615666/obsidian-html-atelier" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://github.com/384615666/obsidian-html-atelier/releases" target="_blank" rel="noopener">Releases</a>
+          <a href="https://github.com/384615666/obsidian-html-atelier/issues" target="_blank" rel="noopener">Issues</a>
+          <a href="https://community.obsidian.md/plugins/html-atelier" target="_blank" rel="noopener">商店页</a>
+          <a href="https://github.com/384615666/obsidian-html-atelier#readme" target="_blank" rel="noopener">英文 README</a>
+        </nav>
+        <nav class="footer-col" aria-label="页脚许可导航">
+          <p class="footer-col-title">许可</p>
+          <a href="https://github.com/384615666/obsidian-html-atelier/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>
+          <a href="https://github.com/384615666/obsidian-html-atelier/blob/main/THIRD-PARTY-NOTICES.txt" target="_blank" rel="noopener">第三方声明</a>
+          <a href="https://github.com/inikulin/parse5" target="_blank" rel="noopener">parse5</a>
+        </nav>
+      </div>
+    </div>
+
+    <p class="footer-wordmark" aria-hidden="true">HTML Atelier</p>
+
+    <div class="footer-bottom">
+      <p>© 2026 HTML Atelier · v2.1.0</p>
+      <p>Obsidian 是 Dynalist Inc. 的商标。本项目为独立开源项目，与 Obsidian 官方无隶属关系。</p>
+      <a href="#top">回到顶部 ↑</a>
+    </div>
+  </div>
+</footer>
+
+<dialog class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-labelledby="lightboxCaption">
+  <div class="lightbox-inner">
+    <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭大图">
+      <svg class="icon" aria-hidden="true"><use href="#i-close"/></svg>
+    </button>
+    <div class="lightbox-media">
+      <img id="lightboxImage" src="assets/shot-edit@900.webp" alt="" width="1600" height="900">
+    </div>
+    <div class="lightbox-bar">
+      <p id="lightboxCaption"></p>
+      <span>Esc 关闭 · 点击背景关闭</span>
+    </div>
+  </div>
+</dialog>
+
+<script src="site.js"></script>
+</body>
+</html>

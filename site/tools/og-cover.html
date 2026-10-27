@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --creme: #fbf7f0;
+    --ink: #2f2724;
+    --ink-soft: #6b5a4e;
+    --caramel: #a9622f;
+    --caramel-deep: #8a4e24;
+    --caramel-soft: #f3e3cf;
+    --violet: #7566c4;
+    --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+    --font: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+    --mono: "Cascadia Code", Consolas, ui-monospace, monospace;
+  }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; }
+  body {
+    position: relative;
+    display: grid;
+    grid-template-columns: 640px 1fr;
+    align-items: center;
+    gap: 28px;
+    padding: 64px 62px;
+    color: var(--ink);
+    font-family: var(--font);
+    background:
+      radial-gradient(760px 540px at 0% -12%, #f6e6d1 0%, transparent 62%),
+      radial-gradient(680px 500px at 104% 8%, #e9e4fa 0%, transparent 58%),
+      radial-gradient(600px 480px at 78% 108%, #e2eef7 0%, transparent 62%),
+      var(--creme);
+  }
+  body::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(143, 101, 65, .16) 1px, transparent 1px);
+    background-size: 22px 22px;
+    mask-image: linear-gradient(180deg, rgba(0,0,0,.5), transparent 80%);
+    pointer-events: none;
+  }
+  .left { position: relative; z-index: 2; }
+  .brand { display: flex; align-items: center; gap: 14px; margin-bottom: 34px; }
+  .brand img { width: 58px; height: 58px; border-radius: 16px; box-shadow: 0 14px 30px -14px rgba(146,80,31,.7); }
+  .brand-name { font-size: 27px; font-weight: 800; letter-spacing: -.035em; }
+  .brand-version { padding: 4px 10px; border-radius: 999px; background: var(--caramel-soft); color: var(--caramel-deep); font-family: var(--mono); font-size: 12px; font-weight: 600; }
+  .eyebrow { display: flex; align-items: center; gap: 10px; margin: 0 0 18px; color: var(--caramel-deep); font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
+  .eyebrow::before { content: ""; width: 30px; height: 1.5px; background: var(--caramel); }
+  h1 { margin: 0; font-size: 76px; font-weight: 800; line-height: 1.08; letter-spacing: -.055em; }
+  h1 .accent { display: block; color: var(--caramel); }
+  h1 .dot { color: var(--caramel-deep); }
+  .lead { max-width: 530px; margin: 22px 0 0; color: var(--ink-soft); font-size: 21px; line-height: 1.65; text-wrap: pretty; }
+  .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 30px; }
+  .chips span { padding: 7px 13px; border: 1px solid rgba(143,101,65,.18); border-radius: 999px; background: rgba(255,253,249,.74); color: #5b4637; font-size: 13px; font-weight: 650; }
+  .foot { margin-top: 34px; color: #8a7362; font-family: var(--mono); font-size: 12px; letter-spacing: .02em; }
+  .art { position: relative; z-index: 2; height: 510px; }
+  .halo { position: absolute; inset: 4% -4% 0 4%; border-radius: 50%; background: radial-gradient(closest-side, rgba(243,227,207,.9), transparent 72%); filter: blur(6px); }
+  .code {
+    position: absolute; top: 8px; right: -8px; width: 370px; border-radius: 20px; overflow: hidden;
+    background: linear-gradient(160deg, #352924, #241c19); color: #d9c9ba;
+    box-shadow: 0 40px 80px -38px rgba(36,28,24,.72); transform: rotate(3deg);
+  }
+  .code-bar { display: flex; align-items: center; gap: 8px; padding: 11px 15px; border-bottom: 1px solid rgba(255,255,255,.08); color: rgba(244,233,221,.52); font-family: var(--mono); font-size: 10px; }
+  .dots { display: flex; gap: 4px; }
+  .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.18); }
+  .dots i:first-child { background: rgba(201,150,63,.8); }
+  .code-body { padding: 14px 18px 18px; font-family: var(--mono); font-size: 12px; line-height: 2; color: rgba(236,219,203,.42); }
+  .code-body .line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .code-body .hot { margin: 6px -10px; padding: 4px 10px; border-left: 2px solid #9d8bea; border-radius: 4px; background: rgba(117,102,196,.22); color: #d7cdf5; }
+  .code-body .hot em { color: #f0d9bd; font-style: normal; }
+  .paper {
+    position: absolute; left: 0; top: 106px; width: 410px; border: 1px solid rgba(255,255,255,.96); border-radius: 24px;
+    background: repeating-linear-gradient(180deg, rgba(151,104,62,.026) 0 1px, transparent 1px 5px), #f9f3e9;
+    box-shadow: 0 44px 90px -50px rgba(64,43,29,.62); transform: rotate(-1.6deg); overflow: hidden;
+  }
+  .paper-bar { display: flex; align-items: center; gap: 9px; padding: 12px 16px; border-bottom: 1px solid rgba(143,101,65,.14); background: rgba(255,252,246,.76); }
+  .paper-bar .file { display: inline-flex; align-items: center; gap: 5px; color: #6b5a4e; font-family: var(--mono); font-size: 10px; }
+  .paper-bar .file::before { content: "▤"; color: var(--caramel); font-size: 11px; }
+  .paper-bar .view { margin-left: auto; padding: 3px 8px; border-radius: 5px; background: var(--caramel-soft); color: var(--caramel-deep); font-size: 9px; font-weight: 700; }
+  .paper-body { display: grid; grid-template-columns: 1fr 118px; gap: 10px; align-items: center; padding: 26px 22px 20px; }
+  .paper-eyebrow { margin: 0 0 8px; color: #b8743f; font-family: var(--mono); font-size: 9px; font-weight: 600; letter-spacing: .06em; }
+  .paper-title { position: relative; display: inline-block; margin: 22px 0 0; padding: 3px 5px; outline: 2px solid var(--violet); outline-offset: 3px; border-radius: 4px; background: rgba(117,102,196,.06); color: #38271d; font-family: var(--serif); font-size: 28px; font-weight: 700; line-height: 1.3; white-space: nowrap; }
+  .paper-title .tag { position: absolute; left: -2px; top: -22px; padding: 3px 8px; border-radius: 4px 4px 4px 0; background: var(--violet); color: #fff; font-family: var(--font); font-size: 9px; font-weight: 700; line-height: 1.2; }
+  .paper-lead { margin: 10px 0 0; color: #6b5a4e; font-size: 11px; line-height: 1.75; }
+  .paper-meta { display: flex; gap: 6px; margin-top: 12px; }
+  .paper-meta span { padding: 2px 8px; border: 1px solid rgba(143,101,65,.18); border-radius: 999px; background: rgba(255,251,244,.8); color: #7b6a5d; font-size: 8px; }
+  .paper-cup { width: 118px; height: 118px; }
+  .form {
+    position: absolute; right: 0; bottom: 4px; width: 286px; padding: 15px 16px; border: 1px solid rgba(255,255,255,.96); border-radius: 18px;
+    background: rgba(255,253,249,.97); box-shadow: 0 26px 60px -28px rgba(64,43,29,.55); transform: rotate(-1.2deg);
+  }
+  .form-head { display: flex; align-items: center; gap: 9px; }
+  .form-icon { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 8px; background: var(--violet-soft); color: var(--violet); font-size: 13px; }
+  .form-head strong { display: block; font-size: 12px; line-height: 1.3; }
+  .form-head small { display: block; color: var(--muted); font-size: 9px; }
+  .form-mode { margin-left: auto; padding: 2px 7px; border-radius: 999px; background: var(--caramel-soft); color: var(--caramel-deep); font-size: 8px; font-weight: 700; }
+  .form-field { margin-top: 11px; padding: 9px 10px; border: 1px solid rgba(143,101,65,.16); border-radius: 8px; background: #fffdf9; font-size: 12px; }
+  .form-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; color: #8a7362; font-size: 8.5px; }
+  .form-foot b { padding: 5px 11px; border-radius: 6px; background: var(--caramel); color: #fff; font-size: 9px; }
+  .chip { position: absolute; padding: 7px 11px; border-radius: 999px; font-size: 10px; font-weight: 700; box-shadow: 0 12px 26px -16px rgba(64,43,29,.5); }
+  .chip-line { left: 16px; bottom: 46px; background: var(--violet); color: #fff; }
+  .chip-draft { left: 26px; bottom: 4px; background: #fffdf9; color: var(--caramel-deep); }
+</style>
+</head>
+<body>
+  <div class="left">
+    <div class="brand">
+      <img src="../assets/icon.svg" alt="">
+      <span class="brand-name">HTML Atelier</span>
+      <span class="brand-version">v2.1.0</span>
+    </div>
+    <p class="eyebrow">Obsidian 桌面版 · 本地文件</p>
+    <h1>在 Obsidian 里，<span class="accent">直接改网页<span class="dot">。</span></span></h1>
+    <p class="lead">沙箱预览、点选编辑文字、链接和图片，改动只写回你选中的那段源码。</p>
+    <div class="chips"><span>沙箱预览</span><span>精确源码</span><span>草稿备份</span><span>笔记嵌入</span></div>
+    <p class="foot">github.com/384615666/obsidian-html-atelier</p>
+  </div>
+
+  <div class="art">
+    <div class="halo"></div>
+    <div class="code">
+      <div class="code-bar"><span class="dots"><i></i><i></i><i></i></span><span>源码 · 一杯好咖啡的诞生.html</span></div>
+      <div class="code-body">
+        <div class="line">&lt;header class="hero"&gt;</div>
+        <div class="line hot">&lt;h1&gt;<em>一杯好咖啡的诞生</em>&lt;/h1&gt;</div>
+        <div class="line">&lt;p class="lead"&gt;</div>
+        <div class="line">&lt;/header&gt;</div>
+      </div>
+    </div>
+    <div class="paper">
+      <div class="paper-bar"><span class="dots"><i></i><i></i><i></i></span><span class="file">一杯好咖啡的诞生.html</span><span class="view">页面</span></div>
+      <div class="paper-body">
+        <div>
+          <p class="paper-eyebrow">周末手冲笔记 · 第 3 期</p>
+          <h2 class="paper-title"><span class="tag">标题</span>一杯好咖啡的诞生</h2>
+          <p class="paper-lead">从一颗生豆到杯中的风味，要经过选豆、烘焙、研磨与萃取。</p>
+          <div class="paper-meta"><span>阅读约 6 分钟</span><span>2026 年 9 月</span></div>
+        </div>
+        <img class="paper-cup" src="../assets/cup.svg" alt="">
+      </div>
+    </div>
+    <div class="form">
+      <div class="form-head"><span class="form-icon">T</span><div><strong>文字内容</strong><small>标题</small></div><span class="form-mode">编辑</span></div>
+      <div class="form-field">一杯好咖啡的诞生</div>
+      <div class="form-foot"><span>修改即预览</span><b>保存</b></div>
+    </div>
+    <span class="chip chip-line">只改这一行源码</span>
+    <span class="chip chip-draft">● 草稿已备份</span>
+  </div>
+</body>
+</html>

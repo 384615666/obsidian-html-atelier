@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="HTML Atelier">
+  <defs>
+    <linearGradient id="brand" x1="18" y1="10" x2="110" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#dda06a"/>
+      <stop offset=".48" stop-color="#bf7a41"/>
+      <stop offset="1" stop-color="#935127"/>
+    </linearGradient>
+    <linearGradient id="sheen" x1="64" y1="6" x2="64" y2="70" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#fff" stop-opacity=".26"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="30" fill="url(#brand)"/>
+  <rect x="4.75" y="4.75" width="118.5" height="118.5" rx="29.25" fill="none" stroke="#fff" stroke-opacity=".22" stroke-width="1.5"/>
+  <path d="M12 34c0-11 8-19 19-19h66c11 0 19 8 19 19v20H12Z" fill="url(#sheen)"/>
+  <g fill="none" stroke="#fffaf3" stroke-width="7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M47 42 31 64l16 22"/>
+    <path d="M81 42 97 64 81 86"/>
+    <path d="M71 35 57 93"/>
+  </g>
+</svg>
