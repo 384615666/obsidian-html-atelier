@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#fbf7f0">
   <title>HTML Atelier · 在 Obsidian 里直接改网页</title>
-  <meta name="description" content="在 Obsidian 中预览、点选编辑和保存 HTML 文件：沙箱预览、精确源码修改、大纲搜索、草稿备份与笔记嵌入。Obsidian 桌面版 1.7.2+，MIT 开源。">
+  <meta name="description" content="Obsidian 桌面版插件：把库里的 .html 文件显示为页面，点选文字、链接和图片直接编辑，保存时只更新改过的源码。支持源码与分栏模式、大纲与搜索、草稿备份和笔记嵌入。MIT 开源。">
   <link rel="canonical" href="https://384615666.github.io/obsidian-html-atelier/">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="HTML Atelier">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:title" content="HTML Atelier · 在 Obsidian 里直接改网页">
-  <meta property="og:description" content="沙箱预览、点选编辑文字、链接和图片，只写回你动过的那段源码。草稿备份、大纲搜索与笔记嵌入，都在 Obsidian 桌面版里。">
+  <meta property="og:description" content="点选页面里的文字、链接和图片直接编辑，保存时只更新改过的源码。沙箱预览、草稿备份、笔记嵌入，Obsidian 桌面版 1.7.2+。">
   <meta property="og:url" content="https://384615666.github.io/obsidian-html-atelier/">
   <meta property="og:image" content="https://384615666.github.io/obsidian-html-atelier/assets/og-cover.png">
   <meta property="og:image:width" content="1200">
@@ -23,7 +23,7 @@
   <meta property="og:image:alt" content="HTML Atelier：在 Obsidian 里直接改网页">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HTML Atelier · 在 Obsidian 里直接改网页">
-  <meta name="twitter:description" content="沙箱预览、点选编辑和草稿备份。Obsidian 桌面版 1.7.2+，MIT 开源。">
+  <meta name="twitter:description" content="在 Obsidian 里预览和编辑 .html 文件。桌面版 1.7.2+，MIT 开源。">
   <meta name="twitter:image" content="https://384615666.github.io/obsidian-html-atelier/assets/og-cover.png">
 
   <link rel="stylesheet" href="site.css">
@@ -32,7 +32,7 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "HTML Atelier",
-    "description": "在 Obsidian 中预览、点选编辑和保存 HTML 文件的桌面插件。可视化编辑只更新受影响的源码区间，预览默认在沙箱中运行。",
+    "description": "Obsidian 桌面版插件，用于预览和编辑库中的 HTML 文件。可视化编辑只更新受影响的源码区间，预览默认在沙箱中运行、不执行页面脚本。",
     "url": "https://384615666.github.io/obsidian-html-atelier/",
     "downloadUrl": "https://github.com/384615666/obsidian-html-atelier/releases/latest",
     "softwareVersion": "2.1.0",
@@ -108,7 +108,7 @@
     <nav class="nav-menu" id="navMenu" aria-label="主导航">
       <a href="#features">功能</a>
       <a href="#demo">演示</a>
-      <a href="#workflow">工作流</a>
+      <a href="#workflow">截图</a>
       <a href="#safety">安全</a>
       <a href="#install">安装</a>
       <a href="#faq">常见问题</a>
@@ -141,12 +141,12 @@
   <section class="hero" id="top">
     <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="eyebrow hero-eyebrow"><span class="live-dot" aria-hidden="true"></span>OBSIDIAN 桌面版 · v2.1.0 · 本地文件</p>
+        <p class="eyebrow hero-eyebrow">Obsidian 桌面版插件 · v2.1.0</p>
         <h1>
           <span class="h1-line">在 Obsidian 里，</span>
-          <span class="h1-line h1-accent">直接改网页<span class="h1-dot">。</span></span>
+          <span class="h1-line h1-accent">直接改网页。</span>
         </h1>
-        <p class="hero-lead">HTML Atelier 把 .html 文件变成可读、可改、可搜索的页面。沙箱预览、点选编辑文字、链接和图片，改动只写回你改过的那段源码。</p>
+        <p class="hero-lead">打开库里的 .html 文件，看到的就是渲染好的页面。点一下文字、链接或图片，在侧栏里改；保存时只更新改过的那段源码，其余格式原样保留。</p>
         <div class="hero-actions">
           <a class="btn btn-primary btn-lg" href="#install">
             <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
@@ -154,20 +154,17 @@
           </a>
           <a class="btn btn-soft btn-lg" href="#demo">
             <svg class="icon" aria-hidden="true"><use href="#i-cursor"/></svg>
-            先点两下试试
+            在线试用
           </a>
         </div>
         <p class="hero-note">
           <span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>免费开源</span>
           <span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>桌面版 1.7.2+</span>
-          <span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>文件留在本机</span>
+          <span><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>支持 .html 与 .htm</span>
         </p>
       </div>
 
-      <div class="hero-art" role="img" aria-label="HTML Atelier 预览示意：咖啡页面标题被紫色选框选中，旁边是同一行的源码、右侧编辑表单和状态标签。">
-        <div class="hero-halo" aria-hidden="true"></div>
-        <div class="hero-orbit" aria-hidden="true"></div>
-
+      <div class="hero-art" role="img" aria-label="HTML Atelier 界面示意：咖啡页面的标题被选中，旁边是对应的那行源码和右侧的文字编辑表单。">
         <div class="hero-stage" aria-hidden="true">
           <div class="hero-code">
             <div class="hero-code-bar">
@@ -222,9 +219,6 @@
               <span class="hero-form-actions"><i>恢复</i><b>保存</b></span>
             </div>
           </div>
-
-          <span class="float-chip chip-line"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>只改这一行源码</span>
-          <span class="float-chip chip-draft"><span class="chip-dot" aria-hidden="true"></span>草稿已备份</span>
         </div>
       </div>
     </div>
@@ -233,19 +227,19 @@
       <div class="trust-bar" data-reveal>
         <div class="trust-item">
           <span class="trust-icon tone-caramel"><svg class="icon" aria-hidden="true"><use href="#i-type"/></svg></span>
-          <div><strong>精确到片段</strong><span>未改动的标签、属性、注释、缩进保持原样</span></div>
+          <div><strong>保留原有格式</strong><span>未改动的标签、属性、注释和缩进保持原样</span></div>
         </div>
         <div class="trust-item">
           <span class="trust-icon tone-sage"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span>
-          <div><strong>默认沙箱</strong><span>页面脚本默认不执行</span></div>
+          <div><strong>沙箱预览</strong><span>默认不执行页面脚本</span></div>
         </div>
         <div class="trust-item">
           <span class="trust-icon tone-amber"><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg></span>
-          <div><strong>草稿保护</strong><span>自动备份与三方合并</span></div>
+          <div><strong>草稿备份</strong><span>自动备份，冲突时可三方合并</span></div>
         </div>
         <div class="trust-item">
           <span class="trust-icon tone-violet"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
-          <div><strong>笔记内嵌</strong><span>一个代码块把页面放进笔记</span></div>
+          <div><strong>嵌入笔记</strong><span>用代码块把页面放进笔记</span></div>
         </div>
       </div>
     </div>
@@ -256,17 +250,17 @@
     <div class="wrap">
       <div class="section-head" data-reveal>
         <div>
-          <p class="eyebrow">为什么</p>
-          <h2>HTML 不该只是 Obsidian 里的纯文本。</h2>
+          <p class="eyebrow">为什么用它</p>
+          <h2>看页面和改源码，放在同一个窗口里。</h2>
         </div>
-        <p class="lead">在别处，只能在浏览器里看效果、在编辑器里找标签；HTML Atelier 把“看到的样子”和“改的那一行”放进同一个窗口。</p>
+        <p class="lead">以前要在浏览器里看效果、在编辑器里找标签。HTML Atelier 把渲染好的页面和对应的源码放进 Obsidian 的同一个窗口。</p>
       </div>
 
       <div class="contrast">
         <article class="contrast-panel is-before" data-reveal>
           <span class="panel-label"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg>以前</span>
           <h3>预览在浏览器，<br>标签在编辑器。</h3>
-          <p>想看效果得切到浏览器刷新，想改一句话又要在成片的标签里找位置。预览和源码之间，永远隔着一次复制粘贴。</p>
+          <p>想看效果要切到浏览器刷新；想改一句话，又得在成片的标签里找到它在哪一行。</p>
           <div class="before-code" aria-hidden="true">
             <div class="before-bar"><span>index.html</span><span>纯文本</span></div>
             <pre><code><span class="tok-tag">&lt;section</span> <span class="tok-attr">class</span>=<span class="tok-str">"intro"</span><span class="tok-tag">&gt;</span>
@@ -283,8 +277,8 @@
 
         <article class="contrast-panel is-after" data-reveal>
           <span class="panel-label"><svg class="icon" aria-hidden="true"><use href="#i-spark"/></svg>用 HTML Atelier</span>
-          <h3>看到就是页面，<br>点哪改哪。</h3>
-          <p>预览就在主工作区，点选标题、正文、链接或图片，侧栏面板里直接改。保存时只写回你动过的那段源码。</p>
+          <h3>看到的就是页面，<br>点哪里改哪里。</h3>
+          <p>页面直接显示在 Obsidian 的主工作区。点选标题、正文、链接或图片，在侧栏里修改，预览随输入更新。</p>
           <ol class="quick-steps" aria-hidden="true">
             <li>
               <span class="quick-num">01</span>
@@ -302,14 +296,13 @@
               <span class="quick-num">03</span>
               <span class="quick-icon"><svg class="icon"><use href="#i-save"/></svg></span>
               <strong>保存</strong>
-              <small>写入原文件，只动这一段</small>
+              <small>这一步才写回文件</small>
             </li>
           </ol>
-          <div class="tag-row"><span>文字片段</span><span>整段编辑</span><span>源码模式</span></div>
         </article>
       </div>
 
-      <p class="fine-print" data-reveal>可视化编辑覆盖文字、链接和图片属性，不是通用布局编辑器；CSS 与结构调整请用源码模式。</p>
+      <p class="fine-print" data-reveal>可视化编辑只处理页面文字、链接和图片属性，不能调整布局；改 CSS 或 HTML 结构请切到源码模式。</p>
     </div>
   </section>
 
@@ -319,15 +312,15 @@
       <div class="section-head demo-head" data-reveal>
         <div>
           <p class="eyebrow">交互演示</p>
-          <h2 id="demoTitle">不用安装，先点两下。</h2>
+          <h2 id="demoTitle">不用安装，先在这里试一试。</h2>
         </div>
-        <p class="lead">点页面里的标题、段落、图片，面板里会出现对应表单；改字、切标签、看源码都有反馈，不会读写你的文件。</p>
+        <p class="lead">点演示页面里的标题、段落或图片，侧栏会出现对应的编辑表单。可以改字、切换模式、查看源码；这里的操作不会读写你的文件。</p>
       </div>
 
       <div class="demo-shell" data-reveal>
         <div class="demo-topline">
-          <span class="demo-badge"><span class="demo-live-dot" aria-hidden="true"></span>交互原型 · 只在页面里生效</span>
-          <span class="demo-topnote">建议先点页面里的标题</span>
+          <span class="demo-badge"><span class="demo-live-dot" aria-hidden="true"></span>交互原型</span>
+          <span class="demo-topnote">可以先点一下标题</span>
         </div>
 
         <div class="atelier-app" id="demoApp" data-mode="edit">
@@ -610,10 +603,9 @@
         </div>
 
         <div class="demo-foot">
-          <p>原型只演示交互；真实插件会把改动写回文件并自动备份草稿。切到「源码」或「分栏」看看整份文件。</p>
+          <p>在真实插件里，未保存的修改会自动备份为草稿，点保存才写回文件。切到「源码」或「分栏」可以看到整份文件。</p>
           <div class="demo-foot-actions">
-            <a class="btn btn-primary btn-sm" href="#gallery">看真实截图 <svg class="icon" aria-hidden="true"><use href="#i-arrow-down"/></svg></a>
-            <span class="demo-foot-note">不会读写本地文件</span>
+            <a class="btn btn-soft btn-sm" href="#workflow">看真实截图 <svg class="icon" aria-hidden="true"><use href="#i-arrow-down"/></svg></a>
           </div>
         </div>
       </div>
@@ -625,22 +617,21 @@
     <div class="wrap">
       <div class="section-head" data-reveal>
         <div>
-          <p class="eyebrow">能力</p>
-          <h2 id="featuresTitle">一个窗口，装下读、改、查、存。</h2>
+          <p class="eyebrow">功能</p>
+          <h2 id="featuresTitle">从预览到保存，都在 Obsidian 里完成。</h2>
         </div>
-        <p class="lead">从打开文件到保存落盘，常用动作都在侧栏工作台里，不用在编辑器、浏览器和文件管理器之间来回切。</p>
+        <p class="lead">四种视图模式、侧栏工作台、草稿备份和笔记嵌入。打开、修改、查找、保存一份 HTML，不用在浏览器、编辑器和文件管理器之间来回切换。</p>
       </div>
 
       <div class="bento">
         <article class="feature-card feature-diff tone-caramel" data-reveal>
           <div class="feature-top">
             <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-diff"/></svg></span>
-            <span class="feature-tag">精确修改</span>
           </div>
           <div class="feature-diff-grid">
             <div>
-              <h3>只重写你改过的那一段</h3>
-              <p>可视化修改只更新受影响的源码区间；未改动的标签、属性、注释、缩进、换行和实体写法保持原样，不会重新格式化整份文件。</p>
+              <h3>只更新改过的那一段源码</h3>
+              <p>在页面上改了一句话，源码里只有对应的那段会变。其余标签、属性、注释、缩进、换行和实体写法都保持原样，不会重新格式化整份文件。</p>
             </div>
             <div class="diff-visual" aria-hidden="true">
               <div class="diff-head"><span>index.html</span><span>只动 1 行</span></div>
@@ -656,10 +647,9 @@
         <article class="feature-card feature-modes tone-violet" data-reveal>
           <div class="feature-top">
             <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-layout"/></svg></span>
-            <span class="feature-tag">四种模式</span>
           </div>
-          <h3>四种模式，随场景切换</h3>
-          <p>阅读用预览，改字用编辑，查结构用源码，对照用分栏。后退、前进时，阅读位置还记得。</p>
+          <h3>预览、编辑、源码、分栏</h3>
+          <p>阅读用预览，改字用编辑，写 HTML 用源码，对照着改用分栏。源码视图带行号，可以开启自动换行。</p>
           <div class="mode-demo" aria-hidden="true">
             <div class="mode-demo-switch"><span>预览</span><span class="is-on">编辑</span><span>源码</span><span>分栏</span></div>
             <div class="mode-demo-panels">
@@ -669,7 +659,7 @@
               <div class="mdp mdp-split"><i></i><i></i><b></b><i></i></div>
             </div>
           </div>
-          <div class="feature-meta"><span>缩放与页面宽度</span><span>后退前进</span></div>
+          <div class="feature-meta"><span>缩放与页面宽度</span><span>后退、前进记住位置</span></div>
         </article>
 
         <article class="feature-card feature-small tone-sage" data-reveal>
@@ -677,7 +667,7 @@
             <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg></span>
           </div>
           <h3>侧栏工作台</h3>
-          <p>编辑、大纲、搜索、修改、资源都在同一列。搜索支持区分大小写和包含隐藏文字。</p>
+          <p>编辑、大纲、搜索、修改、资源五个面板在同一列。搜索可以替换、区分大小写；「修改」面板可以对照和定位每处文字改动。</p>
           <ul class="mini-tabs" aria-hidden="true">
             <li><svg class="icon"><use href="#i-type"/></svg>编辑</li>
             <li><svg class="icon"><use href="#i-list"/></svg>大纲</li>
@@ -692,7 +682,7 @@
             <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-merge"/></svg></span>
           </div>
           <h3>草稿与冲突</h3>
-          <p>未保存修改自动备份，重启后也能找回。磁盘变化时，保存前先选合并方式。</p>
+          <p>未保存的修改会自动备份，重启 Obsidian 后也能恢复。如果保存前文件在磁盘上被改过，插件会先提示，让你选择怎么处理。</p>
           <div class="merge-visual" aria-hidden="true">
             <div class="merge-source"><span>磁盘版本</span><i>新</i></div>
             <div class="merge-source"><span>你的草稿</span><i>未保存</i></div>
@@ -708,7 +698,7 @@
             <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
           </div>
           <h3>把页面嵌进笔记</h3>
-          <p>用 <code>html-atelier</code> 代码块嵌入已保存页面，支持高度、宽度、锚点和工具栏。保存后点刷新即可。</p>
+          <p>在笔记里写一个 <code>html-atelier</code> 代码块，就能显示已保存的页面，可以设置高度、宽度和锚点。页面改完保存后，点嵌入里的刷新按钮更新。</p>
           <div class="embed-visual" aria-hidden="true">
             <div class="embed-code"><span>```html-atelier</span><em>path: "页面/咖啡.html"</em><em>height: auto</em><span>```</span></div>
             <span class="embed-arrow"><svg class="icon"><use href="#i-arrow-right"/></svg></span>
@@ -717,36 +707,31 @@
           <div class="feature-meta"><span>height 160–1600</span><span>width 240–3840</span><span>anchor · toolbar</span></div>
         </article>
 
-        <article class="feature-card feature-safety tone-caramel" data-reveal>
-          <div class="feature-safety-copy">
+        <article class="feature-card feature-links tone-caramel" data-reveal>
+          <div class="feature-links-copy">
             <div class="feature-top">
-              <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg></span>
-              <span class="feature-tag">安全边界</span>
+              <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg></span>
             </div>
-            <h3>安全边界先于功能</h3>
-            <p>预览默认沙箱，脚本默认不执行。即使开启「允许页面脚本」，页面也在隔离的跨源不透明源中运行，拿不到应用、仓库和本地系统。</p>
-            <div class="feature-meta"><span>表单提交阻止</span><span>嵌套框架移除</span><span>脚本可选开启</span></div>
+            <h3>链接、锚点和分享</h3>
+            <p>页内锚点和库内文件链接都能直接跳转。笔记里的 Wiki 链接或 Markdown 链接指向 HTML 文件时，会在插件视图里打开，并滚动到对应锚点。</p>
+            <p>工具栏菜单可以复制页面链接、小节链接或嵌入代码块，也可以在外部浏览器里打开当前页。</p>
           </div>
-          <div class="shield-visual" aria-hidden="true">
-            <div class="shield-ring ring-1"><span>应用</span>
-              <div class="shield-ring ring-2"><span>仓库</span>
-                <div class="shield-ring ring-3"><span>页面脚本</span>
-                  <svg class="icon"><use href="#i-lock"/></svg>
-                </div>
-              </div>
-            </div>
-            <span class="shield-note">隔离的跨源沙箱</span>
-          </div>
+          <ul class="share-menu" aria-hidden="true">
+            <li><svg class="icon"><use href="#i-link"/></svg>复制页面链接</li>
+            <li><svg class="icon"><use href="#i-list"/></svg>复制小节链接</li>
+            <li><svg class="icon"><use href="#i-code"/></svg>复制嵌入代码块</li>
+            <li><svg class="icon"><use href="#i-external"/></svg>在外部浏览器打开</li>
+          </ul>
         </article>
       </div>
 
       <div class="feature-chips" data-reveal>
-        <span><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>缩放与页面宽度</span>
-        <span><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg>锚点与库内链接</span>
-        <span><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg>本地资源自动刷新</span>
-        <span><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg>撤销重做</span>
-        <span><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg>另存为</span>
-        <span><svg class="icon" aria-hidden="true"><use href="#i-clock"/></svg>可配置历史记录</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg>撤销与重做，历史默认 200 条</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg>另存为时可调整相对引用</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg>本地资源变化时自动刷新</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg>选择库内图片或导入外部图片</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>工具栏可移到主视图</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg>界面支持中文与英文</span>
       </div>
     </div>
   </section>
@@ -756,45 +741,13 @@
     <div class="wrap">
       <div class="section-head" data-reveal>
         <div>
-          <p class="eyebrow">真实界面</p>
-          <h2 id="workflowTitle">从打开到保存，三步。</h2>
+          <p class="eyebrow">截图</p>
+          <h2 id="workflowTitle">在真实界面里看一眼。</h2>
         </div>
-        <p class="lead">不用先学一套新工具。打开 .html，像看网页一样读；切到编辑，像改文档一样点；最后记得点保存。</p>
-      </div>
-
-      <div class="step-grid">
-        <article class="step-card" data-reveal>
-          <span class="step-num">01</span>
-          <span class="step-icon"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></span>
-          <h3>打开</h3>
-          <p>在库里点开 .html，页面在主工作区渲染，相对资源按文件所在位置解析。</p>
-          <span class="step-foot">.html / .htm</span>
-        </article>
-        <article class="step-card" data-reveal>
-          <span class="step-num">02</span>
-          <span class="step-icon"><svg class="icon" aria-hidden="true"><use href="#i-cursor"/></svg></span>
-          <h3>点选</h3>
-          <p>切到编辑，指到哪段文字就框出哪段。侧栏表单打开，预览随输入更新。</p>
-          <span class="step-foot">文字 · 链接 · 图片</span>
-        </article>
-        <article class="step-card" data-reveal>
-          <span class="step-num">03</span>
-          <span class="step-icon"><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg></span>
-          <h3>保存</h3>
-          <p>点击保存才写回文件。草稿在后台自动备份，意外关闭或重启也能找回。</p>
-          <span class="step-foot">草稿与文件分开</span>
-        </article>
+        <p class="lead">下面的截图来自 HTML Atelier 2.1.0 桌面版，亮色主题。点击任意一张可以放大查看。</p>
       </div>
 
       <div class="gallery" id="gallery">
-        <div class="gallery-head" data-reveal>
-          <div>
-            <p class="eyebrow">截图</p>
-            <h3>在真实界面里看一眼</h3>
-          </div>
-          <span class="gallery-zoom-hint"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击任意截图放大</span>
-        </div>
-
         <div class="gallery-grid">
           <button class="shot-card" type="button" data-full="assets/shot-edit.webp" data-caption="点选标题，右侧直接改文字内容，保存后才会写回文件。" aria-label="放大查看截图：点选标题，侧栏直接改" data-reveal>
             <span class="shot-media">
@@ -804,12 +757,12 @@
             <span class="shot-caption"><strong>点选标题，侧栏直接改</strong><span>编辑模式 · 文字片段</span></span>
           </button>
 
-          <button class="shot-card" type="button" data-full="assets/shot-split.webp" data-caption="分栏模式下，源码与预览并排对照，选中位置两边同步。" aria-label="放大查看截图：源码与预览并排" data-reveal>
+          <button class="shot-card" type="button" data-full="assets/shot-split.webp" data-caption="分栏模式下，带行号的源码与预览并排显示。" aria-label="放大查看截图：源码与预览并排" data-reveal>
             <span class="shot-media">
               <img src="assets/shot-split@900.webp" srcset="assets/shot-split@900.webp 900w, assets/shot-split.webp 1600w" sizes="(max-width: 860px) 92vw, 560px" width="1600" height="900" loading="lazy" decoding="async" alt="分栏模式：左侧源码带行号，右侧是咖啡页面预览。">
               <span class="shot-hover"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击放大</span>
             </span>
-            <span class="shot-caption"><strong>源码与预览并排对照</strong><span>分栏模式 · 行号与定位</span></span>
+            <span class="shot-caption"><strong>源码与预览并排对照</strong><span>分栏模式 · 带行号</span></span>
           </button>
 
           <button class="shot-card" type="button" data-full="assets/shot-search.webp" data-caption="在当前草稿里搜索文案，结果显示标题与段落摘要。" aria-label="放大查看截图：在当前草稿里搜索文案" data-reveal>
@@ -828,7 +781,6 @@
             <span class="shot-caption"><strong>在笔记里嵌入整页内容</strong><span>笔记嵌入 · 已保存文件</span></span>
           </button>
         </div>
-        <p class="gallery-note">截图来自 2.1.0 桌面端，亮色主题。</p>
       </div>
     </div>
   </section>
@@ -838,10 +790,10 @@
     <div class="wrap">
       <div class="section-head" data-reveal>
         <div>
-          <p class="eyebrow">安全边界</p>
-          <h2 id="safetyTitle">默认不执行脚本，<br>也不改你未改的源码。</h2>
+          <p class="eyebrow">安全</p>
+          <h2 id="safetyTitle">默认只显示页面，<br>不运行页面脚本。</h2>
         </div>
-        <p class="lead">HTML 能带脚本；HTML Atelier 把“打开就能看”和“运行页面代码”分开。默认状态下，你看到的只是静态页面。</p>
+        <p class="lead">HTML 文件可以带脚本。HTML Atelier 默认只把页面显示出来；需要运行脚本时，要你在设置里手动开启。</p>
       </div>
 
       <div class="safety-grid">
@@ -856,9 +808,9 @@
           <ul class="tick-list">
             <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>页面脚本与内联事件不运行</li>
             <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>表单提交被阻止</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>嵌套框架被移除</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>内嵌框架被移除</li>
           </ul>
-          <span class="safety-foot">阅读与可视化编辑默认走这里</span>
+          <span class="safety-foot">阅读和可视化编辑都在这个模式下</span>
         </article>
 
         <article class="safety-card" data-reveal>
@@ -868,13 +820,13 @@
             <span class="safety-badge">可选</span>
           </div>
           <h3>允许页面脚本</h3>
-          <p>在设置里手动开启后，脚本运行在隔离的跨源不透明源沙箱中。</p>
+          <p>在设置里手动开启后，脚本运行在与应用隔离的跨源沙箱中。</p>
           <ul class="tick-list is-warn">
             <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>无法直接访问应用、仓库或本地系统</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>静态本地脚本、图片、字体以 data URL 内联</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>可视化编辑、阅读位置记忆、页内链接路由、嵌入自动高度不可用</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>页面静态引用的库内脚本、图片和字体会内联进预览</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg>此时可视化编辑、阅读位置记忆、页内链接路由和嵌入自动高度不可用</li>
           </ul>
-          <span class="safety-foot">只对可信文件开启</span>
+          <span class="safety-foot">只建议对可信文件开启</span>
         </article>
 
         <article class="safety-card" data-reveal>
@@ -884,19 +836,19 @@
             <span class="safety-badge">可配置</span>
           </div>
           <h3>网络与本地资源</h3>
-          <p>远程图片、样式、字体和媒体默认允许加载，也可以在设置里统一关掉。</p>
+          <p>远程图片、样式、字体和媒体默认允许加载，主预览和笔记嵌入共用这一项设置。</p>
           <ul class="tick-list is-blue">
-            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>远程资源默认允许</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>本地 CSS 与 @import 内联到预览</li>
-            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>资源缺失与拦截状态可在侧栏查看</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>库内样式表和 @import 会内联进预览</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>相对路径按页面所在目录解析</li>
+            <li><svg class="icon" aria-hidden="true"><use href="#i-check"/></svg>侧栏可以查看缺失、远程和被拦截的资源</li>
           </ul>
-          <span class="safety-foot">离线也能读到本地样式</span>
+          <span class="safety-foot">不想加载远程内容时可以关闭</span>
         </article>
       </div>
 
       <div class="safety-warning" data-reveal>
         <span class="warning-icon"><svg class="icon" aria-hidden="true"><use href="#i-alert"/></svg></span>
-        <p><strong>还有一个边界：</strong>运行时动态创建的本地资源与跨文件模块导入不会被内联。只对可信文件开启页面脚本；需要执行脚本的页面，也可以直接用外部浏览器打开。</p>
+        <p><strong>注意：</strong>开启页面脚本后，运行时动态创建的本地资源和跨文件模块导入不会被内联。需要完整运行脚本的页面，可以用外部浏览器打开，浏览器会照常执行页面脚本。</p>
       </div>
     </div>
   </section>
@@ -907,9 +859,9 @@
       <div class="section-head" data-reveal>
         <div>
           <p class="eyebrow">安装</p>
-          <h2 id="installTitle">装进 Obsidian，只要一分钟。</h2>
+          <h2 id="installTitle">两种安装方式。</h2>
         </div>
-        <p class="lead">已上架 Obsidian 社区插件市场；桌面版 1.7.2+，支持 .html 和 .htm。</p>
+        <p class="lead">插件已上架 Obsidian 社区插件市场，也可以从 GitHub Releases 手动安装。需要 Obsidian 桌面版 1.7.2 或更高版本。</p>
       </div>
 
       <div class="install-grid">
@@ -937,7 +889,7 @@
               <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
             </a>
           </div>
-          <p class="install-fineprint">商店版本会随审核更新；需要 2.1.0 的最新构建，请按「<span class="nowrap">手动安装</span>」下载。如果按钮没有反应，请在 Obsidian 里手动搜索 HTML Atelier。</p>
+          <p class="install-fineprint">如果上面的按钮没有反应，请在 Obsidian 里直接搜索 HTML Atelier。</p>
         </article>
 
         <article class="install-card install-manual" data-reveal>
@@ -960,7 +912,7 @@
               下载最新版
             </a>
           </div>
-          <p class="install-fineprint">不要再套一层文件夹；放入后重启 Obsidian，再到第三方插件里启用。</p>
+          <p class="install-fineprint">三个文件直接放在 html-atelier 目录下，不要再套一层文件夹。放好后重启 Obsidian，再到「第三方插件」里启用。</p>
         </article>
       </div>
 
@@ -983,12 +935,12 @@
     <div class="wrap faq-layout">
       <div class="faq-intro" data-reveal>
         <p class="eyebrow">常见问题</p>
-        <h2 id="faqTitle">先看这几个问题。</h2>
-        <p class="lead">如果这里没有你的情况，README 里有完整的编辑范围与安全说明。</p>
+        <h2 id="faqTitle">你可能想先知道这些。</h2>
+        <p class="lead">这里没有覆盖到的情况，可以看 README 里的「编辑范围与安全」，或者在 GitHub 上提问。</p>
         <div class="faq-actions">
-          <a class="btn btn-soft" href="https://github.com/384615666/obsidian-html-atelier#readme" target="_blank" rel="noopener">
+          <a class="btn btn-soft" href="https://github.com/384615666/obsidian-html-atelier#html-atelier中文说明" target="_blank" rel="noopener">
             <svg class="icon" aria-hidden="true"><use href="#i-book"/></svg>
-            查看 README
+            查看中文说明
           </a>
           <a class="text-link" href="https://github.com/384615666/obsidian-html-atelier/issues" target="_blank" rel="noopener">
             在 GitHub 提问
@@ -1004,7 +956,7 @@
             <span>可视化编辑会把整份文件重新格式化吗？</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
-          <div class="faq-answer"><p>不会。可视化修改只更新受影响的源码区间；未动过的标签、属性、注释、缩进、换行和实体写法都会保持原样。需要大改结构时，切到源码模式即可。</p></div>
+          <div class="faq-answer"><p>不会。可视化修改只更新受影响的那段源码，没动过的标签、属性、注释、缩进、换行和实体写法都保持原样。要改页面结构，请切到源码模式。</p></div>
         </details>
 
         <details class="faq-item">
@@ -1013,7 +965,7 @@
             <span>页面里的 JavaScript 会执行吗？</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
-          <div class="faq-answer"><p>默认不会。预览里页面脚本和内联事件都不运行，表单提交被阻止，嵌套框架会被移除。只有在设置里开启「允许页面脚本」后，脚本才会在隔离的跨源沙箱中运行；这个模式会牺牲可视化编辑等能力，只对可信文件开启。</p></div>
+          <div class="faq-answer"><p>默认不会。预览里页面脚本和内联事件都不运行，表单提交被阻止，内嵌框架会被移除。在设置里开启「允许页面脚本」后，脚本才会运行，并且运行在与应用隔离的跨源沙箱中。这个模式下可视化编辑、阅读位置记忆等功能不可用，只建议对可信文件开启。</p></div>
         </details>
 
         <details class="faq-item">
@@ -1031,7 +983,7 @@
             <span>会和别的 HTML 插件冲突吗？</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
-          <div class="faq-answer"><p>同一文件类型只能由一个插件接管。如果另一个已启用的插件也注册了 .html / .htm，请先停用它，再打开页面。</p></div>
+          <div class="faq-answer"><p>如果另一个已启用的插件也接管 .html 或 .htm 文件，两者会在文件类型注册上冲突。请先停用那个插件，再用 HTML Atelier 打开页面。</p></div>
         </details>
 
         <details class="faq-item">
@@ -1040,7 +992,7 @@
             <span>草稿备份存在哪里？卸载前要注意什么？</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
-          <div class="faq-answer"><p>默认存放在 <code>.obsidian/plugins/html-atelier/drafts/</code>，包含原始与编辑后的 HTML。如果同步工具包含插件目录，这些备份也可能被同步。删除插件目录前，请先保留需要的草稿。</p></div>
+          <div class="faq-answer"><p>默认存放在 <code>.obsidian/plugins/html-atelier/drafts/</code>，包含原始 HTML 和编辑后的内容。如果同步工具会同步插件目录，这些备份也会被同步。删除插件目录前，请先保存需要保留的草稿。</p></div>
         </details>
 
         <details class="faq-item">
@@ -1067,7 +1019,7 @@ toolbar: false
             <span>远程图片和字体会加载吗？可以关吗？</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
-          <div class="faq-answer"><p>远程图片、样式、字体和媒体默认允许加载，可以在设置里统一关闭。本地通过 <code>&lt;link rel="stylesheet"&gt;</code> 和 CSS <code>@import</code> 引用的样式表会内联到预览中。</p></div>
+          <div class="faq-answer"><p>远程图片、样式、字体和媒体默认允许加载，可以在设置里统一关闭，主预览和笔记嵌入都会生效。库内通过 <code>&lt;link rel="stylesheet"&gt;</code> 和 CSS <code>@import</code> 引用的样式表会内联到预览中。</p></div>
         </details>
 
         <details class="faq-item">
@@ -1076,7 +1028,7 @@ toolbar: false
             <span>可视化编辑能改 CSS 和页面结构吗？</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
-          <div class="faq-answer"><p>不能。可视化编辑覆盖页面文字、链接文字与地址、图片地址和替代文本；CSS、任意 HTML 结构、表单字段值以及 SVG 内的文字，请用源码模式修改。开启「允许页面脚本」时，可视化编辑也不可用。</p></div>
+          <div class="faq-answer"><p>不能。可视化编辑只覆盖页面文字、链接文字与地址、图片地址和替代文本。CSS、HTML 结构、表单字段值，以及 SVG 等排除元素内的文字，请用源码模式修改。开启「允许页面脚本」时，可视化编辑也不可用。</p></div>
         </details>
       </div>
     </div>
@@ -1088,12 +1040,12 @@ toolbar: false
       <div class="open-panel" data-reveal>
         <div class="open-copy">
           <p class="eyebrow">开源</p>
-          <h2 id="openTitle">文件是你的，<br>工具也是开源的。</h2>
-          <p class="open-lead">MIT 许可，本地运行，不上传文件，没有账号系统。页面、草稿和资源都留在你的仓库里，想检查代码随时可以。</p>
+          <h2 id="openTitle">文件在你的库里，<br>源码在 GitHub 上。</h2>
+          <p class="open-lead">MIT 许可，可以自由使用、修改和分发。插件在 Obsidian 里本地运行，不需要账号。</p>
           <div class="open-badges">
             <span><svg class="icon" aria-hidden="true"><use href="#i-shield"/></svg>本地运行</span>
             <span><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg>MIT 许可</span>
-            <span><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>无账号系统</span>
+            <span><svg class="icon" aria-hidden="true"><use href="#i-lock"/></svg>无需账号</span>
           </div>
           <div class="open-links">
             <a class="btn btn-soft btn-sm" href="https://github.com/384615666/obsidian-html-atelier" target="_blank" rel="noopener">
@@ -1104,13 +1056,12 @@ toolbar: false
             <a class="btn btn-soft btn-sm" href="https://github.com/384615666/obsidian-html-atelier/issues" target="_blank" rel="noopener">Issues</a>
             <a class="btn btn-soft btn-sm" href="https://github.com/384615666/obsidian-html-atelier/blob/main/THIRD-PARTY-NOTICES.txt" target="_blank" rel="noopener">第三方声明</a>
           </div>
-          <span class="open-stamp" aria-hidden="true"><b>MIT</b><i>OPEN SOURCE</i></span>
         </div>
 
         <div class="license-panel">
           <div class="license-head">
             <span class="license-icon"><svg class="icon" aria-hidden="true"><use href="#i-layers"/></svg></span>
-            <div><strong>许可与组件</strong><span>主要部分</span></div>
+            <div><strong>许可与组件</strong><span>主要依赖</span></div>
           </div>
           <ul class="license-list">
             <li>
@@ -1122,7 +1073,7 @@ toolbar: false
               <a href="https://github.com/384615666/obsidian-html-atelier/blob/main/THIRD-PARTY-NOTICES.txt" target="_blank" rel="noopener">声明<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
             </li>
             <li>
-              <div><b>Obsidian API</b><span>仅类型 / 运行时由 Obsidian 提供</span></div>
+              <div><b>Obsidian API</b><span>只用于类型定义，运行时由 Obsidian 提供</span></div>
               <a href="https://github.com/obsidianmd/obsidian-api" target="_blank" rel="noopener">API<svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg></a>
             </li>
           </ul>
@@ -1138,8 +1089,8 @@ toolbar: false
       <div class="cta-panel" data-reveal>
         <div class="cta-copy">
           <p class="eyebrow">开始</p>
-          <h2 id="finalTitle">把下一份网页，<br>放进 Obsidian。</h2>
-          <p>不用再为了改一行字打开浏览器和编辑器。装好插件，点开 .html，选一段文字，剩下的交给侧栏。</p>
+          <h2 id="finalTitle">在 Obsidian 里打开你的第一份 .html。</h2>
+          <p>装好插件，打开库里的 .html 文件，切到「编辑」，点一段文字试试。</p>
         </div>
         <div class="cta-actions">
           <a class="btn btn-primary btn-lg" href="#install">
@@ -1150,12 +1101,8 @@ toolbar: false
             在 GitHub 看源码
             <svg class="icon" aria-hidden="true"><use href="#i-arrow-up-right"/></svg>
           </a>
-          <span class="cta-note">免费开源 · 桌面版 1.7.2+ · 本地文件</span>
+          <span class="cta-note">免费开源 · 桌面版 1.7.2+</span>
         </div>
-        <div class="cta-rings" aria-hidden="true"><i></i><i></i><i></i></div>
-        <svg class="cta-line" viewBox="0 0 900 220" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M-10 178C120 122 210 190 320 154s180-74 288-30 182 58 312-30"/>
-        </svg>
       </div>
     </div>
   </section>
@@ -1170,7 +1117,7 @@ toolbar: false
           <img src="assets/icon.svg" alt="" width="46" height="46" loading="lazy">
           <div><strong>HTML Atelier</strong><span>在 Obsidian 里直接改网页。</span></div>
         </div>
-        <p class="footer-tagline">沙箱预览、点选编辑、精确源码修改。免费开源，文件留在本机。</p>
+        <p class="footer-tagline">Obsidian 桌面版插件，用来预览和编辑库里的 HTML 文件。免费开源。</p>
         <div class="footer-mini"><span class="live-dot" aria-hidden="true"></span>v2.1.0 · MIT License</div>
       </div>
 
@@ -1179,7 +1126,7 @@ toolbar: false
           <p class="footer-col-title">产品</p>
           <a href="#features">功能</a>
           <a href="#demo">演示</a>
-          <a href="#workflow">工作流</a>
+          <a href="#workflow">截图</a>
           <a href="#install">安装</a>
           <a href="#faq">常见问题</a>
         </nav>
@@ -1189,7 +1136,7 @@ toolbar: false
           <a href="https://github.com/384615666/obsidian-html-atelier/releases" target="_blank" rel="noopener">Releases</a>
           <a href="https://github.com/384615666/obsidian-html-atelier/issues" target="_blank" rel="noopener">Issues</a>
           <a href="https://community.obsidian.md/plugins/html-atelier" target="_blank" rel="noopener">商店页</a>
-          <a href="https://github.com/384615666/obsidian-html-atelier#readme" target="_blank" rel="noopener">英文 README</a>
+          <a href="https://github.com/384615666/obsidian-html-atelier#readme" target="_blank" rel="noopener">README（中英文）</a>
         </nav>
         <nav class="footer-col" aria-label="页脚许可导航">
           <p class="footer-col-title">许可</p>
@@ -1199,8 +1146,6 @@ toolbar: false
         </nav>
       </div>
     </div>
-
-    <p class="footer-wordmark" aria-hidden="true">HTML Atelier</p>
 
     <div class="footer-bottom">
       <p>© 2026 HTML Atelier · v2.1.0</p>
