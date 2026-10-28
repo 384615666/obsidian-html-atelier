@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://384615666.github.io/obsidian-html-atelier/sitemap.xml
+Sitemap: https://htmlatelier.lsjx.xyz/sitemap.xml
