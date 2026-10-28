@@ -4358,7 +4358,7 @@ h1 .h1-line {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 8px;
+  gap: 10px 6px;
   margin-top: 24px;
 }
 
@@ -4366,7 +4366,7 @@ h1 .h1-line {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 7px 13px;
+  padding: 7px 11px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--card);
@@ -4383,8 +4383,8 @@ h1 .h1-line {
   color: var(--caramel);
 }
 
-/* ===== 10. Workflow, gallery, lightbox ================================= */
-.workflow {
+/* ===== 10. Screenshots, gallery, lightbox ============================== */
+.screenshots {
   border-top: 1px solid var(--line-soft);
   background: var(--paper-warm);
 }
