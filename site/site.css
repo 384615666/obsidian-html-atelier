@@ -86,6 +86,29 @@ html {
   scroll-behavior: smooth;
   scroll-padding-top: calc(var(--nav-h) + 22px);
   -webkit-text-size-adjust: 100%;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(169, 98, 47, 0.42) transparent;
+}
+
+html::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+html::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background: rgba(169, 98, 47, 0.34);
+  background-clip: content-box;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+  background: rgba(169, 98, 47, 0.55);
+  background-clip: content-box;
 }
 
 html,
