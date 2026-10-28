@@ -20,7 +20,9 @@ python -m http.server 8899 --directory site
 
 1. 在 GitHub 仓库的 **Settings → Pages** 中，把 **Source** 设为 **GitHub Actions**（已配置）。
 2. 修改 `site/` 后推送到 `main`，等 **Actions → Deploy product site** 跑完即可。
-3. 站点地址为 <https://384615666.github.io/obsidian-html-atelier/>；也可以在 Actions 页面手动运行一次。
+3. 站点地址为 <https://htmlatelier.lsjx.xyz/>；也可以在 Actions 页面手动运行一次。
+
+自定义域名是 `htmlatelier.lsjx.xyz`：`site/CNAME` 写该域名，Cloudflare DNS 里 `htmlatelier` CNAME 指向 `384615666.github.io`（必须灰云 / DNS only）。旧地址 `https://384615666.github.io/obsidian-html-atelier/` 会 301 到新域名。
 
 `docs/` 是内部设计与审计文档，不要把它设为 Pages 发布目录。
 
