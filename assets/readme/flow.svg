@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="flowTitle flowDesc">
+  <title id="flowTitle">一次修改的闭环：五步流程</title>
+  <desc id="flowDesc">打开 .html 后在沙箱中预览（页面脚本默认不执行），点选文字、链接或图片，在侧栏表单修改并同步刷新预览，只重写对应的源码区间（保留标签、属性、注释、缩进、换行与实体写法），最后保存写回文件或由草稿自动备份，磁盘文件变化时提示冲突并可三方合并；保存后仍可回到预览继续修改。</desc>
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#402b1d" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a9622f"/>
+    </marker>
+    <marker id="loopArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a9622f" fill-opacity="0.55"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="520" fill="#fbf7f0"/>
+
+  <g font-family="'Segoe UI','Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif">
+    <!-- 顶部标题 -->
+    <text x="48" y="74" font-size="38" font-weight="700" fill="#2f2724">一次修改的闭环</text>
+    <text x="1552" y="74" font-size="26" letter-spacing="3" text-anchor="end" fill="#a9622f">HTML ATELIER · FLOW</text>
+
+    <!-- ① 打开 .html -->
+    <rect x="48" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="70" y="132" width="36" height="36" rx="11" fill="#4f7fa8"/>
+    <text x="88" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+    <text x="70" y="202" font-size="30" font-weight="700" fill="#2f2724">打开 .html</text>
+    <line x1="70" y1="218" x2="285" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="70" y="250" font-size="26" fill="#6f6056">沙箱中预览</text>
+    <text x="70" y="282" font-size="26" fill="#6f6056">页面脚本</text>
+    <text x="70" y="314" font-size="26" fill="#6f6056">默认不执行</text>
+
+    <!-- ② 点选对象 -->
+    <rect x="359" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="381" y="132" width="36" height="36" rx="11" fill="#4f8f79"/>
+    <text x="399" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+    <text x="381" y="202" font-size="30" font-weight="700" fill="#2f2724">点选对象</text>
+    <line x1="381" y1="218" x2="596" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="381" y="250" font-size="26" fill="#6f6056">文字 · 链接 · 图片</text>
+    <text x="381" y="282" font-size="26" fill="#6f6056">预览中直接点选</text>
+    <text x="381" y="314" font-size="26" fill="#6f6056">选中即同步侧栏</text>
+
+    <!-- ③ 侧栏表单修改 -->
+    <rect x="670" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="692" y="132" width="36" height="36" rx="11" fill="#7566c4"/>
+    <text x="710" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">3</text>
+    <text x="692" y="202" font-size="30" font-weight="700" fill="#2f2724">侧栏表单修改</text>
+    <line x1="692" y1="218" x2="907" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="692" y="250" font-size="26" fill="#6f6056">片段或整段编辑</text>
+    <text x="692" y="282" font-size="26" fill="#6f6056">输入时预览</text>
+    <text x="692" y="314" font-size="26" fill="#6f6056">同步刷新</text>
+
+    <!-- ④ 只重写源码区间 -->
+    <rect x="981" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="1003" y="132" width="36" height="36" rx="11" fill="#c9963f"/>
+    <text x="1021" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">4</text>
+    <text x="1003" y="202" font-size="30" font-weight="700" fill="#2f2724">只重写源码区间</text>
+    <line x1="1003" y1="218" x2="1218" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="1003" y="250" font-size="26" fill="#6f6056">保留标签 · 属性</text>
+    <text x="1003" y="282" font-size="26" fill="#6f6056">注释 · 缩进</text>
+    <text x="1003" y="314" font-size="26" fill="#6f6056">换行与实体写法</text>
+
+    <!-- ⑤ 保存与备份 -->
+    <rect x="1292" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="1314" y="132" width="36" height="36" rx="11" fill="#a9622f"/>
+    <text x="1332" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">5</text>
+    <text x="1314" y="202" font-size="30" font-weight="700" fill="#2f2724">保存与备份</text>
+    <line x1="1314" y1="218" x2="1529" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="1314" y="250" font-size="26" fill="#6f6056">保存写回文件</text>
+    <text x="1314" y="282" font-size="26" fill="#6f6056">草稿自动备份</text>
+    <text x="1314" y="314" font-size="26" fill="#6f6056">磁盘改动提示冲突</text>
+    <text x="1314" y="346" font-size="26" fill="#6f6056">可三方合并</text>
+
+    <!-- 步骤箭头 -->
+    <line x1="319" y1="246" x2="351" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <line x1="630" y1="246" x2="662" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <line x1="941" y1="246" x2="973" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <line x1="1252" y1="246" x2="1284" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+    <!-- 闭环：⑤ → ① -->
+    <path d="M1421.5,382 V414 Q1421.5,424 1411.5,424 H187.5 Q177.5,424 177.5,414 V392" fill="none" stroke="#a9622f" stroke-opacity="0.55" stroke-width="2" marker-end="url(#loopArrow)"/>
+    <text x="800" y="468" font-size="26" text-anchor="middle" fill="#6f6056">闭环：保存后仍可继续修改</text>
+  </g>
+</svg>

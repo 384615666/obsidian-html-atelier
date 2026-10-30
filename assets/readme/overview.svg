@@ -1,0 +1,175 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="ovTitle ovDesc">
+  <title id="ovTitle">HTML Atelier 功能地图</title>
+  <desc id="ovDesc">静态 HTML 文件进入 Obsidian 窗口：主视图提供预览、编辑、源码与分栏四种模式，侧栏工作台包含搜索栏与编辑、大纲、修改、资源四个标签页；修改只更新受影响的源码区间，保存写回文件，并支持草稿自动备份、冲突三方合并、笔记嵌入与链接锚点。</desc>
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#402b1d" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a9622f"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="1000" fill="#fbf7f0"/>
+
+  <g font-family="'Segoe UI','Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif">
+    <!-- 顶部标题 -->
+    <text x="48" y="72" font-size="26" letter-spacing="3" fill="#a9622f">HTML ATELIER · 功能地图</text>
+    <text x="48" y="128" font-size="46" font-weight="700" fill="#2f2724">从打开文件到写回源码</text>
+    <text x="48" y="174" font-size="26" fill="#6f6056">主视图负责预览与编辑，侧栏工作台负责搜索、大纲、改动与资源，保存时只重写受影响的源码区间。</text>
+
+    <!-- 左侧：输入文件 -->
+    <rect x="48" y="212" width="264" height="580" rx="20" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <text x="74" y="282" font-size="34" font-weight="700" fill="#2f2724">输入文件</text>
+    <text x="74" y="320" font-size="26" fill="#6f6056">库内静态页面</text>
+    <rect x="74" y="344" width="102" height="50" rx="14" fill="#f3e3cf" stroke="#a9622f" stroke-opacity="0.28"/>
+    <text x="125" y="378" font-size="26" text-anchor="middle" font-family="'Cascadia Code','Consolas','Courier New',monospace" fill="#6d3a15">.html</text>
+    <rect x="186" y="344" width="86" height="50" rx="14" fill="#f3e3cf" stroke="#a9622f" stroke-opacity="0.28"/>
+    <text x="229" y="378" font-size="26" text-anchor="middle" font-family="'Cascadia Code','Consolas','Courier New',monospace" fill="#6d3a15">.htm</text>
+    <line x1="74" y1="430" x2="286" y2="430" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="74" y="486" font-size="32" font-weight="700" fill="#2f2724">静态资源</text>
+    <text x="74" y="528" font-size="26" fill="#6f6056">CSS · 图片 · 字体</text>
+    <text x="74" y="568" font-size="26" fill="#6f6056">按页面目录解析</text>
+    <line x1="74" y1="604" x2="286" y2="604" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="74" y="660" font-size="32" font-weight="700" fill="#2f2724">沙箱预览</text>
+    <text x="74" y="702" font-size="26" fill="#6f6056">不执行页面脚本</text>
+    <text x="74" y="742" font-size="26" fill="#6f6056">表单提交被阻止</text>
+
+    <!-- 箭头：输入 → 窗口 -->
+    <text x="344" y="482" font-size="26" text-anchor="middle" fill="#a9622f">打开</text>
+    <line x1="320" y1="500" x2="360" y2="500" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+    <!-- 中间：Obsidian 窗口 -->
+    <rect x="376" y="212" width="756" height="580" rx="20" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="394" y="224" width="178" height="34" rx="9" fill="#fdf9f2" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="410" y="247" font-size="26" fill="#2f2724">周报.html</text>
+    <text x="548" y="248" font-size="26" fill="#6f6056">×</text>
+    <circle cx="1078" cy="241" r="2.5" fill="#6f6056"/>
+    <circle cx="1092" cy="241" r="2.5" fill="#6f6056"/>
+    <circle cx="1106" cy="241" r="2.5" fill="#6f6056"/>
+    <line x1="376" y1="264" x2="1132" y2="264" stroke="#583a25" stroke-opacity="0.12"/>
+
+    <!-- 主视图标题 -->
+    <rect x="392" y="292" width="10" height="10" rx="2" fill="#4f8f79"/>
+    <text x="412" y="304" font-size="26" font-weight="600" fill="#5c4f46">主视图</text>
+    <!-- 侧栏工作台标题 -->
+    <rect x="816" y="292" width="10" height="10" rx="2" fill="#7566c4"/>
+    <text x="836" y="304" font-size="26" font-weight="600" fill="#5c4f46">侧栏工作台</text>
+
+    <!-- 主视图：四种模式 -->
+    <rect x="392" y="322" width="400" height="50" rx="13" fill="#f5ecdf"/>
+    <rect x="397" y="327" width="93" height="40" rx="9" fill="none"/>
+    <text x="443.5" y="356" font-size="27" text-anchor="middle" fill="#6f6056">预览</text>
+    <rect x="496" y="327" width="93" height="40" rx="9" fill="#fffdfa" stroke="#a9622f" stroke-opacity="0.4" stroke-width="1.5"/>
+    <text x="542.5" y="356" font-size="27" font-weight="600" text-anchor="middle" fill="#6d3a15">编辑</text>
+    <text x="641.5" y="356" font-size="27" text-anchor="middle" fill="#6f6056">源码</text>
+    <text x="740.5" y="356" font-size="27" text-anchor="middle" fill="#6f6056">分栏</text>
+
+    <!-- 主视图：页面示意 -->
+    <rect x="392" y="386" width="400" height="386" rx="14" fill="#fdf9f2" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="416" y="424" font-size="26" fill="#a9622f">第 38 周 · 周报</text>
+    <rect x="412" y="438" width="250" height="52" rx="8" fill="#fffdfa" stroke="#7566c4" stroke-width="2"/>
+    <text x="430" y="472" font-size="32" font-weight="700" fill="#2f2724">本周进展</text>
+    <rect x="416" y="508" width="344" height="10" rx="5" fill="#e7dbcd"/>
+    <rect x="416" y="528" width="320" height="10" rx="5" fill="#e7dbcd"/>
+    <rect x="416" y="548" width="248" height="10" rx="5" fill="#e7dbcd"/>
+    <line x1="416" y1="580" x2="768" y2="580" stroke="#583a25" stroke-opacity="0.12"/>
+    <circle cx="422" cy="601" r="5" fill="#4f7fa8"/>
+    <text x="438" y="609" font-size="26" fill="#4f7fa8">查看完整周报 →</text>
+    <rect x="414" y="628" width="26" height="20" rx="4" fill="#e0efe7" stroke="#4f8f79" stroke-width="1.5"/>
+    <text x="452" y="646" font-size="26" fill="#6f6056">封面图片</text>
+    <text x="416" y="730" font-size="26" fill="#6f6056">点击文字 · 链接 · 图片</text>
+
+    <line x1="804" y1="288" x2="804" y2="776" stroke="#583a25" stroke-opacity="0.12"/>
+
+    <!-- 侧栏：搜索栏（常驻，非标签页） -->
+    <rect x="816" y="318" width="300" height="48" rx="12" fill="#ffffff" stroke="#583a25" stroke-opacity="0.12"/>
+    <circle cx="834" cy="340" r="7" fill="none" stroke="#6f6056" stroke-width="2"/>
+    <line x1="839" y1="345" x2="845" y2="351" stroke="#6f6056" stroke-width="2" stroke-linecap="round"/>
+    <text x="852" y="347" font-size="25" fill="#6f6056">搜索文案…</text>
+
+    <!-- 侧栏：四个标签页 -->
+    <rect x="816" y="380" width="300" height="48" rx="12" fill="#f5ecdf"/>
+    <rect x="820" y="384" width="70" height="40" rx="9" fill="#fffdfa" stroke="#a9622f" stroke-opacity="0.3" stroke-width="1.5"/>
+    <text x="855" y="413" font-size="26" font-weight="600" text-anchor="middle" fill="#6d3a15">编辑</text>
+    <text x="929" y="413" font-size="26" text-anchor="middle" fill="#6f6056">大纲</text>
+    <text x="1003" y="413" font-size="26" text-anchor="middle" fill="#6f6056">修改</text>
+    <text x="1077" y="413" font-size="26" text-anchor="middle" fill="#6f6056">资源</text>
+
+    <!-- 侧栏：编辑表单 -->
+    <rect x="816" y="442" width="300" height="238" rx="14" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="836" y="480" font-size="26" font-weight="600" fill="#2f2724">文字内容</text>
+    <text x="1096" y="480" font-size="26" text-anchor="end" fill="#6f6056">标题</text>
+    <rect x="836" y="492" width="260" height="88" rx="10" fill="#ffffff" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="852" y="524" font-size="27" fill="#2f2724">本周进展</text>
+    <text x="836" y="612" font-size="26" fill="#6f6056">修改即时预览</text>
+    <rect x="836" y="626" width="112" height="40" rx="10" fill="#ffffff" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="892" y="652" font-size="26" text-anchor="middle" fill="#2f2724">整段编辑</text>
+    <text x="966" y="652" font-size="26" fill="#6f6056">恢复此项</text>
+
+    <!-- 侧栏：状态与保存 -->
+    <text x="816" y="722" font-size="26" fill="#6f6056">2 处未保存</text>
+    <text x="816" y="756" font-size="26" fill="#6f6056">草稿已备份</text>
+    <rect x="1024" y="708" width="92" height="40" rx="12" fill="#a9622f"/>
+    <text x="1070" y="737" font-size="26" text-anchor="middle" fill="#ffffff">保存</text>
+
+    <!-- 箭头：窗口 → 保存与草稿 -->
+    <text x="1164" y="482" font-size="26" text-anchor="middle" fill="#a9622f">保存</text>
+    <line x1="1140" y1="500" x2="1180" y2="500" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+    <!-- 右侧：保存与草稿 -->
+    <rect x="1196" y="212" width="356" height="580" rx="20" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <text x="1222" y="282" font-size="34" font-weight="700" fill="#2f2724">保存与草稿</text>
+    <text x="1222" y="320" font-size="26" fill="#6f6056">改动如何落地</text>
+
+    <rect x="1222" y="344" width="304" height="100" rx="14" fill="#fdf9f2" stroke="#583a25" stroke-opacity="0.12"/>
+    <rect x="1236" y="364" width="4" height="44" rx="2" fill="#4f8f79"/>
+    <text x="1252" y="382" font-size="30" font-weight="600" fill="#2f2724">只改受影响区间</text>
+    <text x="1252" y="414" font-size="26" fill="#6f6056">标签 · 属性 · 注释</text>
+
+    <rect x="1222" y="451" width="304" height="100" rx="14" fill="#fdf9f2" stroke="#583a25" stroke-opacity="0.12"/>
+    <rect x="1236" y="471" width="4" height="44" rx="2" fill="#4f7fa8"/>
+    <text x="1252" y="489" font-size="30" font-weight="600" fill="#2f2724">保存写回文件</text>
+    <text x="1252" y="521" font-size="26" fill="#6f6056">未保存不写入磁盘</text>
+
+    <rect x="1222" y="558" width="304" height="100" rx="14" fill="#fdf9f2" stroke="#583a25" stroke-opacity="0.12"/>
+    <rect x="1236" y="578" width="4" height="44" rx="2" fill="#c9963f"/>
+    <text x="1252" y="596" font-size="30" font-weight="600" fill="#2f2724">草稿自动备份</text>
+    <text x="1252" y="628" font-size="26" fill="#6f6056">重启后自动恢复</text>
+
+    <rect x="1222" y="665" width="304" height="100" rx="14" fill="#fdf9f2" stroke="#583a25" stroke-opacity="0.12"/>
+    <rect x="1236" y="685" width="4" height="44" rx="2" fill="#7566c4"/>
+    <text x="1252" y="703" font-size="30" font-weight="600" fill="#2f2724">冲突三方合并</text>
+    <text x="1252" y="735" font-size="26" fill="#6f6056">磁盘改动时提示冲突</text>
+
+    <!-- 底部：附加能力 -->
+    <rect x="48" y="822" width="740" height="130" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="74" y="852" width="44" height="44" rx="12" fill="#ece8f9"/>
+    <rect x="88" y="861" width="22" height="26" rx="4" fill="none" stroke="#5847a8" stroke-width="2"/>
+    <line x1="93" y1="871" x2="105" y2="871" stroke="#5847a8" stroke-width="2" stroke-linecap="round"/>
+    <line x1="93" y1="878" x2="101" y2="878" stroke="#5847a8" stroke-width="2" stroke-linecap="round"/>
+    <text x="136" y="880" font-size="30" font-weight="600" fill="#2f2724">笔记嵌入</text>
+    <text x="136" y="922" font-size="26" fill="#6f6056">html-atelier 代码块</text>
+    <rect x="352" y="848" width="79" height="44" rx="22" fill="#ece8f9"/>
+    <text x="391.5" y="877" font-size="25" text-anchor="middle" font-family="'Cascadia Code','Consolas','Courier New',monospace" fill="#5847a8">path</text>
+    <rect x="440" y="848" width="107" height="44" rx="22" fill="#ece8f9"/>
+    <text x="493.5" y="877" font-size="25" text-anchor="middle" font-family="'Cascadia Code','Consolas','Courier New',monospace" fill="#5847a8">height</text>
+    <rect x="556" y="848" width="93" height="44" rx="22" fill="#ece8f9"/>
+    <text x="602.5" y="877" font-size="25" text-anchor="middle" font-family="'Cascadia Code','Consolas','Courier New',monospace" fill="#5847a8">width</text>
+    <rect x="658" y="848" width="104" height="44" rx="22" fill="#ece8f9"/>
+    <text x="710" y="877" font-size="25" text-anchor="middle" font-family="'Cascadia Code','Consolas','Courier New',monospace" fill="#5847a8">anchor</text>
+
+    <rect x="812" y="822" width="740" height="130" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="838" y="852" width="44" height="44" rx="12" fill="#e3eef7"/>
+    <g transform="rotate(-40 860 874)">
+      <rect x="844" y="867" width="24" height="14" rx="7" fill="none" stroke="#315f87" stroke-width="2"/>
+      <rect x="862" y="867" width="24" height="14" rx="7" fill="none" stroke="#315f87" stroke-width="2"/>
+    </g>
+    <text x="900" y="880" font-size="30" font-weight="600" fill="#2f2724">链接与锚点</text>
+    <text x="900" y="922" font-size="26" fill="#6f6056">页内锚点 · 库内文件</text>
+    <rect x="1358" y="848" width="78" height="44" rx="22" fill="#e3eef7"/>
+    <text x="1397" y="877" font-size="26" text-anchor="middle" fill="#315f87">后退</text>
+    <rect x="1446" y="848" width="80" height="44" rx="22" fill="#e3eef7"/>
+    <text x="1486" y="877" font-size="26" text-anchor="middle" fill="#315f87">前进</text>
+  </g>
+</svg>

@@ -1,89 +1,124 @@
-# HTML Atelier
+<p align="center">
+  <img src="assets/readme/icon.png" width="88" alt="HTML Atelier 图标">
+</p>
 
-[简体中文](#html-atelier中文说明)
+<h1 align="center">HTML Atelier</h1>
 
-Preview and edit static HTML files in Obsidian. Open pages in the main workspace, edit text, links and images visually, and use the sidebar workbench to navigate headings, search content, review changes and inspect resources.
+<p align="center"><strong>在 Obsidian 里，把 .html 当成页面来读、来改。</strong><br>
+点选页面上的文字、链接和图片直接编辑，保存时只重写改过的那段源码，其余原样保留。</p>
 
-Visual edits update the affected source ranges without reformatting the entire file. Page scripts run only when you enable the opt-in "Allow page scripts" setting, inside an isolated cross-origin sandbox.
+<p align="center">
+  <a href="https://github.com/384615666/obsidian-html-atelier/releases"><img src="https://img.shields.io/github/v/release/384615666/obsidian-html-atelier?label=release&amp;color=a9622f" alt="最新版本"></a>
+  <a href="https://obsidian.md"><img src="https://img.shields.io/badge/Obsidian-1.7.2%2B-7566c4" alt="Obsidian 1.7.2+"></a>
+  <a href="#安装"><img src="https://img.shields.io/badge/platform-desktop-4f8f79" alt="仅桌面版"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/384615666/obsidian-html-atelier?color=c9963f" alt="MIT 许可证"></a>
+  <a href="https://github.com/384615666/obsidian-html-atelier/releases"><img src="https://img.shields.io/github/downloads/384615666/obsidian-html-atelier/total?color=4f7fa8" alt="下载量"></a>
+  <a href="https://htmlatelier.lsjx.xyz/"><img src="https://img.shields.io/badge/website-htmlatelier.lsjx.xyz-a9622f" alt="产品主页"></a>
+</p>
 
-Requires **Obsidian Desktop 1.7.2 or later**. Supports `.html` and `.htm` files, with interface options for English and 简体中文.
+<p align="center">
+  <a href="https://htmlatelier.lsjx.xyz/"><strong>产品主页</strong></a> ·
+  <a href="https://community.obsidian.md/plugins/html-atelier">社区插件页</a> ·
+  <a href="https://github.com/384615666/obsidian-html-atelier/releases">发布版本</a> ·
+  <a href="https://github.com/384615666/obsidian-html-atelier/issues">反馈问题</a> ·
+  <a href="README.en.md">English</a>
+</p>
 
-## Features
+<p align="center">
+  <a href="assets/readme/shot-edit.png"><img src="assets/readme/shot-edit.png" width="100%" alt="HTML Atelier 编辑界面：主工作区显示 HTML 页面，右侧栏工作台正在编辑选中的标题"></a>
+</p>
 
-### Preview & navigation
+<p align="center"><sub>编辑模式：点选页面里的标题，在右侧栏改文字，预览随输入更新，保存后写回原文件。</sub></p>
 
-- Preview static HTML in a sandboxed frame with page scripts disabled by default.
-- Zoom in, zoom out or reset the zoom, and adjust the page width for reading or checking layouts.
-- Local stylesheets referenced by `<link rel="stylesheet">` and CSS `@import` are inlined into the preview. Relative images and other assets resolve from the page's folder; references inside CSS resolve from the stylesheet's folder.
-- Follow page anchors and links to other vault files. Back and forward navigation remembers each page's scroll position by default.
-- Referenced local assets can refresh the preview automatically when they change.
+> **Obsidian 桌面版 1.7.2+** · 支持 `.html` / `.htm` · 界面跟随 Obsidian 语言，可切换中文 / English · MIT 开源 · 本地文件，无需账号或云端服务
 
-### Editing
+## 为什么是 HTML Atelier
 
-- **Visual editing**: switch to **Edit**, select text, a link or an image on the page, and edit it in the sidebar. Text segment changes update the preview as you type.
-- **Text segments & paragraphs**: edit individual text nodes, or switch to paragraph editing to work across inline formatting. Paragraph mode supports line breaks; if a paragraph cannot be mapped to the source, use segment editing instead.
-- **Links**: edit link text and destination addresses, or choose an HTML file from the vault.
-- **Images**: edit image addresses and alternative text (`alt`), choose an image from the vault, or import an external image.
-- **Source mode**: edit the raw HTML with line numbers and optional line wrapping.
-- **Split mode**: source and preview side by side.
-- Unaffected source ranges keep their original tags, attributes, comments, indentation, line endings and entity spellings.
-- Undo and redo with grouped typing and a configurable history limit of 200 entries by default.
-- Changes are written to the HTML file when you save. Draft backups are separate from saving.
+| 以前 | 现在 |
+| --- | --- |
+| 预览在浏览器，标签在编辑器，改一个词要来回切换 | `.html` 和普通笔记一样在主工作区打开，页面与源码同屏 |
+| 改一句话要翻源码、数行号、担心碰坏相邻标签 | 点选页面上的文字、链接或图片，在侧栏表单里改 |
+| 保存时整份格式化，`git diff` 全是噪音 | 只更新受影响的源码区间，标签、属性、注释、缩进、换行和实体写法保持不变 |
+| 切走窗口忘了保存，内容就没了 | 草稿自动备份；磁盘文件被改动时先提示冲突，可三方合并 |
 
-### Sidebar workbench
+HTML Atelier 不是通用网页编辑器：它把「读页面」和「改内容」放进 Obsidian，同时把改写的范围严格限制在源码的对应区间里。
 
-- **Edit**: forms for the selected text, link or image.
-- **Outline**: heading navigation and a text list for jumping to content.
-- **Search**: find and replace text in the current page draft, with case matching and an option to include hidden text. Replacement skips matches that span formatting boundaries.
-- **Changes**: compare pending text changes, locate them, and restore text entries where supported. Non-text edits may appear as a source summary; use undo or source mode for changes without per-entry restore.
-- **Resources**: inspect referenced assets, check local / missing / remote / blocked status, and jump to the source.
+## 一张图看懂
 
-The workbench also shows file and draft status. The toolbar appears in the sidebar by default and can be moved to the main view in settings.
+<p align="center">
+  <img src="assets/readme/overview.svg" width="100%" alt="HTML Atelier 功能地图：输入 HTML 文件，经主视图四种模式与侧栏工作台编辑，只重写受影响源码区间，并支持草稿、冲突处理与笔记嵌入">
+</p>
 
-### Drafts & conflicts
+### 四种模式与一个工作台
 
-- Draft backups are enabled by default. Unsaved edits are backed up after a short delay and restored when the file is reopened, including after a restart. Backups are identified by device.
-- If the file changes on disk while you have unsaved edits, the plugin detects a conflict before saving. You can use a three-way **merge**, adopt the disk version, or save the draft as a separate file.
-- The **draft manager**, available from the toolbar's **More** menu, lists backups and lets you discard selected drafts without deleting the original HTML files.
-- **Save as** creates a copy of the current draft, including unsaved edits, with an option to adjust local relative references when saving to another folder. Asset files themselves are not copied.
+| 位置 | 组成 | 适合做什么 |
+| --- | --- | --- |
+| 主视图 | **预览 / 编辑 / 源码 / 分栏** | 阅读页面、点选编辑，或直接改 HTML；分栏模式源码与预览并排 |
+| 侧栏工作台 | 标签页上方的**搜索栏** + **编辑 / 大纲 / 修改 / 资源**四个标签 | 改选中对象、跳转标题、查找替换、核对未保存改动、检查引用资源 |
+| 工具栏 | 后退、前进、模式切换、刷新、宽度、缩放、**更多**菜单 | 导航、调视口、复制链接与嵌入代码、打开草稿管理或冲突处理 |
 
-Backups are stored under `.obsidian/plugins/html-atelier/drafts/` by default. They contain the original and edited HTML; if your sync tool includes the plugin folder, it may sync these backups too. Save any drafts you need before removing the plugin folder.
+工具栏默认在侧栏面板顶部，也可以在 **设置 → HTML Atelier → 编辑 → 工具栏位置** 中移回主视图；保存按钮位于工作台底部的状态区。
 
-### Notes integration
+## 一次修改，经历了什么
 
-- Embed a saved HTML page in a note with an `html-atelier` code block:
+<p align="center">
+  <img src="assets/readme/flow.svg" width="100%" alt="一次修改的闭环：打开页面、点选对象、侧栏修改、只重写对应源码区间、保存或草稿备份">
+</p>
 
-  ````
-  ```html-atelier
-  path: "Pages/weekly-report.html"
-  height: auto
-  anchor: summary
-  ```
-  ````
+1. **打开** `.html` / `.htm`，插件用沙箱预览渲染页面；页面脚本默认不执行。
+2. **点选**页面上的文字、链接或图片，侧栏「编辑」标签切换到对应表单。
+3. **修改**时预览实时更新；未保存内容按防抖节奏备份成草稿。
+4. **保存**：把改动拼回原始源码的对应区间，其余字符原样保留，再写入磁盘。
+5. 若磁盘上的文件在你编辑期间被其他程序改过，保存前会提示**冲突**：三方合并、采用磁盘版本，或把草稿另存为独立文件。
 
-  | Parameter | Meaning |
-  | --- | --- |
-  | `path` | Required: path to an HTML file relative to the vault root. |
-  | `height` | `auto` or an integer pixel value (160–1600). Automatic height is capped by the embed settings. |
-  | `width` | `auto` or an integer pixel value (240–3840), constrained by the available note width. |
-  | `anchor` | Optional: scroll to an element's `id`, without a leading `#`. |
-  | `toolbar` | `false` hides the embed's open and refresh buttons. |
+## 截图
 
-  Embeds read the saved file rather than the current unsaved draft. After saving changes, use the embed's refresh button to reload it.
+<table>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/readme/shot-edit.png"><img src="assets/readme/shot-edit.png" width="420" alt="编辑模式：选中标题后，右侧栏显示文字编辑表单"></a><br>
+      <sub><b>编辑</b> · 选中标题，侧栏直接改文字</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/readme/shot-split.png"><img src="assets/readme/shot-split.png" width="420" alt="分栏模式：左侧预览、右侧源码并排显示"></a><br>
+      <sub><b>分栏</b> · 源码与预览并排，改哪看哪</sub>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/readme/shot-search.png"><img src="assets/readme/shot-search.png" width="420" alt="搜索面板：在草稿范围内搜索文字并跳转到匹配位置"></a><br>
+      <sub><b>搜索</b> · 在当前草稿中查找与替换</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <a href="assets/readme/shot-embed.png"><img src="assets/readme/shot-embed.png" width="420" alt="笔记嵌入：在 Markdown 笔记中显示已保存的 HTML 页面"></a><br>
+      <sub><b>嵌入</b> · 笔记中的页面滚动到指定锚点</sub>
+    </td>
+  </tr>
+</table>
 
-- Wiki links and Markdown links to HTML files open in the plugin's view with fragment scrolling.
-- Copy a page link, a section link or an embed code block from the toolbar menu. You can also open the current page in an external browser.
+截图来自 HTML Atelier 2.1.0 的实际界面（演示库），个别设置状态（例如草稿备份）可能与默认值不同；点击图片可查看原图。
 
-## Installation
+## 快速开始
 
-1. Open **Settings → Community plugins** in Obsidian.
-2. Browse community plugins, search for **HTML Atelier**, then install and enable it.
-3. Open an `.html` or `.htm` file in your vault. The page opens in the main workspace, with the sidebar workbench shown automatically by default.
-4. Switch to **Edit**, select an object on the page, make your changes in the sidebar, and click **Save**.
+### 安装
 
-If another enabled plugin handles `.html` or `.htm` files, disable it first to avoid file registration conflicts.
+| 项目 | 要求 |
+| --- | --- |
+| Obsidian | **桌面版 1.7.2 或更高版本** |
+| 文件类型 | `.html`、`.htm` |
+| 移动端 | 不支持（插件标记为仅桌面可用） |
 
-For manual installation, download `main.js`, `manifest.json` and `styles.css` from the same release on [GitHub Releases](https://github.com/384615666/obsidian-html-atelier/releases) and place them directly in `.obsidian/plugins/html-atelier/`:
+**方式一：社区插件市场（推荐）**
+
+1. 在 Obsidian 中打开 **设置 → 第三方插件 → 浏览**。
+2. 搜索 **HTML Atelier**，安装并启用。
+3. 打开库里的 `.html` 或 `.htm` 文件即可开始。
+
+也可以在浏览器打开 [社区插件页](https://community.obsidian.md/plugins/html-atelier)，或在已安装 Obsidian 的系统中打开 `obsidian://show-plugin?id=html-atelier`。
+
+**方式二：手动安装**
+
+从 [GitHub Releases](https://github.com/384615666/obsidian-html-atelier/releases) 下载同一版本的 `main.js`、`manifest.json` 和 `styles.css`，直接放进库的插件目录：
 
 ```text
 .obsidian/plugins/html-atelier/
@@ -92,143 +127,190 @@ For manual installation, download `main.js`, `manifest.json` and `styles.css` fr
 └── styles.css
 ```
 
-Restart Obsidian, then enable **HTML Atelier** under **Settings → Community plugins**. Avoid an extra nested folder. If your vault uses a custom configuration folder, substitute it for `.obsidian`.
+重启 Obsidian，然后在 **设置 → 第三方插件** 中启用 **HTML Atelier**。不要再套一层文件夹；如果库使用了自定义配置目录，请把 `.obsidian` 换成实际目录。
 
-## Editing scope & safety
+> 如果已有其他插件接管 `.html` / `.htm`，请先停用并重启，避免文件类型注册冲突。
 
-- Visual editing covers selectable page text, link addresses and image attributes. It is not a general page layout editor; use source mode for CSS, arbitrary HTML structure, form field values and text inside SVG or other excluded elements.
-- Segment editing follows the original text nodes. Paragraph editing retains inline tags while changing text across nodes; the distribution of changed text across formatting spans may change.
-- In visual text fields, `<`, `>` and `&` are escaped as text. In source mode, you edit HTML directly. Segment line breaks follow HTML whitespace rules; paragraph mode can insert `<br>` line breaks.
-- By default, page scripts and inline event handlers do not run in the plugin's preview. Form submissions are blocked, and nested frames are removed. The opt-in "Allow page scripts" setting runs scripts inside an isolated cross-origin sandbox (no direct access to the app, the vault or the local system; the page's own static local resources are embedded so it can use them); visual editing, reading-position memory, in-page link routing and embed auto-height are unavailable in this mode. Only enable it for files you trust. Static local scripts, images and fonts referenced by the page are embedded into the preview as data URLs so they can load inside the sandbox; local resources created dynamically at runtime (for example a script injecting a new `<script src>`) and module imports across files are not embedded. `height: auto` in note embeds falls back to the configured default height.
-- Remote images, styles, fonts and media are allowed by default in the main preview and in note embeds, and can be blocked in settings.
-- Opening a page in an external browser uses that browser's normal behavior, including script execution.
-- Desktop only; mobile Obsidian is not supported.
+### 第一次编辑
 
-## Development
+1. 打开任意 `.html` 文件，主工作区显示页面，侧栏工作台默认自动展开。
+2. 在工具栏切换到 **编辑**。
+3. 点选页面中的标题、段落、链接或图片，在侧栏「编辑」标签里修改；输入时预览同步变化。
+4. 点 **保存** 写回原文件。未保存的改动会自动备份，重新打开文件（包括重启 Obsidian 后）可恢复。
 
-```sh
-npm ci
-npm run lint
-npm run check
-npm test
-npm run build
-node tests/browser-check.mjs
-node tests/sidebar-regression.mjs
+### 在笔记里嵌入页面
+
+在 Markdown 笔记中写入 `html-atelier` 代码块：
+
+````markdown
+```html-atelier
+path: "Pages/weekly-report.html"
+height: auto
+anchor: summary
 ```
+````
 
-Browser checks default to Microsoft Edge at `C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe`. Set `HTML_ATELIER_BROWSER` to another Chromium-based browser's executable path if needed.
+| 参数 | 含义 |
+| --- | --- |
+| `path` | **必填**，相对于库根目录的 HTML 文件路径。 |
+| `height` | `auto` 或 160–1600 的整数像素值；自动高度受嵌入设置上限约束。 |
+| `width` | `auto` 或 240–3840 的整数像素值，不超过笔记可用宽度。 |
+| `anchor` | 可选，滚动到指定元素的 `id`，不需要写 `#`。 |
+| `toolbar` | 设为 `false` 隐藏嵌入的打开与刷新按钮。 |
 
-The build produces `main.js`, including the bundled worker. Install it alongside `manifest.json` and `styles.css`. Third-party licenses are listed in [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt).
+嵌入读取的是**已保存文件**，不显示当前未保存草稿；保存后点嵌入的刷新按钮重新载入。也可以在 **更多 → 复制 HTML 嵌入代码** 中生成代码块骨架（默认只含 `path` 与 `toolbar`，可自行补 `height` / `width` / `anchor`）。
 
----
-
-# HTML Atelier（中文说明）
-
-[English](#html-atelier)
-
-在 Obsidian 中预览和编辑静态 HTML 文件。在主工作区打开页面，可视化修改文字、链接和图片，通过侧栏工作台浏览大纲、搜索内容、查看改动与检查资源。
-
-可视化编辑只更新受影响的源码区间，不会重新格式化整份文件。插件预览默认不执行页面脚本；开启「允许页面脚本」设置后，脚本运行在与应用隔离的跨源沙箱中。
-
-适用于 **Obsidian 桌面版 1.7.2 及以上**，支持 `.html` 和 `.htm` 文件，界面可选择简体中文或 English。
-
-## 功能特性
+## 功能详情
 
 ### 预览与导航
 
-- 在沙箱框架中预览静态 HTML，默认禁用页面脚本。
-- 支持放大、缩小和重置缩放，可调整页面宽度，方便阅读与检查布局。
-- 通过 `<link rel="stylesheet">` 和 CSS `@import` 引用的库内样式表会内联到预览中。图片等相对资源按页面所在目录解析，CSS 内的相对资源按样式表所在目录解析。
-- 支持页内锚点和库内文件链接；后退、前进导航默认记住每页的滚动位置。
-- 引用的本地资源发生变化时，可自动刷新预览。
+- 在沙箱框架中预览静态 HTML，页面脚本默认关闭；缩放提供 25% / 50% / 75% / 100% / 125% / 150% / 200% 七档与「恢复 100%」，宽度提供自适应、桌面 1440、平板 768、手机 390 与自定义（240–3840 像素）。
+- 通过 `<link rel="stylesheet">` 与 CSS `@import` 引用的库内样式会内联进预览；图片等相对资源按页面目录解析，CSS 内的相对资源按样式表目录解析。
+- 支持页内锚点和库内文件链接；后退 / 前进默认记住每页的滚动位置，阅读位置按文件记忆（默认最近 200 个文件，可配置）。
+- 引用的本地 CSS、图片变化时可自动刷新预览；远程图片、样式、字体和媒体默认允许加载，可在设置中统一关闭。
+- 预览与编辑视口（宽度、缩放）可以按文件记忆。
 
-### 编辑
+### 可视化编辑
 
-- **可视化编辑**：切换到「编辑」，选择页面中的文字、链接或图片，在侧栏修改。文字片段的修改会随输入更新预览。
-- **文字片段与整段编辑**：可以逐个编辑文字节点，也可以切换到整段编辑，跨越内联格式修改文字。整段模式支持换行；无法映射到源码的段落可改用片段编辑。
-- **链接**：修改链接文字和目标地址，或从库中选择 HTML 文件。
-- **图片**：修改图片地址和替代文本（`alt`），选择库内图片，或导入外部图片。
-- **源码模式**：直接编辑 HTML，支持行号和可选的自动换行显示。
-- **分栏模式**：源码与预览并排。
-- 未受影响的源码区间保留原有标签、属性、注释、缩进、换行格式和实体写法。
-- 支持撤销、重做，连续输入自动分组；历史记录数量可配置，默认上限为 200 条。
-- 点击保存后才会将改动写回 HTML 文件；草稿备份与文件保存是两回事。
+- **文字**：编辑单个文字片段，或切换到**整段编辑**跨内联格式修改文字；整段模式支持 `Enter` 换行。
+- **链接**：修改链接文字与目标地址，或从库内选择 HTML 文件；预览中右键点击失效链接可选择「重新链接…」。
+- **图片**：修改图片地址与 `alt`，从库内选择图片，或把外部图片导入库中；响应式 `picture` / `srcset` 结构会提示，可替换为单一图片。
+- **源码模式**：直接编辑 HTML，支持行号、软换行，以及源码刷新延迟配置。
+- 未受影响的源码区间保留原有标签、属性、注释、缩进、换行格式和实体写法；可视化输入中的 `<`、`>`、`&` 会按文本转义。
+- 撤销 / 重做会合并连续输入，历史上限默认 200 个事务，可在 50–1000 之间调整（同时受 32 MiB 内存预算约束）。
 
 ### 侧栏工作台
 
-- **编辑**：按所选对象显示文字、链接或图片表单。
-- **大纲**：浏览标题与文字列表，点击跳转。
-- **搜索**：在当前页面草稿中查找、替换文字，支持区分大小写，并可选择包含隐藏文字。跨越格式边界的匹配会在替换时跳过。
-- **修改**：对照未保存的文字改动，定位修改位置，并恢复支持还原的文字条目。非文字改动可能以源码摘要显示；无法逐条恢复的改动可通过撤销或源码模式处理。
-- **资源**：查看引用的资源及其本地、缺失、远程或已拦截状态，跳转到对应源码。
+工作台由标签页上方的搜索栏和四个标签页组成：
 
-工作台还显示文件与草稿状态。工具栏默认位于侧栏，也可在设置中移到主视图。
+- **搜索栏**：在当前页面草稿内查找与替换，支持区分大小写与「全部替换」；是否包含隐藏文字由 **设置 → HTML Atelier → 搜索 → 搜索包含隐藏文字** 决定。跨格式边界的匹配会被跳过并提示数量。
+- **编辑**：按当前选中的文字、链接或图片显示对应表单。
+- **大纲**：浏览标题大纲与文案列表，点击条目可跳转到对应内容。
+- **修改**：列出未保存的文字改动，可定位并恢复支持还原的文字条目；纯属性或结构改动可能以源码摘要显示，需改用撤销或源码模式处理。
+- **资源**：列出页面引用的资源，标注本地可用、缺失、远程或已按设置拦截，并可跳转到对应源码。
+- 工作台底部显示保存按钮、保存状态、草稿状态、冲突状态与文件缺失提示。
 
 ### 草稿与冲突
 
-- 草稿备份默认开启。未保存的修改会在短暂延迟后自动备份，重新打开文件时恢复，包括重启 Obsidian 后。备份按设备标记。
-- 存在未保存修改时，如果磁盘文件发生变化，插件会在保存前检测冲突。可选择三方**合并**、采用磁盘版本，或将草稿另存为独立文件。
-- 在工具栏的「更多」菜单中打开**草稿管理器**，查看备份并丢弃选中的草稿，不会删除原始 HTML 文件。
-- **另存为**保存当前草稿的副本，包括未保存的修改。跨目录另存时，可调整本地相对引用，使其仍指向原来的目标；不会复制资源文件本身。
+- 草稿备份默认开启：连续输入约 750ms 后提交一次快照，最迟约 3 秒落盘；重新打开文件时自动恢复（包括重启 Obsidian 后）。备份按设备标识命名，存放在 `.obsidian/plugins/html-atelier/drafts/`。
+- 草稿包含原始源码与编辑后的内容；如果同步工具包含插件目录，这些备份也可能被同步。删除插件目录前请先保存需要保留的草稿。
+- 当磁盘上的 HTML 在你编辑期间发生变化，插件会在保存前检测冲突，并提供三种处理：**三方合并**（我的草稿 / 磁盘版本 / 共同基准）、**使用磁盘版本（放弃草稿）**、或把草稿**另存为**独立文件。
+- **草稿管理**（更多 → 草稿管理…）可以搜索草稿、打开原文件、丢弃选中的草稿；丢弃草稿不会删除原始 HTML。草稿总量超过提醒阈值时会在管理器中提示。
+- **另存为**会保存当前草稿的副本（包含未保存修改）；跨目录另存时可选择重写本地相对引用，资源文件本身不会被复制。
 
-备份默认存放在 `.obsidian/plugins/html-atelier/drafts/`，包含原始 HTML 和编辑后的内容。如果同步工具包含插件目录，这些备份也可能被同步。删除插件目录前，请先保存需要保留的草稿。
+### 链接、锚点与分享
 
-### 与笔记集成
+- 在工具栏 **更多** 菜单中可复制页面链接、HTML 嵌入代码，也可以在系统浏览器中打开当前文件；复制当前章节链接需要页面上已选中锚点，否则会提示没有可复制的锚点。
+- Wiki 链接与 Markdown 链接指向 HTML 文件时，会在插件视图内打开；页面内的锚点与库内链接可在预览中直接跳转。
+- 页面内的外部链接可配置为系统浏览器或应用内网页查看器；`Ctrl/Cmd + 点击` 等手势可直接在浏览器打开。
+- 在笔记中嵌入的页面可设置高度、宽度、锚点与工具栏显隐；嵌入默认显示文件名与刷新 / 打开按钮。
 
-- 用 `html-atelier` 代码块在笔记中嵌入已保存的 HTML 页面：
+### 界面与语言
 
-  ````
-  ```html-atelier
-  path: "页面/周报.html"
-  height: auto
-  anchor: summary
-  ```
-  ````
+- 界面语言默认跟随 Obsidian，也可以在 **设置 → HTML Atelier → 通用 → 界面语言** 中强制中文或 English。
+- 工具栏位置、默认打开模式、默认文字编辑粒度、修改高亮、保存后焦点恢复等都可以在设置中调整。
+- 界面文案、设置项与状态会随语言切换；命令面板命令名、文字对象类型标签、嵌入按钮与错误提示、另存为的默认文件名后缀目前仍固定为中文，嵌入标题栏的「草稿」标记与「修改」面板的增删标记同样如此。
 
-  | 参数 | 含义 |
-  | --- | --- |
-  | `path` | 必填，相对于库根目录的 HTML 文件路径。 |
-  | `height` | `auto` 或整数像素值（160–1600）；自动高度受嵌入设置中的上限约束。 |
-  | `width` | `auto` 或整数像素值（240–3840），不超过笔记的可用宽度。 |
-  | `anchor` | 可选，滚动到指定元素的 `id`，不需要前面的 `#`。 |
-  | `toolbar` | 设为 `false` 时隐藏嵌入的打开与刷新按钮。 |
+## 安全模型
 
-  嵌入读取已保存文件，不显示当前未保存草稿。保存修改后，可点击嵌入的刷新按钮重新载入。
+HTML 文件本身可以携带脚本。HTML Atelier 默认只让你**看页面**，不执行页面里的代码。
 
-- Wiki 链接与 Markdown 链接指向 HTML 文件时，在插件视图内打开并滚动到对应锚点。
-- 工具栏菜单可复制页面链接、小节链接或嵌入代码块，也可在外部浏览器打开当前页。
+| 场景 | 页面脚本 | 网络资源 | 可视化编辑 / 位置记忆 |
+| --- | --- | --- | --- |
+| **默认预览**（推荐） | 不执行：移除 `<script>`、`on*` 事件属性与 `http-equiv` meta，CSP 禁止脚本、表单提交和嵌套框架 | 默认允许远程图片 / 样式 / 字体 / 媒体，可在设置中关闭 | 可用 |
+| **允许页面脚本**（手动开启） | 在 `allow-scripts` 但**无** `allow-same-origin` 的不透明源沙箱中执行 | 受「允许加载网络资源」设置约束 | 不可用：可视化编辑、阅读位置记忆、页内链接路由、嵌入自动高度都会关闭 |
+| **外部浏览器打开** | 遵循浏览器正常行为，包括执行脚本 | 不受插件设置约束 | 不适用 |
 
-## 安装
+- 「允许页面脚本」默认关闭，只应对可信文件开启。开启后，页面静态引用的本地脚本、图片、字体、媒体、`srcset` 与 CSS `url()` 会以 data URL 形式内联进预览（单文件 8 MiB、单脚本 4 MiB、单次构建总量 32 MiB）；运行时动态创建的本地资源、跨文件模块导入和未知类型不会被内联。
+- 脚本模式是「隔离」而不是「离线」：网络资源开关仍默认允许，因此页面里的远程脚本与网络请求也会被放行；只处理可信页面时，建议同时关闭网络资源。
+- 默认模式下表单提交被拦截，嵌套的 `iframe` / `object` / `embed` 会被移除；开启脚本后，嵌套框架和表单提交仍会被拦截。
+- 内联本地资源时不会读取 `.obsidian`、`.git` 等配置/凭据目录中的文件。
 
-1. 在 Obsidian 中打开「设置 → 第三方插件」，进入「社区插件市场」。
-2. 搜索「HTML Atelier」，安装并启用。
-3. 打开库内的 `.html` 或 `.htm` 文件，页面在主工作区显示，侧栏工作台默认自动打开。
-4. 切换到「编辑」，选择页面中的对象，在侧栏修改，然后点击「保存」。
+## 编辑范围与边界
 
-如果已启用其他接管 `.html` 或 `.htm` 文件的插件，请先停用，避免文件类型注册冲突。
+- 可视化编辑面向**页面文字、链接地址与图片属性**，不是通用布局编辑器。CSS、任意 HTML 结构、表单字段值，以及 SVG 或其他排除元素内的文字，请使用源码模式。
+- 片段编辑遵循原有文字节点；整段编辑会保留内联标签，但修改后的文字在各格式区间之间的分布可能变化。无法映射到源码的段落请改用片段编辑。
+- 源码模式直接编辑 HTML；可视化文字表单中的特殊字符会转义为文本；片段换行遵循 HTML 空白规则，整段模式可插入 `<br>`。
+- 仅支持桌面版 Obsidian；移动端不在支持范围内。
+- 外部浏览器打开页面时，脚本与网络行为由浏览器决定，插件不做拦截。
 
-手动安装时，从 [GitHub Releases](https://github.com/384615666/obsidian-html-atelier/releases) 的同一版本下载 `main.js`、`manifest.json` 和 `styles.css`，直接放入 `.obsidian/plugins/html-atelier/`：
+## 常见问题
 
-```text
-.obsidian/plugins/html-atelier/
-├── main.js
-├── manifest.json
-└── styles.css
+<details>
+<summary><b>可视化编辑会把我原来的 HTML 重排吗？</b></summary>
+
+不会。插件只替换受影响的源码区间，未触及的标签、属性、注释、缩进、换行格式和实体写法都保持原样。另存为时也可以选择保持相对引用指向原目标。
+</details>
+
+<details>
+<summary><b>页面里的 JavaScript 会执行吗？</b></summary>
+
+默认不会。预览会移除脚本与内联事件、禁止表单提交并拦截嵌套框架，CSP 也将 `script-src` 设为 `none`。需要运行页面脚本时，可在设置中开启「允许页面脚本」，让脚本在隔离的不透明源沙箱中执行；此模式下可视化编辑、阅读位置记忆等功能不可用，请只对可信文件开启。
+</details>
+
+<details>
+<summary><b>能直接改 CSS 或页面结构吗？</b></summary>
+
+可视化编辑不提供布局与结构编辑。请切换到**源码模式**（或分栏模式）直接修改 HTML / CSS，源码编辑同样支持撤销、草稿备份与保存。
+</details>
+
+<details>
+<summary><b>和别的 HTML 插件冲突怎么办？</b></summary>
+
+插件通过注册 `.html` / `.htm` 扩展名接管文件视图。如果已有插件占用，启用时会提示已被接管：先停用旧插件并重启 Obsidian，重启后 `.html` / `.htm` 会自动由 HTML Atelier 打开。
+</details>
+
+<details>
+<summary><b>草稿存在哪里？卸载插件会丢吗？</b></summary>
+
+默认在库的 `.obsidian/plugins/html-atelier/drafts/` 下，按设备标识命名，包含原始与编辑后的 HTML。卸载或删除插件目录会一并删除这些备份，请先重新打开原文件恢复草稿，再用「另存为」保留需要的内容。
+</details>
+
+<details>
+<summary><b>文件被其他程序改动了怎么办？</b></summary>
+
+插件会在保存前检测磁盘变化并阻止覆盖。你可以使用三方合并保留双方改动、采用磁盘版本，或把当前草稿另存为独立文件。打开或恢复草稿时遇到文件已变化，也会进入冲突处理流程。
+</details>
+
+<details>
+<summary><b>支持移动端吗？</b></summary>
+
+不支持。HTML Atelier 依赖桌面版 Obsidian 的视图、代码编辑器与本地文件能力，`manifest.json` 标记为仅桌面可用。
+</details>
+
+## 实现原理（给开发者）
+
+```mermaid
+flowchart LR
+  A["HTML 文件<br/>.html / .htm"] --> B["parse5 解析<br/>保留源码位置"]
+  B --> C["文字 / 链接 / 图片<br/>映射到源码区间"]
+  C --> D["侧栏表单编辑<br/>实时更新预览"]
+  D --> E["区间补丁<br/>只替换受影响字符"]
+  E --> F["保存写回文件"]
+  E --> G["草稿快照<br/>防抖 + 校验"]
+  F --> H{"磁盘文件<br/>是否变化"}
+  H -->|是| I["冲突处理<br/>三方合并 / 采用磁盘 / 另存"]
+  H -->|否| J["完成"]
 ```
 
-重启 Obsidian 后，在「设置 → 第三方插件」中启用「HTML Atelier」。不要再套一层文件夹；如果库使用了自定义配置目录，请将 `.obsidian` 替换为实际目录。
+- **解析与定位**：`parse5` 携带源码位置解析 HTML，建立文字节点到源码区间的映射；段落无法对齐到源码时，会提示改用片段编辑。
+- **局部改写**：编辑结果先形成区间补丁（`src/core/patch.ts`；段落级规划见 `src/parsing/paragraphEdit.ts`），保存时按区间替换，不做整份序列化。
+- **预览隔离**：预览以 `srcdoc` 生成带 nonce 的文档，配合沙箱 iframe 与 CSP 隔离页面；脚本模式切换为不透明源沙箱，并把静态本地资源内联为 data URL。
+- **草稿与冲突**：草稿记录包含原始源码、工作副本、校验和与设备标识，写入采用「临时文件 → 校验 → 正式文件」；磁盘内容与上次保存的基准不一致时会触发冲突，处理时可使用三方合并（diff3）。
+- **嵌入与链接**：注册 `html-atelier` Markdown 代码块处理器与自定义文件视图；链接路由、锚点滚动和阅读位置由导航服务统一处理。
 
-## 编辑范围与安全
+| 目录 | 职责 |
+| --- | --- |
+| `src/parsing` | HTML 解析、文字映射、片段 / 段落编辑、URL 处理 |
+| `src/core` | 编辑会话、历史、区间补丁、指纹与定位 |
+| `src/views` | 主视图、侧栏面板、工具栏、源码编辑器、弹窗 |
+| `src/services` | 预览资源内联、保存、草稿、合并、链接、导航、侧栏协调 |
+| `src/embed` | `html-atelier` 代码块解析与渲染 |
+| `src/settings` | 设置 schema、界面与默认值校验 |
+| `src/i18n` | 中文 / English 文案 |
+| `tests` | `node:test` + jsdom 单元测试，以及基于 Playwright 的浏览器检查 |
 
-- 可视化编辑支持可选择的页面文字、链接地址与图片属性，不提供通用的页面布局编辑。CSS、任意 HTML 结构、表单字段值，以及 SVG 等排除元素内的文字，请使用源码模式修改。
-- 片段编辑遵循原有文字节点；整段编辑保留内联标签，但修改后的文字在格式区间之间的分布可能变化。
-- 可视化文字输入中的 `<`、`>`、`&` 会转义为文字；源码模式则直接编辑 HTML。片段中的换行遵循 HTML 空白规则，整段模式可插入 `<br>` 换行。
-- 插件预览默认不执行页面脚本与内联事件处理代码，禁止表单提交，并移除内嵌框架。可选设置「允许页面脚本」开启后，脚本运行在与应用隔离的跨源沙箱中（无法直接访问应用、仓库或本地系统；页面静态引用的库内资源会被内联供其使用）；此模式下可视化编辑、阅读位置记忆、页内链接路由与嵌入自动高度不可用，仅应对可信文件开启。开启时，页面静态引用的库内脚本、图片与字体会以 data URL 形式内联进预览，保证在沙箱内仍可加载；运行时动态创建的本地资源（例如脚本再注入 `<script src>`）与跨文件模块导入不会被内联。笔记嵌入的 `height: auto` 退回设置的默认高度。
-- 主预览与笔记嵌入默认允许加载远程图片、样式、字体和媒体，可在设置中统一关闭。
-- 在外部浏览器打开页面时，遵循浏览器的正常行为，包括执行页面脚本。
-- 仅支持桌面版 Obsidian，不支持移动端。
-
-## 源码开发
+## 开发与构建
 
 ```sh
 npm ci
@@ -240,6 +322,17 @@ node tests/browser-check.mjs
 node tests/sidebar-regression.mjs
 ```
 
-浏览器测试默认使用 `C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe`。需要使用其他位置或其他基于 Chromium 的浏览器时，可通过 `HTML_ATELIER_BROWSER` 指定可执行文件路径。
+- 构建产物为 `main.js`（已包含打包后的 Worker）；安装时与 `manifest.json`、`styles.css` 放在同一目录。
+- 浏览器检查默认使用 Microsoft Edge（`C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe`）；可用 `HTML_ATELIER_BROWSER` 指定其他 Chromium 内核浏览器的可执行文件。
+- 自动化测试覆盖解析与补丁、会话与历史、草稿、合并、设置校验、i18n 键集合等；浏览器检查覆盖预览、交互与侧栏回归。
 
-构建生成 `main.js`，其中已包含打包后的 Worker；安装时与 `manifest.json`、`styles.css` 一同使用。第三方依赖许可见 [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)。
+## 许可证与致谢
+
+- 本项目以 [MIT 许可证](LICENSE) 发布。
+- 第三方依赖许可见 [THIRD-PARTY-NOTICES.txt](THIRD-PARTY-NOTICES.txt)（核心解析依赖 `parse5`）。
+- 站点位于 [`site/`](site/)；README 使用的截图与图解位于 [`assets/readme/`](assets/readme/)。
+
+<p align="center">
+  <sub>HTML Atelier 是社区插件，与 Obsidian 官方无隶属关系。Obsidian 是 Dynalist Inc. 的商标。</sub><br>
+  <sub>如果这个插件帮到了你，欢迎到 <a href="https://github.com/384615666/obsidian-html-atelier">GitHub</a> 点个 Star，或在 <a href="https://github.com/384615666/obsidian-html-atelier/issues">Issues</a> 反馈问题。</sub>
+</p>

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="520" viewBox="0 0 1600 520" role="img" aria-labelledby="flowEnTitle flowEnDesc">
+  <title id="flowEnTitle">The loop of one edit: five steps</title>
+  <desc id="flowEnDesc">Open an .html file and preview it in the sandbox (page scripts are off by default), pick text, a link or an image, edit it in the sidebar with a live preview, rewrite only the affected source ranges (keeping tags, attributes, comments, indentation, line endings and entity spellings), then save the file or rely on automatic draft backup; disk changes raise a conflict that can be merged three ways, and saving keeps the loop open for further edits.</desc>
+  <defs>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#402b1d" flood-opacity="0.06"/>
+    </filter>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a9622f"/>
+    </marker>
+    <marker id="loopArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#a9622f" fill-opacity="0.55"/>
+    </marker>
+  </defs>
+
+  <rect width="1600" height="520" fill="#fbf7f0"/>
+
+  <g font-family="'Segoe UI','Microsoft YaHei','PingFang SC','Noto Sans SC',sans-serif">
+    <!-- header -->
+    <text x="48" y="74" font-size="38" font-weight="700" fill="#2f2724">The loop of one edit</text>
+    <text x="1552" y="74" font-size="26" letter-spacing="3" text-anchor="end" fill="#a9622f">HTML ATELIER · FLOW</text>
+
+    <!-- 1 Open .html -->
+    <rect x="48" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="70" y="132" width="36" height="36" rx="11" fill="#4f7fa8"/>
+    <text x="88" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">1</text>
+    <text x="70" y="202" font-size="30" font-weight="700" fill="#2f2724">Open .html</text>
+    <line x1="70" y1="218" x2="285" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="70" y="250" font-size="25" fill="#6f6056">Sandbox preview</text>
+    <text x="70" y="282" font-size="25" fill="#6f6056">Page scripts</text>
+    <text x="70" y="314" font-size="25" fill="#6f6056">off by default</text>
+
+    <!-- 2 Pick an object -->
+    <rect x="359" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="381" y="132" width="36" height="36" rx="11" fill="#4f8f79"/>
+    <text x="399" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">2</text>
+    <text x="381" y="202" font-size="30" font-weight="700" fill="#2f2724">Pick an object</text>
+    <line x1="381" y1="218" x2="596" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="381" y="250" font-size="25" fill="#6f6056">Text, links, images</text>
+    <text x="381" y="282" font-size="25" fill="#6f6056">Click it in preview</text>
+    <text x="381" y="314" font-size="25" fill="#6f6056">Sidebar syncs</text>
+
+    <!-- 3 Sidebar edits -->
+    <rect x="670" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="692" y="132" width="36" height="36" rx="11" fill="#7566c4"/>
+    <text x="710" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">3</text>
+    <text x="692" y="202" font-size="30" font-weight="700" fill="#2f2724">Sidebar edits</text>
+    <line x1="692" y1="218" x2="907" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="692" y="250" font-size="25" fill="#6f6056">Segment editing</text>
+    <text x="692" y="282" font-size="25" fill="#6f6056">Preview updates</text>
+    <text x="692" y="314" font-size="25" fill="#6f6056">as you type</text>
+
+    <!-- 4 Rewrite source -->
+    <rect x="981" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="1003" y="132" width="36" height="36" rx="11" fill="#c9963f"/>
+    <text x="1021" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">4</text>
+    <text x="1003" y="202" font-size="30" font-weight="700" fill="#2f2724">Rewrite source</text>
+    <line x1="1003" y1="218" x2="1218" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="1003" y="250" font-size="25" fill="#6f6056">Tags, attributes</text>
+    <text x="1003" y="282" font-size="25" fill="#6f6056">Comments, indent</text>
+    <text x="1003" y="314" font-size="25" fill="#6f6056">Newlines, entities</text>
+
+    <!-- 5 Save & back up -->
+    <rect x="1292" y="110" width="259" height="272" rx="18" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
+    <rect x="1314" y="132" width="36" height="36" rx="11" fill="#a9622f"/>
+    <text x="1332" y="159" font-size="26" font-weight="700" text-anchor="middle" fill="#ffffff">5</text>
+    <text x="1314" y="202" font-size="30" font-weight="700" fill="#2f2724">Save &amp; backup</text>
+    <line x1="1314" y1="218" x2="1529" y2="218" stroke="#583a25" stroke-opacity="0.12"/>
+    <text x="1314" y="250" font-size="25" fill="#6f6056">Save writes back</text>
+    <text x="1314" y="282" font-size="25" fill="#6f6056">Draft auto-backup</text>
+    <text x="1314" y="314" font-size="25" fill="#6f6056">Disk change warns</text>
+    <text x="1314" y="346" font-size="25" fill="#6f6056">Three-way merge</text>
+
+    <!-- step arrows -->
+    <line x1="319" y1="246" x2="351" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <line x1="630" y1="246" x2="662" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <line x1="941" y1="246" x2="973" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+    <line x1="1252" y1="246" x2="1284" y2="246" stroke="#a9622f" stroke-width="2.5" marker-end="url(#arrow)"/>
+
+    <!-- loop 5 -> 1 -->
+    <path d="M1421.5,382 V414 Q1421.5,424 1411.5,424 H187.5 Q177.5,424 177.5,414 V392" fill="none" stroke="#a9622f" stroke-opacity="0.55" stroke-width="2" marker-end="url(#loopArrow)"/>
+    <text x="800" y="468" font-size="26" text-anchor="middle" fill="#6f6056">Loop: saving keeps the page editable</text>
+  </g>
+</svg>
