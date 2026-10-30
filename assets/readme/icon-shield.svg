@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="isTitle">
+  <title id="isTitle">Shield: sandboxed preview</title>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#dcebe3"/>
+  <g fill="none" stroke="#306b57" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M32 13 L47 19 V30 C47 40 40 47 32 51 C24 47 17 40 17 30 V19 Z"/>
+    <path d="M25 31 L30 36 L40 26"/>
+  </g>
+</svg>

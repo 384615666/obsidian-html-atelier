@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="ieTitle">
+  <title id="ieTitle">Edit text: click on the page</title>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#f3e3cf"/>
+  <g fill="none" stroke="#a9622f" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 15 L18 41 L24.5 34.5 L29.5 44 L34.8 41.5 L29.8 32 L38 31.2 Z"/>
+    <path d="M46 22 V42"/>
+    <path d="M42.5 22 H49.5"/>
+    <path d="M42.5 42 H49.5"/>
+  </g>
+</svg>

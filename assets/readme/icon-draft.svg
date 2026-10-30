@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="idTitle">
+  <title id="idTitle">Draft: stacked autosaved layers</title>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#f8efd8"/>
+  <g fill="none" stroke="#c9963f" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="19" y="16" width="25" height="21" rx="4"/>
+    <rect x="23" y="26" width="25" height="24" rx="4" fill="#f8efd8"/>
+    <path d="M29 35 H42"/>
+    <path d="M29 41 H37"/>
+  </g>
+</svg>

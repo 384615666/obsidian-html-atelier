@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="ipTitle">
+  <title id="ipTitle">Patch: rewrite one source range</title>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#e0efe7"/>
+  <g fill="none" stroke="#4f8f79" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M24 17 H17 V47 H24"/>
+    <path d="M40 17 H47 V47 H40"/>
+    <path d="M32 25 V39"/>
+    <path d="M25 32 H39"/>
+  </g>
+</svg>

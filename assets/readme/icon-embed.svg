@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="ibTitle">
+  <title id="ibTitle">Embed: HTML code block</title>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#e3eef7"/>
+  <g fill="none" stroke="#4f7fa8" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="12" y="17" width="40" height="30" rx="6"/>
+    <path d="M25 27 L20 32 L25 37"/>
+    <path d="M39 27 L44 32 L39 37"/>
+    <path d="M35 24 L29 40"/>
+  </g>
+</svg>

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="iwTitle">
+  <title id="iwTitle">Workbench: sidebar panel</title>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#ece8f9"/>
+  <g fill="none" stroke="#7566c4" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="12" y="16" width="40" height="32" rx="5"/>
+    <path d="M37 16 V48"/>
+    <path d="M42 24 H46"/>
+    <path d="M42 32 H46"/>
+    <path d="M42 40 H46"/>
+    <path d="M18 24 H31"/>
+    <path d="M18 32 H31"/>
+  </g>
+</svg>
