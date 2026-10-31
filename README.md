@@ -5,7 +5,7 @@
 <h1 align="center">HTML Atelier</h1>
 
 <p align="center"><strong>在 Obsidian 里直接把 .html 当笔记来改。</strong><br>
-点选页面上的文字、链接和图片直接编辑，保存时只改你动过的那一段。</p>
+点选页面上的文字、链接和图片直接编辑，保存修改。</p>
 
 <p align="center">
   <a href="https://github.com/384615666/obsidian-html-atelier/releases"><img src="https://img.shields.io/github/v/release/384615666/obsidian-html-atelier?label=release&amp;color=a9622f" alt="最新版本"></a>
