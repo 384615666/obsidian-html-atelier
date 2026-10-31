@@ -127,6 +127,7 @@ Embeds read the **saved file**, not the unsaved draft; use the embed's refresh b
 - Sandboxed preview with page scripts off by default; fixed zoom steps (25%–200%), common widths (auto / 1440 / 768 / 390 / custom) and per-file viewport memory.
 - Local stylesheets (`<link>`, `@import`) are inlined; relative images resolve from the page folder. Remote assets are allowed by default and can be blocked in settings.
 - In-page anchors, vault links, back/forward navigation and reading-position memory; local CSS and image changes can refresh the preview automatically.
+- Preview scrollbars mimic the Obsidian style (thin rounded thumb, transparent track) and invert on dark pages; pages with their own scrollbar styling keep it.
 
 ### Visual editing
 
