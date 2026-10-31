@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#fbf7f0">
   <title>HTML Atelier · 在 Obsidian 里把 html 当笔记改</title>
-  <meta name="description" content="Obsidian 桌面版插件：把库里的 .html 文件当成笔记，点选文字、链接和图片直接编辑，保存时只更新改过的源码。支持源码与分栏模式、大纲与搜索、草稿备份和笔记嵌入。MIT 开源。">
+  <meta name="description" content="Obsidian 桌面版插件：把库里的 .html 文件当成笔记，点选文字、链接和图片直接编辑，保存时只改你动过的那一段。支持完整 CSS 与可选脚本、源码与分栏、大纲与搜索、草稿备份和笔记嵌入。MIT 开源。">
   <link rel="canonical" href="https://htmlatelier.lsjx.xyz/">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="HTML Atelier">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:title" content="HTML Atelier · 在 Obsidian 里把 html 当笔记改">
-  <meta property="og:description" content="点选笔记里的文字、链接和图片直接编辑，保存时只更新改过的源码。沙箱预览、草稿备份、笔记嵌入，Obsidian 桌面版 1.7.2+。">
+  <meta property="og:description" content="点选笔记里的文字、链接和图片直接编辑，保存时只改你动过的那一段。完整 CSS 与可选脚本、沙箱预览、草稿备份、笔记嵌入，Obsidian 桌面版 1.7.2+。">
   <meta property="og:url" content="https://htmlatelier.lsjx.xyz/">
   <meta property="og:image" content="https://htmlatelier.lsjx.xyz/assets/og-cover.png">
   <meta property="og:image:width" content="1200">
@@ -23,7 +23,7 @@
   <meta property="og:image:alt" content="HTML Atelier：在 Obsidian 里把 html 当笔记改">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HTML Atelier · 在 Obsidian 里把 html 当笔记改">
-  <meta name="twitter:description" content="在 Obsidian 里把 .html 文件当笔记改。桌面版 1.7.2+，MIT 开源。">
+  <meta name="twitter:description" content="在 Obsidian 里把 .html 文件当笔记改。完整 CSS 与可选脚本，桌面版 1.7.2+，MIT 开源。">
   <meta name="twitter:image" content="https://htmlatelier.lsjx.xyz/assets/og-cover.png">
 
   <link rel="stylesheet" href="site.css">
@@ -32,7 +32,7 @@
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
     "name": "HTML Atelier",
-    "description": "Obsidian 桌面版插件，把库中的 HTML 文件当笔记预览和编辑。可视化编辑只更新受影响的源码区间，预览默认在沙箱中运行、不执行页面脚本。",
+    "description": "Obsidian 桌面版插件，把库中的 HTML 文件当笔记预览和编辑。支持完整 CSS 与可选脚本；可视化编辑只更新受影响的源码区间，预览默认在沙箱中运行、不执行页面脚本。",
     "url": "https://htmlatelier.lsjx.xyz/",
     "downloadUrl": "https://github.com/384615666/obsidian-html-atelier/releases/latest",
     "softwareVersion": "2.1.0",
@@ -146,7 +146,7 @@
           <span class="h1-line">在 Obsidian 里，</span>
           <span class="h1-line h1-accent">把 html 当笔记改。</span>
         </h1>
-        <p class="hero-lead">打开库里的 .html 文件，它和普通笔记一样出现在工作区。点一下文字、链接或图片，在侧栏里改；保存时只更新改过的那段源码，其余格式原样保留。</p>
+        <p class="hero-lead">打开库里的 .html 文件，它和普通笔记一样出现在工作区；完整 CSS 与可选页面脚本，让版式比 Markdown 更丰富。点一下文字、链接或图片，在侧栏里改；保存时只改你动过的那一段，其余格式原样保留。</p>
         <div class="hero-actions">
           <a class="btn btn-primary btn-lg" href="#install">
             <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
@@ -630,7 +630,7 @@
           </div>
           <div class="feature-diff-grid">
             <div>
-              <h3>只更新改过的那一段源码</h3>
+              <h3>只改你动过的那一段</h3>
               <p>在页面上改了一句话，源码里只有对应的那段会变。其余标签、属性、注释、缩进、换行和实体写法都保持原样，不会重新格式化整份文件。</p>
             </div>
             <div class="diff-visual" aria-hidden="true">
@@ -956,7 +956,7 @@
             <span>可视化编辑会把整份文件重新格式化吗？</span>
             <span class="faq-toggle" aria-hidden="true"></span>
           </summary>
-          <div class="faq-answer"><p>不会。可视化修改只更新受影响的那段源码，没动过的标签、属性、注释、缩进、换行和实体写法都保持原样。要改页面结构，请切到源码模式。</p></div>
+          <div class="faq-answer"><p>不会。可视化修改只改你动过的那一段，没动过的标签、属性、注释、缩进、换行和实体写法都保持原样。要改页面结构，请切到源码模式。</p></div>
         </details>
 
         <details class="faq-item">

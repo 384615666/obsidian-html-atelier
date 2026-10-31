@@ -5,7 +5,7 @@
 <h1 align="center">HTML Atelier</h1>
 
 <p align="center"><strong>Edit <code>.html</code> files directly as notes in Obsidian.</strong><br>
-Select text, links or images on the page, edit them in the sidebar, and save only the source ranges you changed.</p>
+Select text, links or images on the page, edit them in the sidebar, and save only the part you changed.</p>
 
 <p align="center">
   <a href="https://github.com/384615666/obsidian-html-atelier/releases"><img src="https://img.shields.io/github/v/release/384615666/obsidian-html-atelier?label=release&amp;color=a9622f" alt="Latest release"></a>
@@ -33,7 +33,8 @@ Select text, links or images on the page, edit them in the sidebar, and save onl
 ## Why HTML Atelier
 
 - <img src="assets/readme/icon-edit.svg" width="24" alt=""> **Select and edit in place**: pick text, a link or an image on the page, change it in the sidebar form, and watch the preview update.
-- <img src="assets/readme/icon-patch.svg" width="24" alt=""> **Only the changed range is rewritten**: untouched tags, attributes, comments, indentation, line endings and entity spellings stay exactly as they were.
+- <img src="assets/readme/icon-embed.svg" width="24" alt=""> **Optional JS, richer styling**: full CSS plus optional page scripts; scripts are off by default and can be enabled in settings, for layouts and interactions Markdown cannot express.
+- <img src="assets/readme/icon-patch.svg" width="24" alt=""> **Only the part you changed is rewritten**: untouched tags, attributes, comments, indentation, line endings and entity spellings stay exactly as they were.
 - <img src="assets/readme/icon-workbench.svg" width="24" alt=""> **One workbench for the whole flow**: search, outline, changes and resources in the sidebar; drafts are backed up and conflicts can be merged.
 
 ## At a glance
@@ -44,7 +45,7 @@ Select text, links or images on the page, edit them in the sidebar, and save onl
 
 - **Main view**: Preview / Edit / Source / Split.
 - **Sidebar**: a persistent search bar above the tabs plus Edit / Outline / Changes / Resources.
-- **Save**: only the affected source ranges are replaced; everything else is written back untouched.
+- **Save**: only the part you changed is rewritten; everything else stays as it was.
 
 ## What happens on every edit
 

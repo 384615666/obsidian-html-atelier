@@ -5,7 +5,7 @@
 <h1 align="center">HTML Atelier</h1>
 
 <p align="center"><strong>在 Obsidian 里直接把 .html 当笔记来改。</strong><br>
-点选页面上的文字、链接和图片直接编辑，保存时只重写改过的那段源码。</p>
+点选页面上的文字、链接和图片直接编辑，保存时只改你动过的那一段。</p>
 
 <p align="center">
   <a href="https://github.com/384615666/obsidian-html-atelier/releases"><img src="https://img.shields.io/github/v/release/384615666/obsidian-html-atelier?label=release&amp;color=a9622f" alt="最新版本"></a>
@@ -33,7 +33,8 @@
 ## 为什么是 HTML Atelier
 
 - <img src="assets/readme/icon-edit.svg" width="24" alt=""> **点选就改**：选中页面上的文字、链接或图片，在侧栏表单里修改，预览随输入更新。
-- <img src="assets/readme/icon-patch.svg" width="24" alt=""> **只写回改动的那一段**：未触及的标签、属性、注释、缩进、换行与实体写法保持原样，diff 里只有真正的改动。
+- <img src="assets/readme/icon-embed.svg" width="24" alt=""> **支持 JS，样式更加丰富**：页面可以使用完整 CSS 与可选页面脚本；脚本默认关闭，可在设置中开启，版式与交互比 Markdown 更自由。
+- <img src="assets/readme/icon-patch.svg" width="24" alt=""> **只改你动过的那一段**：未触及的标签、属性、注释、缩进、换行与实体写法保持原样，diff 里只有真正的改动。
 - <img src="assets/readme/icon-workbench.svg" width="24" alt=""> **一个工作台覆盖全流程**：搜索、大纲、修改与资源都在侧栏；草稿自动备份，冲突时三方合并。
 
 ## 一眼看懂
@@ -44,7 +45,7 @@
 
 - **主视图**：预览 / 编辑 / 源码 / 分栏。
 - **侧栏**：标签页上方常驻搜索栏 + 编辑 / 大纲 / 修改 / 资源四个标签。
-- **保存**：只替换受影响的源码区间，其余字节原样写回。
+- **保存**：只改你动过的那一段，其余内容原样保留。
 
 ## 一次修改，经历了什么
 
