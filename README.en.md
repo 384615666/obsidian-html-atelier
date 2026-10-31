@@ -4,7 +4,7 @@
 
 <h1 align="center">HTML Atelier</h1>
 
-<p align="center"><strong>In Obsidian, treat <code>.html</code> files as notes you can read and edit.</strong><br>
+<p align="center"><strong>Edit <code>.html</code> files directly as notes in Obsidian.</strong><br>
 Select text, links or images on the page, edit them in the sidebar, and save only the source ranges you changed.</p>
 
 <p align="center">

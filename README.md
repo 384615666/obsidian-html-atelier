@@ -4,7 +4,7 @@
 
 <h1 align="center">HTML Atelier</h1>
 
-<p align="center"><strong>在 Obsidian 里，把 .html 当成笔记来读、来改。</strong><br>
+<p align="center"><strong>在 Obsidian 里直接把 .html 当笔记来改。</strong><br>
 点选页面上的文字、链接和图片直接编辑，保存时只重写改过的那段源码。</p>
 
 <p align="center">
