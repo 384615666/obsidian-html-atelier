@@ -124,3 +124,37 @@ test('alignSegments:相邻多处修改按顺序配对,不串位',()=>{
  const pairs=alignSegments(base,work);
  assert.deepEqual(pairs.map(pr=>[pr.base?.text,pr.work?.text]),[['a','A'],['b','B'],['c','c']]);
 });
+test('preview injects Obsidian-style scrollbar when the page has none',()=>{
+ const input='<html><head><title>x</title></head><body><p>正文</p></body></html>';
+ const preview=makePreview(parseDocument(input),'app://local/vault/');const doc=new JSDOM(preview).window.document;
+ const sb=doc.querySelector('style[data-html-atelier-scrollbar]');
+ assert.ok(sb,'未注入滚动条样式');
+ assert.equal(sb!.parentElement?.tagName,'HEAD');
+ assert.match(sb!.textContent!,/::-webkit-scrollbar-thumb\{[^}]*background-clip:padding-box/);
+ assert.match(sb!.textContent!,/light-dark\(rgba\(0,0,0,\.1\),rgba\(255,255,255,\.1\)\)/);
+ // 注入不改变可视化编辑的文字段映射
+ assert.equal((preview.match(/<!--html-atelier-text:/g)||[]).length,parseDocument(input).segments.length);
+});
+test('preview keeps native scrollbar injection off when the page styles its own',()=>{
+ const cases=[
+  '<html><head><style>::-webkit-scrollbar{width:4px}</style></head><body><p>x</p></body></html>',
+  '<html><head><style>::-WEBKIT-SCROLLBAR-THUMB{background:red}</style></head><body><p>x</p></body></html>',
+  '<body style="scrollbar-width:thin"><p>x</p></body>',
+  '<body style="scrollbar-color: red blue"><p>x</p></body>',
+ ];
+ for(const input of cases){
+  const preview=makePreview(parseDocument(input),'app://local/vault/');
+  assert.equal(new JSDOM(preview).window.document.querySelector('style[data-html-atelier-scrollbar]'),null,'页面自带滚动条样式仍被注入: '+input);
+ }
+});
+test('scrollbar examples in lecture code blocks do not suppress the injection',()=>{
+ const input='<html><body><p>讲解:</p><pre><code>::-webkit-scrollbar { width: 8px; }</code></pre><p>完。</p></body></html>';
+ assert.ok(new JSDOM(makePreview(parseDocument(input),'app://local/x/')).window.document.querySelector('style[data-html-atelier-scrollbar]'),'代码示例被误判为页面样式');
+ const commented='<html><body><!-- TODO: 加 ::-webkit-scrollbar --><p>x</p></body></html>';
+ assert.ok(new JSDOM(makePreview(parseDocument(commented),'app://local/x/')).window.document.querySelector('style[data-html-atelier-scrollbar]'),'注释里的示例被误判');
+});
+test('scrollbar injection works on headless fragments',()=>{
+ const preview=makePreview(parseDocument('<p>无头文档</p>'),'app://local/x/');
+ const doc=new JSDOM(preview).window.document;
+ assert.ok(doc.querySelector('head style[data-html-atelier-scrollbar]'));
+});

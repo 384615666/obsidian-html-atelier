@@ -53,6 +53,7 @@ export function alignSegments(base:Segment[],work:Segment[]):AlignedSegment[]{
 }
 interface P5Node {
  nodeName:string;tagName?:string;value?:string;data?:string;
+ namespaceURI?:string;
  attrs?:{name:string;value:string}[];
  childNodes?:P5Node[];
  parentNode?:P5Node|null;
@@ -81,6 +82,32 @@ export function applyText(model:DocumentModel, changes:Map<string,string>):strin
   const value=changes.get(s.id);
   if(value!==undefined&&value!==s.text)source=source.slice(0,s.start)+escapeText(value)+source.slice(s.end);
  }return source;
+}
+// 预览滚动条美化:页面自己没写过滚动条外观时,把 Obsidian 默认主题的滚动条样式
+// 注入预览文档。iframe 是独立文档,宿主对 ::-webkit-scrollbar 的全局美化够不到里面,
+// Chromium 在 Windows 上画出的是带上下箭头的原生经典滚动条。注入只进预览产物
+// (embed 同享),绝不写回源文件;节点插在 head 子节点首部(meta/base 之后、页面自己
+// 的规则之前),检测漏掉的页面样式(写在模板/脚本/远程样式表里)在级联上天然压过
+// 注入规则,不会被覆盖。
+// 检测对象是剥掉 script/pre/code/textarea/template/注释后的源文本:讲课稿正文里的
+// CSS 示例代码不算"页面自己设置了滚动条";<style>(含预览路径已内联的库内 CSS)保留,
+// 是真正生效的样式来源。误报(漏判"有样式")的代价只是维持原生滚动条,方向安全。
+// 颜色用 light-dark():判定滚动条明暗用的 used color-scheme 与 Chromium 渲染原生
+// 滚动条是同一套,页面声明 color-scheme:dark(或跟随系统深色)时 thumb 反白,不比
+// 原生差;每条颜色先落一份纯 rgba 再叠 light-dark(),老引擎不认时退回浅色值。
+// 数值取自 Obsidian 默认主题(obsidian.asar):宽高 12px、thumb 以 background-clip:
+// padding-box 加 3/2px 透明边框内缩成胶囊、--radius-l(12px) 圆角、min-height 45px、
+// thumb 透明度 0.1、hover/active 0.2(light)——mono-rgb-100 在暗色下是 255,255,255。
+const SCROLLBAR_HINT_RE=/::-webkit-scrollbar|scrollbar-width|scrollbar-color/i;
+const SCROLLBAR_NOISE_RE=/<(?:script|pre|code|textarea|template)\b[\s\S]*?<\/(?:script|pre|code|textarea|template)|<!--[\s\S]*?-->/gi;
+const PREVIEW_SCROLLBAR_CSS='::-webkit-scrollbar{background-color:transparent;width:12px;height:12px;border-radius:12px}'
+ +'::-webkit-scrollbar-track{background-color:transparent}'
+ +'::-webkit-scrollbar-thumb{background-clip:padding-box;border:2px solid transparent;border-width:3px 3px 3px 2px;min-height:45px;border-radius:12px;'
+ +'background-color:rgba(0,0,0,.1);background-color:light-dark(rgba(0,0,0,.1),rgba(255,255,255,.1))}'
+ +'::-webkit-scrollbar-thumb:hover,::-webkit-scrollbar-thumb:active{background-color:rgba(0,0,0,.2);background-color:light-dark(rgba(0,0,0,.2),rgba(255,255,255,.2))}'
+ +'::-webkit-scrollbar-corner{background:transparent}';
+function hasOwnScrollbarStyling(source:string):boolean{
+ return SCROLLBAR_HINT_RE.test(source.replace(SCROLLBAR_NOISE_RE,''));
 }
 export function makePreview(model:DocumentModel, base:string, nonce:string, opts?:{allowNetwork?:boolean; allowScripts?:boolean}):string {
  const allowScripts=opts?.allowScripts===true;
@@ -111,11 +138,18 @@ export function makePreview(model:DocumentModel, base:string, nonce:string, opts
  // head 带属性或大小写不同时静默失败);nonce 防止用户源码中的同名注释被当作标记(audit R2)。
  const meta:P5Node={nodeName:'meta',tagName:'meta',attrs:[{name:'http-equiv',value:'Content-Security-Policy'},{name:'content',value:policy}],childNodes:[]};
  const baseEl:P5Node={nodeName:'base',tagName:'base',attrs:[{name:'href',value:safeBase}],childNodes:[]};
+ const headKids:P5Node[]=[baseEl,meta];
+ if(!hasOwnScrollbarStyling(model.source)){
+  const sbStyle:P5Node={nodeName:'style',tagName:'style',namespaceURI:'http://www.w3.org/1999/xhtml',
+   attrs:[{name:'data-html-atelier-scrollbar',value:''}],childNodes:[],parentNode:null};
+  sbStyle.childNodes!.push({nodeName:'#text',value:PREVIEW_SCROLLBAR_CSS,parentNode:sbStyle});
+  headKids.push(sbStyle);
+ }
  const head=doc.childNodes?.find(n=>n.tagName==='head');
- if(head?.childNodes){head.childNodes.unshift(baseEl,meta);}
+ if(head?.childNodes){head.childNodes.unshift(...headKids);}
  else{
   const html=doc.childNodes?.find(n=>n.tagName==='html');
-  const headEl:P5Node={nodeName:'head',tagName:'head',attrs:[],childNodes:[baseEl,meta]};
+  const headEl:P5Node={nodeName:'head',tagName:'head',attrs:[],childNodes:headKids};
   if(html?.childNodes)html.childNodes.unshift(headEl);
   else doc.childNodes?.unshift(headEl);
  }
