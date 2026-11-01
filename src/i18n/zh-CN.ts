@@ -78,7 +78,7 @@ export const zhCN2={
  // 模式/宽度/缩放
  widthAuto:'自适应',widthDesktop:'桌面 1440',widthTablet:'平板 768',widthMobile:'手机 390',widthCustom:'自定义…',
  // 面板标签与状态
- tabEdit:'编辑',tabOutline:'大纲',tabChanges:'修改',tabResources:'资源',
+ tabEdit:'编辑',tabOutline:'大纲',tabChanges:'修改',tabResources:'链接',
  statusDraftPending:'待备份',statusDraftWriting:'正在备份',statusDraftSaved:'草稿已备份',
  statusDraftFailed:'草稿备份失败',statusDraftDisabled:'备份已关闭',statusConflict:'存在外部冲突',
  statusConflictDraft:'存在外部冲突 · 草稿已备份',statusClean:'无未保存更改',statusDirty:'{n} 处未保存',
@@ -99,6 +99,12 @@ export const zhCN2={
  changesLocation:'定位',
  resourcesRefresh:'重新加载清单',resourcesEmpty:'未发现引用资源。',resourcesJumpSource:'源码',
  resourcesStatusLocalOk:'已加载',resourcesStatusMissing:'缺失',resourcesStatusRemote:'远程',resourcesStatusBlocked:'已按设置拦截',
+ linksBacklinks:'反向链接',linksOutgoing:'出链',
+ linksBacklinkEmpty:'还没有笔记链接此页面。',
+ linksHint:'在笔记里用 [[文件.html]](带扩展名)链接此页,即可进入 Obsidian 的出链/反链索引。',
+ linksOutgoingEmpty:'页面内没有库内或外部链接。',
+ linksKindPage:'页面',linksKindNote:'笔记',linksKindFile:'文件',linksKindBroken:'未解析',linksKindExternal:'外部',
+ linksLocate:'定位',linksAssets:'引用资源',linksMore:' 等 {n} 处',
  searchLabel:'搜索文案',searchPlaceholder:'搜索文案(草稿范围内)…',searchReplace:'替换为…',searchReplaceAll:'全部替换',searchSkipped:'{n} 处跨格式命中已跳过(可用整段编辑处理)',searchCase:'区分大小写',searchPrev:'上一处',searchNext:'下一处',
  searchCount:'{i}/{n}',searchNoResults:'无结果',searchHidden:'包括隐藏文字',
  noticeParagraphUnavailable:'该段落暂不能整段编辑(文字与源码无法对齐),请改用文字片段编辑。',

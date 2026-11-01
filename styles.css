@@ -299,10 +299,18 @@
 .html-atelier-panel .html-atelier-textarea{min-height:155px}
 .html-atelier-panel .html-atelier-hint{font-size:calc(var(--font-ui-smaller,12px) - 1px);line-height:1.7;margin:0}
 .html-atelier-panel .html-atelier-btnrow{gap:7px}
-.html-atelier-panel .html-atelier-btnrow button,.html-atelier-panel .html-atelier-resource button{
+.html-atelier-panel .html-atelier-btnrow button,.html-atelier-panel .html-atelier-resource button,
+.html-atelier-panel .html-atelier-textlistdetails summary button{
  height:auto;min-height:28px;padding:5px 9px;border:1px solid var(--ha-line);border-radius:6px;
  background:var(--background-primary);box-shadow:none;font-size:calc(var(--font-ui-smaller,12px) - 1px);line-height:1.4;white-space:normal;color:var(--text-normal);
 }
+.html-atelier-panel .html-atelier-textlistdetails summary button{margin-left:8px}
+/* 行尾操作按钮(定位/源码)统一靠右;高频手势要有可感的悬停与按压反馈 */
+.html-atelier-panel .html-atelier-resource>button{margin-left:auto}
+.html-atelier-panel .html-atelier-resource>button:hover,
+.html-atelier-panel .html-atelier-textlistdetails summary button:hover{background:var(--background-modifier-hover)}
+.html-atelier-panel .html-atelier-resource>button:active,
+.html-atelier-panel .html-atelier-textlistdetails summary button:active{transform:translateY(1px);background:var(--background-modifier-active-hover,var(--background-modifier-hover))}
 .html-atelier-panel .html-atelier-change{padding:12px;margin-bottom:10px;border:1px solid var(--ha-line);border-radius:9px;background:var(--background-primary)}
 .html-atelier-panel .html-atelier-changehead{gap:6px;flex-wrap:wrap;margin-bottom:9px}
 .html-atelier-panel .html-atelier-diff{gap:7px;font-size:var(--font-ui-smaller,12px);line-height:1.7}

@@ -12,6 +12,7 @@ import {debugLog} from '../services/debug';
 import {inlineLocalStylesheets} from '../services/cssInline';
 import {createDataUrlFor,createInlineBudget,inlineLocalPreviewAssets,PreviewInlineIO} from '../services/previewAssets';
 import {resolveLink,LinkRouter} from '../services/links';
+import {anchorIndexesForKey} from '../services/linkIndex';
 import {currentNavEntry,docOfWindow,NavigationService,NavEntry} from '../services/nav';
 import type {AtelierSettings} from '../settings/schema';
 import type {Translator} from '../i18n';
@@ -446,25 +447,27 @@ export class HtmlFileView extends FileView {
  }
  private pendingAnchor='';
 
- scrollToAnchor(anchor:string){
+ scrollToAnchor(anchor:string,recordAnchor=true){
   const win=this.iframe?.contentWindow;
   if(!win)return;
-  this.currentAnchor=anchor;
+  if(recordAnchor)this.currentAnchor=anchor;
   const id=anchor.replace(/^#/,'');
   // 脚本模式是跨源沙箱帧:document 读不到、scrollTo 也不可调用。锚点仍记录在
   // 导航条目里,但定位降级为无操作,不能抛 SecurityError 打断大纲/搜索面板。
   const doc=docOfWindow(win);
   if(!doc)return;
   if(!id){win.scrollTo(0,0);return;}
-  let target:Element|null=null;
+  let target:Element|null=null;let marker=false;
   try{target=doc.getElementById(decodeURIComponent(id));}catch{target=doc.getElementById(id);}
   // 大纲/搜索给的是文字标记 id(不是元素 id),此前一律找不到而静默回到页首
   // (审计复检 §3.22:F10 文字列表与 F12 搜索命中的点击定位都不工作)。
   if(!target){
    const dom=this.textNodes.get(id);
-   if(dom?.parentElement)target=dom.parentElement;
+   if(dom?.parentElement){target=dom.parentElement;marker=true;}
   }
-  if(target)target.scrollIntoView();
+  // 文字标记定位对准视口中部:scrollIntoView 默认顶端对齐会把目标行贴在屏幕上沿、
+  // 被切掉一半(用户实测 2026-10-31)。元素锚点保持浏览器默认顶端语义。
+  if(target)target.scrollIntoView(marker?{block:'center'}:undefined);
   else win.scrollTo(0,0);
  }
 
@@ -487,7 +490,9 @@ export class HtmlFileView extends FileView {
   this.describeSelection();
   // 大纲定位留下的悬停(locateLogical)优先级高于选中,不清掉就看不到选中框
   this.hovered=null;
-  this.scrollToAnchor(`#${segmentId}`);
+  // 文字标记是合成的、随源码编辑漂移:不写进 currentAnchor —— 否则"复制章节
+  // 链接"会生成 [[page.html#t3]] 这类指向不存在的假锚点(搜索命中/出链定位同因)
+  this.scrollToAnchor(`#${segmentId}`,false);
   this.callbacks.onSelectChanged(this.selected,this.session);
   this.drawSelection();
  }
@@ -1031,6 +1036,51 @@ export class HtmlFileView extends FileView {
   if(!(this.mode==='source'||this.mode==='split'))this.setMode('split');
   const tryReveal=()=>{if(this.sourceEditor)this.sourceEditor.revealOffset(offset);else window.setTimeout(tryReveal,120);};
   tryReveal();
+ }
+
+ // 无文字锚点(图片/图标链接)的预览侧定位:在预览文档里找同目标第 index 次出现,
+ // 滚动过去并给元素加一轮描边闪烁。文字定位的实线框挂在文字段上,纯图片锚点没有
+ // 东西可选中,此前只能退回源码定位 —— 一步把用户从预览拽进分栏源码,真机实测
+ // 很突兀(2026-11-01 用户反馈)。返回 false 表示预览侧够不着(脚本模式跨源沙箱),
+ // 调用方退回源码定位。源码模式下预览不可见,进分栏展示;其余模式不动用户布局。
+ locatePreviewLink(key:string,index:number):boolean{
+  const win=this.iframe?.contentWindow;
+  const doc=docOfWindow(win);
+  if(!win||!doc)return false;
+  const anchors=[...doc.querySelectorAll('a[href]')];
+  const at=anchorIndexesForKey(anchors.map(a=>a.getAttribute('href')??''),
+   raw=>resolveLink(this.app,raw,this.file?.path??''),key,index);
+  if(at<0)return false;
+  if(this.mode==='source')this.setMode('split');
+  const el=anchors[at] as HTMLElement;
+  el.scrollIntoView({block:'center',behavior:'instant' as ScrollBehavior});
+  this.flashPreviewElement(el);
+  return true;
+ }
+
+ // 闪烁描边加在元素身上(随滚动自动跟踪,不需要像覆盖层那样同步坐标);
+ // accent 与文字选中框(#9275df)同款。重触发要先移除类并强制回流。
+ private locateFlashCleanup:(()=>void)|null=null;
+ private flashPreviewElement(el:HTMLElement){
+  const doc=el.ownerDocument;
+  let style=doc.getElementById('html-atelier-locate-flash-style');
+  if(!style){
+   style=doc.createElement('style');
+   style.id='html-atelier-locate-flash-style';
+   style.textContent='@keyframes html-atelier-locate-flash-kf{0%,60%{outline:3px solid #9275df;outline-offset:3px}100%{outline:3px solid transparent;outline-offset:3px}}'
+    +'.html-atelier-locate-flash{animation:html-atelier-locate-flash-kf 1.5s ease-out forwards}';
+   (doc.head??doc.documentElement).appendChild(style);
+  }
+  this.locateFlashCleanup?.();
+  el.classList.remove('html-atelier-locate-flash');
+  void el.offsetWidth;
+  el.classList.add('html-atelier-locate-flash');
+  const timer=doc.defaultView?.setTimeout(()=>el.classList.remove('html-atelier-locate-flash'),1600);
+  this.locateFlashCleanup=()=>{
+   doc.defaultView?.clearTimeout(timer);
+   el.classList.remove('html-atelier-locate-flash');
+   this.locateFlashCleanup=null;
+  };
  }
 
  locateFromSource(offset:number){

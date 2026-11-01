@@ -44,7 +44,7 @@ Select text, links or images on the page, edit them in the sidebar, and save onl
 </p>
 
 - **Main view**: Preview / Edit / Source / Split.
-- **Sidebar**: a persistent search bar above the tabs plus Edit / Outline / Changes / Resources.
+- **Sidebar**: a persistent search bar above the tabs plus Edit / Outline / Changes / Links.
 - **Save**: only the part you changed is rewritten; everything else stays as it was.
 
 ## What happens on every edit
@@ -138,7 +138,7 @@ Embeds read the **saved file**, not the unsaved draft; use the embed's refresh b
 ### Sidebar workbench
 
 - **Search bar**: find and replace within the current draft, with case matching and Replace all; matches crossing formatting boundaries are skipped and counted.
-- **Edit / Outline / Changes / Resources**: edit the selected object, jump to headings and text, locate and restore text changes, inspect referenced assets.
+- **Edit / Outline / Changes / Links**: edit the selected object, jump to headings and text, locate and restore text changes; the Links tab has three collapsible sections — backlinks, outgoing links, referenced assets.
 - The footer shows the save button plus save / draft / conflict status and missing-file warnings.
 
 ### Drafts & conflicts
@@ -150,6 +150,7 @@ Embeds read the **saved file**, not the unsaved draft; use the embed's refresh b
 ### Links, anchors & sharing
 
 - Wiki and Markdown links to HTML files open in the plugin view; in-page anchors and vault links jump inside the preview.
+- Link to an HTML file from a note with `[[page.html]]` (extension required) to enter Obsidian's native outgoing / backlink index; the sidebar Links tab lists backlinks (click to open the source note) and the page's outgoing links (click to open the target; the Locate button highlights the link in the preview, cycling through repeated targets as 1/N, 2/N…), refreshed live as the index changes.
 - The More menu copies the page link or HTML embed code, or opens the current file in your system browser; copying a section link requires a selected anchor.
 - Embeds support height, width, anchor and toolbar visibility, and show the file name with refresh / open buttons by default.
 

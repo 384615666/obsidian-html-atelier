@@ -8,6 +8,8 @@ import {escapeAttrValue,escapeText} from '../parsing/escape';
 import {SelectionInfo} from './selectionTypes';
 import {ViewToolbar,ToolbarTarget} from './toolbar';
 import {debugLog} from '../services/debug';
+import {collectPageLinks,anchorRangesForKey,firstSegmentIds,linkKeyOf} from '../services/linkIndex';
+import type {ResolvedLink} from '../services/links';
 import type {AtelierSettings} from '../settings/schema';
 import type {Translator} from '../i18n';
 
@@ -29,6 +31,9 @@ interface OutlineState {
  open:boolean;
  selected:{htmlId:string|null;tag:string;text:string;start:number;source:string}|null;
 }
+// 资源标签三个区块(反向链接/出链/引用资源)的折叠状态,按会话记忆
+type SectionKey='backlinks'|'outgoing'|'resources';
+type SectionState=Record<SectionKey,boolean>;
 
 export interface PanelCallbacks {
  settings:()=>AtelierSettings;
@@ -45,6 +50,9 @@ export interface PanelCallbacks {
  locatePreview(segmentId:string):void;
  // 搜索命中:在预览里选中那段文字(视图选择、预览选中框、侧栏表单三者一致)
  selectInPreview(segmentId:string):void;
+ // 无文字锚点(图片链接)的定位:预览文档里找同目标第 index 次出现,滚动+描边闪烁。
+ // 返回 false 表示预览侧够不着(脚本模式跨源沙箱),调用方退回源码定位
+ locatePreviewLink(key:string,index:number):boolean;
  // 返回是否真的定位到了:大纲点击需要据此决定要不要退回锚点/源码
  revealInPreview(containerIndex:number,lStart:number,lEnd:number):boolean;
  saveActive():void;
@@ -59,6 +67,12 @@ export interface PanelCallbacks {
  adoptRemote():void;
  exportDraftAsCopy():void;
  searchAll(q:string,caseSensitive:boolean,includeHidden:boolean):SearchHit[];
+ // 链接区(资源标签,2026-10-31):反链来自 resolvedLinks 反演,出链用宿主同一解析器。
+ // sourcePath 由面板显式传入:相对链接必须按**本会话文件**的目录解析,取活动视图
+ // 会在多 HTML 视图时解析到别的文件下面(审计 round1)
+ listBacklinks(path:string):{source:string; count:number}[];
+ resolvePageLink(href:string,sourcePath:string):ResolvedLink;
+ openResolvedLink(resolved:ResolvedLink):void;
 }
 
 export interface SearchHit {containerIndex:number; start:number; end:number; preview:string; path:string; hidden:boolean}
@@ -254,7 +268,8 @@ export class HtmlPanelView extends ItemView {
  refresh(force=false){
   if(!this.content)return;
   // Read the live details state before replacing DOM; toggle events may still be queued.
-  const details=this.content.querySelector<HTMLDetailsElement>('.html-atelier-textlistdetails');
+  // 排除带 data-ha-section 的区块(资源标签的链接区自己抢救,别写进大纲状态)
+  const details=this.content.querySelector<HTMLDetailsElement>('.html-atelier-textlistdetails:not([data-ha-section])');
   if(details&&this.outlineOwner)this.outlineState(this.outlineOwner).open=details.open;
   // 工具栏状态不随 revision 变化,必须放在下面的"内容未变就不重绘"早退之前
   this.refreshToolbar();
@@ -826,31 +841,164 @@ export class HtmlPanelView extends ItemView {
   }
  }
 
- // ---- 资源(F17) ----
+ // ---- 资源(F17)+ 链接(2026-10-31) ----
+ // 反链索引变化不体现在会话 revision 里(改的是别的笔记),refresh() 的早退挡住它;
+ // 索引事件走这里轻量重绘。清单只读、无输入控件,重建不打断任何交互。
+ refreshLinks(){
+  if(!this.content||this.tab!=='resources')return;
+  const s=this.callbacks.getActiveSession()?.session??null;
+  if(!s)return;
+  this.renderResourcesTab(s);
+ }
+
+ private sectionStates=new WeakMap<DocumentSession,SectionState>();
+ // 当前 DOM 里的链接区块属于哪个会话:折叠状态必须归还给它真正的主人,
+ // 否则 A 文件收起的区块会在切到 B 时"串门"(与大纲 outlineOwner 同一范式)
+ private sectionsOwner:DocumentSession|null=null;
+ private sectionState(s:DocumentSession):SectionState{
+  let st=this.sectionStates.get(s);
+  if(!st){st={backlinks:true,outgoing:true,resources:true};this.sectionStates.set(s,st);}
+  return st;
+ }
+
+ // 出链"定位"的进度标记(key→命中序号),按会话记忆。必须存下来:selectInPreview
+ // 会触发 onSelectChanged → refreshPanels(true) 重建整块面板,只改按钮文本会在
+ // 重建时被冲掉 —— 用户实测按钮永远停在"定位"、看不到 1/N(2026-10-31)。
+ private locateMarks=new WeakMap<DocumentSession,Map<string,number>>();
+ private locateMark(s:DocumentSession):Map<string,number>{
+  let m=this.locateMarks.get(s);
+  if(!m){m=new Map();this.locateMarks.set(s,m);}
+  return m;
+ }
+
  private renderResourcesTab(s:DocumentSession){
   const t=this.callbacks.t;
   const index=new SourceIndex(s.workingSource);
-  const file=this.callbacks.activeFilePath()??'';
+  // 本会话文件路径是链接区的唯一基准:反链目标、资源判存、相对链接解析都用它,
+  // 不走活动视图(多 HTML 视图时活动视图可能是另一个文件)
+  const filePath=this.callbacks.getActiveSession()?.filePath??'';
   const exists=(p:string)=>!!this.appFileExists(p);
   const allow=this.callbacks.settings().preview.allowNetworkAssets;
-  const list=collectResourcesIndexed(index,file,exists,allow);
+  const list=collectResourcesIndexed(index,filePath,exists,allow);
+  const backlinks=filePath?this.callbacks.listBacklinks(filePath):[];
+  const outgoing=collectPageLinks(index,raw=>this.callbacks.resolvePageLink(raw,filePath));
+  // 折叠状态:重建前先从现存 DOM 抢救 —— 但只归还给 DOM 真正归属的会话,
+  // 否则 A 文件收起的区块会写进 B 的记忆、来回切换后各文件状态趋同(审计 round1)
+  if(this.sectionsOwner){
+   const ownerState=this.sectionState(this.sectionsOwner);
+   for(const d of this.content.querySelectorAll('details[data-ha-section]')){
+    const key=d.getAttribute('data-ha-section') as SectionKey|null;
+    if(key==='backlinks'||key==='outgoing'||key==='resources')ownerState[key]=(d as HTMLDetailsElement).open;
+   }
+  }
+  this.sectionsOwner=s;
+  const state=this.sectionState(s);
   this.content.empty();
   const wrap=this.content.createDiv({cls:'html-atelier-resources'});
+  // 手动重载常驻顶栏:放进区块 summary 的话区块一收起按钮就没了(审计 round1)
   const head=wrap.createDiv({cls:'html-atelier-btnrow'});
-  const refresh=head.createEl('button',{attr:{'type':'button'},text:t('resourcesRefresh')});
-  refresh.addEventListener('click',()=>this.refresh(true));
-  if(!list.length){wrap.createDiv({cls:'html-atelier-panelnote',text:t('resourcesEmpty')});return;}
-  for(const r of list){
-   const row=wrap.createDiv({cls:'html-atelier-row html-atelier-resource'});
-   row.createSpan({cls:'html-atelier-muted',text:r.tag});
-   row.createSpan({text:r.raw.slice(0,60)});
+  head.createEl('button',{attr:{'type':'button'},text:t('resourcesRefresh')})
+   .addEventListener('click',()=>this.refresh(true));
+  // 三段共用的区块骨架:<details> 折叠 + summary 标题/计数
+  const section=(key:SectionKey,title:string,count:number)=>{
+   const d=wrap.createEl('details',{cls:'html-atelier-textlistdetails',attr:{'data-ha-section':key}});
+   d.open=state[key];
+   d.addEventListener('toggle',()=>{if(d.isConnected)state[key]=d.open;});
+   const summary=d.createEl('summary',{cls:'html-atelier-listhead',text:title});
+   summary.createSpan({cls:'html-atelier-count',text:String(count)});
+   return {summary,body:d.createDiv({cls:'html-atelier-list'})};
+  };
+  // 三段共用的行卡片:[类别标签(可省)][主文本][×计数][动作按钮]。
+  // 行本身可点,补 role/tabindex + Enter/Space:纯 div+click 键盘与读屏都够不着
+  // (反链行没有任何内嵌按钮,否则键盘用户无法打开反链)(审计 round1)。
+  const card=(parent:HTMLElement,opts:{label?:string; text:string; title?:string; count?:number})=>{
+   const r=parent.createDiv({cls:'html-atelier-row html-atelier-resource',attr:{role:'button',tabindex:'0'}});
+   if(opts.label)r.createSpan({cls:'html-atelier-muted',text:opts.label});
+   r.createSpan({text:opts.text,attr:opts.title?{title:opts.title}:undefined});
+   if(opts.count&&opts.count>1)r.createSpan({cls:'html-atelier-count',text:`×${opts.count}`});
+   r.addEventListener('keydown',ev=>{
+    if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();r.click();}
+   });
+   return r;
+  };
+  // ---- 反向链接:点击卡片打开来源笔记 ----
+  const bl=section('backlinks',t('linksBacklinks'),backlinks.length);
+  if(!backlinks.length){
+   bl.body.createDiv({cls:'html-atelier-panelnote',text:t('linksBacklinkEmpty')});
+   bl.body.createDiv({cls:'html-atelier-hint',text:t('linksHint')});
+  }
+  for(const b of backlinks){
+   const r=card(bl.body,{text:b.source,count:b.count});
+   r.addEventListener('click',()=>this.callbacks.openFileByPath(b.source));
+  }
+  // ---- 出链:点击卡片跳转目标;「定位」在预览里循环高亮该目标的各次出现 ----
+  const ol=section('outgoing',t('linksOutgoing'),outgoing.length);
+  if(!outgoing.length)ol.body.createDiv({cls:'html-atelier-panelnote',text:t('linksOutgoingEmpty')});
+  for(const e of outgoing){
+   const broken=e.resolved.kind==='unsupported';
+   // 各次出现文字不同时明确说"等 N 处"(同目标不同写法的链接一眼读成一条);
+   // 后缀拼在截断之后才不会被切掉,且显示了后缀就不再画 ×N 徽标(双计数)。
+   // 首次现无文字(图片链接)时用后面出现收到的文字,而不是直接退到路径。
+   const distinct=e.texts.length>1;
+   const base=(e.text||e.texts[0]||e.resolved.file?.path||e.resolved.target).slice(0,60);
+   const mainText=distinct?`${base}${t('linksMore',{n:String(e.count)})}`:base;
+   const r=card(ol.body,{label:linkKindLabel(e.resolved,t),
+    text:mainText,title:e.raw,count:distinct?undefined:e.count});
+   r.toggleClass('html-atelier-muted',broken);
+   // 「定位」:在预览里选中并高亮(selectText 的实线框)。同目标出现多次(×N)时
+   // 逐条循环、到尾回头。游标 = 会话级进度标记(marks):首次点击落在第一处,
+   // 之后逐条推进 —— 源码可能已被编辑,每次点击都在当前源码里重扫(anchorRangesForKey)。
+   // 进度标记持久化 + 重建时恢复显示;同一时刻只标记一行。
+   // 不能从"视图当前选中"反推起点(旧实现):图片/图标链接没有文字段,定位走
+   // locateInSource、不改变选中,游标永远回 0、循环卡死在 1/N;锚点内多个文字段时
+   // 用户选中非首段也会跳回第一处(审计 round1 MAJOR)。
+   const key=linkKeyOf(e.resolved);
+   const marks=this.locateMark(s);
+   const marked=marks.get(key);
+   const progressText=(i:number,n:number)=>`${i+1}/${n}`;
+   const showProgress=marked!==undefined&&marked<e.count&&e.count>1;
+   const locate=r.createEl('button',{attr:{'type':'button',
+    'aria-label':showProgress?`${t('linksLocate')} ${progressText(marked,e.count)}`:t('linksLocate')},
+    text:showProgress?progressText(marked,e.count):t('linksLocate')});
+   const cycleLocate=()=>{
+    const source=s.workingSource;
+    const ranges=anchorRangesForKey(new SourceIndex(source),
+     raw=>this.callbacks.resolvePageLink(raw,filePath),key);
+    if(!ranges.length){this.callbacks.locateInSource(e.offset);return;}
+    const at=marks.get(key)??-1;
+    const next=(at+1)%ranges.length;
+    // 无论单条/多条都标记当前行并清掉其它行:点单命中行也要解除上一行的进度显示
+    for(const k of marks.keys())if(k!==key)marks.delete(k);
+    marks.set(key,next);
+    // 只有一条就不占按钮宽度显示 1/1;多条时按钮兼作进度指示
+    if(ranges.length>1){
+     locate.setText(progressText(next,ranges.length));
+     locate.setAttribute('aria-label',`${t('linksLocate')} ${progressText(next,ranges.length)}`);
+    }
+    const segId=firstSegmentIds(ranges,parseDocument(source).segments)[next];
+    if(segId)this.callbacks.selectInPreview(segId);
+    // 无文字锚点(图片链接):预览里滚动+闪烁;够不着才退回源码定位
+    else if(!this.callbacks.locatePreviewLink(key,next))this.callbacks.locateInSource(ranges[next].start);
+   };
+   r.addEventListener('click',()=>{
+    // 未解析的库内链接没有可跳转的目标:定位到链接处(通常是想改地址)
+    if(broken){cycleLocate();return;}
+    this.callbacks.openResolvedLink(e.resolved);
+   });
+   locate.addEventListener('click',ev=>{ev.stopPropagation();cycleLocate();});
+  }
+  // ---- 引用资源:点击卡片定位到引用处(源码) ----
+  const res=section('resources',t('linksAssets'),list.length);
+  if(!list.length)res.body.createDiv({cls:'html-atelier-panelnote',text:t('resourcesEmpty')});
+  for(const r0 of list){
+   const r=card(res.body,{label:r0.tag,text:r0.raw.slice(0,60),title:r0.raw});
    // 文案按 status 取,不要按 local/remote 二选一:那样 'blocked'(按设置拦截的网络资源)
    // 会显示成"远程",用户看不出资源为什么加载不了(审计 round4 缺陷 36)。
-   const badge=row.createSpan({cls:`html-atelier-badge html-atelier-badge-${r.status}`,
-    text:resourceStatusText(r.status,k=>t(k as never))});
-   void badge;
-   const jump=row.createEl('button',{attr:{'type':'button'},text:t('resourcesJumpSource')});
-   jump.addEventListener('click',()=>this.callbacks.locateInSource(r.offset));
+   r.createSpan({cls:`html-atelier-badge html-atelier-badge-${r0.status}`,
+    text:resourceStatusText(r0.status,k=>t(k as never))});
+   r.addEventListener('click',()=>this.callbacks.locateInSource(r0.offset));
+   const jump=r.createEl('button',{attr:{'type':'button'},text:t('resourcesJumpSource')});
+   jump.addEventListener('click',ev=>{ev.stopPropagation();this.callbacks.locateInSource(r0.offset);});
   }
  }
 
@@ -974,5 +1122,16 @@ import {type SourceNode as SourceNode2,TextNodeInfo} from '../parsing/sourceInde
 function t0(cb:PanelCallbacks,key:'searchNoResults'|'searchSkipped'|'noticeParagraphUnavailable',params?:Record<string,string>):string{
  const tt=cb.t as unknown as (k:string,p?:Record<string,string>)=>string;
  return tt(key,params);
+}
+
+// 出链行的类别徽标:库内三类 + 未解析,其余(http/mailto/obsidian)归外部
+function linkKindLabel(resolved:ResolvedLink,t:Translator):string{
+ switch(resolved.kind){
+  case 'library-html':return t('linksKindPage');
+  case 'markdown':return t('linksKindNote');
+  case 'library-file':return t('linksKindFile');
+  case 'unsupported':return t('linksKindBroken');
+  default:return t('linksKindExternal');
+ }
 }
 import {normJoinDir,collectResourcesIndexed,resourceStatusText,planSrcsetRemoval} from './panelHelpers';

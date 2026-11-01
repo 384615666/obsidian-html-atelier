@@ -4,7 +4,8 @@ import {TextPatch} from './core/patch';
 import {AtelierSettings,normalizeSettings} from './settings/schema';
 import {AtelierSettingTab} from './settings/tab';
 import {createTranslator,resolveLocale,Translator} from './i18n';
-import {LinkRouter,electronBrowserLauncher} from './services/links';
+import {LinkRouter,electronBrowserLauncher,resolveLink,type ResolvedLink} from './services/links';
+import {backlinksFor} from './services/linkIndex';
 import {NavigationService} from './services/nav';
 import {SidebarCoordinator} from './services/sidebar';
 import {DraftsService,getDeviceId} from './services/draftsService';
@@ -110,6 +111,7 @@ export default class HtmlAtelier extends Plugin {
  // 此前没有 onunload,于是最后一个防抖窗口的内容只留在内存里。
  onunload(){
   this.unloading=true;
+  if(this.linksTimer!==null){window.clearTimeout(this.linksTimer);this.linksTimer=null;}
   // 尽最大努力提交(设计 §11.3):不等待写盘,退出流程不因我们变慢
   for(const session of this.sessions.values())if(session.dirty)void this.drafts.flush(session);
  }
@@ -201,6 +203,13 @@ export default class HtmlAtelier extends Plugin {
    searchAll:(q:string,caseSensitive:boolean,includeHidden:boolean)=>{
     void q;void caseSensitive;void includeHidden;return [];
    },
+   // 链接区(资源标签):反链反演自公开的 resolvedLinks;出链用与 LinkRouter 同一解析器。
+   // 基路径由面板传本会话文件路径 —— 活动视图在多 HTML 视图时可能是另一个文件
+   listBacklinks:(path:string)=>backlinksFor(this.app.metadataCache.resolvedLinks,path),
+   resolvePageLink:(href:string,sourcePath:string)=>resolveLink(this.app,href,sourcePath),
+   locatePreviewLink:(key:string,index:number)=>this.activeHtmlView()?.locatePreviewLink(key,index)??false,
+   // newLeaf 交给 router:库内各类目标的 internalTarget 设置在 router 内统一生效
+   openResolvedLink:(resolved:ResolvedLink)=>{void this.router.open(resolved,{newLeaf:false,inAppExternal:true});},
   };
  }
 
@@ -442,6 +451,23 @@ export default class HtmlAtelier extends Plugin {
   for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).refreshToolbar?.();
  }
 
+ // 链接区刷新去抖:resolved 事件在索引重建期间连发,而反演是全量遍历 resolvedLinks,
+ // 400ms 合并一轮足够(清单只读,没有需要即时性的焦点场景)。纯 trailing 会在事件
+ // 流持续时被无限推迟(全库重索引/同步),2s 强制落地一次
+ private linksTimer:number|null=null;
+ private linksFirstAt=0;
+ private queueLinksRefresh(){
+  const now=Date.now();
+  if(this.linksTimer===null)this.linksFirstAt=now;
+  else if(now-this.linksFirstAt>=2000){this.flushLinksRefresh();return;}
+  if(this.linksTimer!==null)window.clearTimeout(this.linksTimer);
+  this.linksTimer=window.setTimeout(()=>this.flushLinksRefresh(),400);
+ }
+ private flushLinksRefresh(){
+  this.linksTimer=null;this.linksFirstAt=0;
+  for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).refreshLinks?.();
+ }
+
  private rerenderFrames(){
   for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
    const v=leaf.view as HtmlFileView;
@@ -559,6 +585,8 @@ export default class HtmlAtelier extends Plugin {
   }));
   this.registerEvent(this.app.vault.on('rename',(file,oldPath)=>{
    this.nav.rename(oldPath,file.path);
+   // 链接区:改名会改变 resolvedLinks 的键(源路径与目标路径都可能是它)
+   this.queueLinksRefresh();
    const session=this.sessions.get(oldPath);
    if(session&&file instanceof TFile){
     this.sessions.delete(oldPath);
@@ -572,6 +600,11 @@ export default class HtmlAtelier extends Plugin {
    if(!(file instanceof TFile))return;
    this.sessions.get(file.path)?.markMissing();
   }));
+  // 链接区实时性(2026-10-31):任何笔记的链接增删都会改变 resolvedLinks,而面板的
+  // 反向链接清单不走会话 revision 的刷新路径。用整批完成的 resolved(而非逐文件
+  // resolve)事件,一次编辑只触发一轮;vault delete 也走 metadataCache 的 deleted。
+  this.registerEvent(this.app.metadataCache.on('resolved',()=>this.queueLinksRefresh()));
+  this.registerEvent(this.app.metadataCache.on('deleted',()=>this.queueLinksRefresh()));
   // F21 嵌入代码块
   this.registerMarkdownCodeBlockProcessor('html-atelier',(src,el,ctx)=>{
    // embeds.enabled 关闭时不渲染任何嵌入(此前该设置无读取方 —— 审计 round4 缺陷 38)

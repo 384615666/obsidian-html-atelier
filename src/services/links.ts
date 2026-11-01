@@ -1,4 +1,5 @@
 import {App, Menu, Notice, TFile} from 'obsidian';
+import {decodeOnce} from './url';
 import type {AtelierSettings} from '../settings/schema';
 import type {Translator} from '../i18n';
 
@@ -19,10 +20,6 @@ export interface ResolvedLink {
 }
 
 const UNSAFE_PROTOCOL=/^(javascript|vbscript|file|data:text\/html)/i;
-
-export function decodeOnce(s:string):string {
- try{return decodeURIComponent(s);}catch{return s;}
-}
 
 export function resolveLink(app:App,raw:string,sourcePath:string):ResolvedLink {
  // **先切 query/fragment,再做百分号解码**:反过来会把 %23 解成 '#' 并被当成片段分隔符,
@@ -129,7 +126,9 @@ export class LinkRouter {
     this.openHtml(resolved.file!.path,resolved.fragment,opts.newLeaf||st.links.internalTarget==='new-tab');
     break;
    case 'markdown':
-    await this.app.workspace.openLinkText(resolved.file!.path,resolved.fragment.slice(1)||'',opts.newLeaf);
+    // internalTarget 在 router 内统一生效(html/file 分支早已 OR;markdown 此前漏了,
+    // 面板入口与预览点击对同一链接会开出不同的标签位 —— 审计 round1)
+    await this.app.workspace.openLinkText(resolved.file!.path,resolved.fragment.slice(1)||'',opts.newLeaf||st.links.internalTarget==='new-tab');
     break;
    case 'library-file':
     if(opts.newLeaf||st.links.internalTarget==='new-tab')this.openLibraryFile(resolved.file!,true);
