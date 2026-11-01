@@ -139,7 +139,6 @@ test('A29 audit 回归:正式文件撕裂时回退 .tmp 中较新的有效快照
  // 第二次保存:tmp 校验通过后进程崩溃,正式写未发生;随后正式文件被撕裂写损坏
  const orig=a.write.bind(a);
  a.write=async(p,data)=>{if(p.endsWith('.tmp'))await orig(p,data);};
- const noRemove=a.remove.bind(a);
  a.remove=async()=>{/* 模拟崩溃跳过清理 */};
  await s.saveDraft({...RECORD,workingSource:'<p>new</p>',revision:4,updatedAt:2});
  const finalKey=[...a.files.keys()].find(k=>k.startsWith('drafts/')&&k.endsWith('.json')&&!k.endsWith('.tmp'))!;

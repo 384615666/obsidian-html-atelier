@@ -33,7 +33,7 @@ test('save updates restore baseline; empty replacement remains selectable in pre
 });
 test('preview removes executable embeds and handlers and maps editable text',()=>{
  const input='<html><head><meta http-equiv="refresh" content="0;url=https://example.com"><script>bad()</script></head><body onload="bad()"><h1>Hello <b>world</b></h1><iframe src="https://example.com"></iframe><img src="a.png" onerror="bad()"></body></html>';
- const preview=makePreview(parseDocument(input),'app://local/vault/pages/');const doc=new JSDOM(preview).window.document;
+ const preview=makePreview(parseDocument(input),'app://local/vault/pages/','n');const doc=new JSDOM(preview).window.document;
  assert.equal(doc.querySelector('script,iframe,[onload],[onerror]'),null);assert.equal(doc.querySelectorAll('meta[http-equiv]').length,1);
  assert.equal((preview.match(/<!--html-atelier-text:/g)||[]).length,2);assert.equal(doc.querySelector('h1')?.children.length,1);assert.equal(doc.querySelector('base')?.href,'app://local/vault/pages/');
  assert.equal(doc.querySelector('img')?.src,'app://local/vault/pages/a.png');assert.match(doc.querySelector('meta')!.content,/script-src 'none'/);
@@ -60,7 +60,7 @@ test('allowScripts respects allowNetwork=false for remote scripts and connection
  assert.doesNotMatch(csp(off),/script-src[^;]*https/);
 });
 test('malformed HTML and table text still produce usable preview mappings',()=>{
- const source='<table><tr><td>一<td>二</table><p>三';const m=parseDocument(source);const doc=new JSDOM(makePreview(m,'app://local/')).window.document;
+ const source='<table><tr><td>一<td>二</table><p>三';const m=parseDocument(source);const doc=new JSDOM(makePreview(m,'app://local/','n')).window.document;
  const walker=doc.createTreeWalker(doc,128);const text=[];let node;while((node=walker.nextNode()))if(node.nodeValue?.startsWith('html-atelier-text:'))text.push(node.nextSibling?.textContent);
  assert.deepEqual(text,m.segments.map(s=>s.text));
 });
@@ -76,7 +76,7 @@ test('audit R1 回归:head 带属性时 CSP/base 仍注入;无 head 时自动补
   assert.match(preview,/base href="app:\/\/local\/vault\/x\/"/);
   const doc=new JSDOM(preview).window.document;
   assert.equal(doc.querySelector('base')?.getAttribute('href'),'app://local/vault/x/');
-  assert.match(doc.querySelector('meta[http-equiv]')!.content,/script-src 'none'/);
+  assert.match(doc.querySelector<HTMLMetaElement>('meta[http-equiv]')!.content,/script-src 'none'/);
  }
 });
 
@@ -126,7 +126,7 @@ test('alignSegments:相邻多处修改按顺序配对,不串位',()=>{
 });
 test('preview injects Obsidian-style scrollbar when the page has none',()=>{
  const input='<html><head><title>x</title></head><body><p>正文</p></body></html>';
- const preview=makePreview(parseDocument(input),'app://local/vault/');const doc=new JSDOM(preview).window.document;
+ const preview=makePreview(parseDocument(input),'app://local/vault/','n');const doc=new JSDOM(preview).window.document;
  const sb=doc.querySelector('style[data-html-atelier-scrollbar]');
  assert.ok(sb,'未注入滚动条样式');
  assert.equal(sb!.parentElement?.tagName,'HEAD');
@@ -143,18 +143,18 @@ test('preview keeps native scrollbar injection off when the page styles its own'
   '<body style="scrollbar-color: red blue"><p>x</p></body>',
  ];
  for(const input of cases){
-  const preview=makePreview(parseDocument(input),'app://local/vault/');
+  const preview=makePreview(parseDocument(input),'app://local/vault/','n');
   assert.equal(new JSDOM(preview).window.document.querySelector('style[data-html-atelier-scrollbar]'),null,'页面自带滚动条样式仍被注入: '+input);
  }
 });
 test('scrollbar examples in lecture code blocks do not suppress the injection',()=>{
  const input='<html><body><p>讲解:</p><pre><code>::-webkit-scrollbar { width: 8px; }</code></pre><p>完。</p></body></html>';
- assert.ok(new JSDOM(makePreview(parseDocument(input),'app://local/x/')).window.document.querySelector('style[data-html-atelier-scrollbar]'),'代码示例被误判为页面样式');
+ assert.ok(new JSDOM(makePreview(parseDocument(input),'app://local/x/','n')).window.document.querySelector('style[data-html-atelier-scrollbar]'),'代码示例被误判为页面样式');
  const commented='<html><body><!-- TODO: 加 ::-webkit-scrollbar --><p>x</p></body></html>';
- assert.ok(new JSDOM(makePreview(parseDocument(commented),'app://local/x/')).window.document.querySelector('style[data-html-atelier-scrollbar]'),'注释里的示例被误判');
+ assert.ok(new JSDOM(makePreview(parseDocument(commented),'app://local/x/','n')).window.document.querySelector('style[data-html-atelier-scrollbar]'),'注释里的示例被误判');
 });
 test('scrollbar injection works on headless fragments',()=>{
- const preview=makePreview(parseDocument('<p>无头文档</p>'),'app://local/x/');
+ const preview=makePreview(parseDocument('<p>无头文档</p>'),'app://local/x/','n');
  const doc=new JSDOM(preview).window.document;
  assert.ok(doc.querySelector('head style[data-html-atelier-scrollbar]'));
 });

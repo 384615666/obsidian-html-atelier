@@ -106,8 +106,9 @@ test('A16 保存期间外部变化排队；保存禁用期间编辑/撤销被拒
  const disk={text:'<p>Hi</p>'};
  const s=new DocumentSession('a.html','<p>Hi</p>','<p>Hi</p>');
  s.applyEdit([sp('<p>Hi</p>',3,5,'Hello')],{groupingKey:'f'});
- // 慢 IO：decide 被调用后挂起
- let release:(()=>void)|null=null;
+ // 慢 IO：decide 被调用后挂起。初始化为 no-op:赋值发生在(同步执行的)promise
+ // 执行器闭包里,TS 的控制流看不到,按 null 收窄会让下面的可选调用报不可调用
+ let release:(()=>void)|null=()=>{};
  const io:SessionIO={process:async decide=>{
   const next=decide(disk.text);
   if(next===null)return 'conflict';
@@ -172,7 +173,7 @@ test('A16 audit 回归:保存进行中调用 adoptRemote/applyMergeResult 被拒
  const disk={text:'<p>Hi</p>'};
  const s=new DocumentSession('a.html','<p>Hi</p>','<p>Hi</p>');
  s.applyEdit([sp('<p>Hi</p>',3,5,'Mine')],{groupingKey:'f'});
- let release:()=>void;
+ let release:()=>void=()=>{};
  const io:SessionIO={process:async decide=>{
   const next=decide(disk.text);
   if(next===null)return 'conflict';
@@ -201,7 +202,7 @@ test('A16 audit 回归:被阻止的保存也关闭输入分组(audit/core S3)',a
  // 外部事件排队标记对宿主可见(保存结束后宿主据此补查磁盘)
  const s2=new DocumentSession('b.html','<p>x</p>','<p>x</p>');
  s2.applyEdit([sp('<p>x</p>',3,4,'y')],{groupingKey:'f'});
- let release2:()=>void;
+ let release2:()=>void=()=>{};
  const gate:SessionIO={process:async decide=>{
   const next=decide('<p>x</p>');
   if(next===null)return 'conflict';

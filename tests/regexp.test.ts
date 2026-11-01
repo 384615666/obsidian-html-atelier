@@ -7,6 +7,7 @@ import {resolve} from 'node:path';
 import {runRegexpSearch,sanitizeFlags,compileRegex,RegexpInputError} from '../src/services/regexp/regexpCore';
 import {TaskHost,TaskTimeoutError,WorkerTransport} from '../src/services/regexp/workerHost';
 import {RegExpSearchAdapter} from '../src/services/regexp/regexpSearch';
+import type {RegexpSearchResult} from '../src/services/regexp/protocol';
 
 test('A17 正则核心：零长度匹配按 Unicode 字符边界前进',()=>{
  const r=runRegexpSearch('bab','a*','',100,10000);
@@ -58,10 +59,11 @@ test('A17 Worker 通道：搜索成功、修订号回显、结构校验',async()
 });
 
 test('A17 修订号不一致的旧结果被拒绝（mock 通道）',async()=>{
- let client:MockClient|null=null;
+ // 赋值发生在工厂闭包里,TS 的直线控制流看不到 —— 放进对象属性,经属性访问取值
+ const box:{c:MockClient|null}={c:null};
  const factory=():WorkerTransport=>{
   const c:MockClient={handler:()=>{},post:()=>{}};
-  client=c;
+  box.c=c;
   return {post:()=>{},terminate:()=>{},onMessage:cb=>{c.handler=cb;}};
  };
  const host=new TaskHost(factory,{timeoutMs:2000});
@@ -69,7 +71,7 @@ test('A17 修订号不一致的旧结果被拒绝（mock 通道）',async()=>{
  try{
   const p=adapter.search({text:'x',pattern:'x',flags:'',revision:5});
   // 模拟 worker 回显了过期修订号
-  client?.handler({requestId:1,ok:true,result:{matches:[{start:0,end:1,text:'x',groups:[]}],truncated:false,revision:4}});
+  box.c?.handler({requestId:1,ok:true,result:{matches:[{start:0,end:1,text:'x',groups:[]}],truncated:false,revision:4}});
   await assert.rejects(()=>p,/修订号/);
  }finally{host.dispose();}
 });
@@ -94,11 +96,11 @@ test('A17 灾难性回溯由超时终止 Worker，终止后新任务正常',asyn
 });
 
 test('A17 取消任务后延迟到达的旧结果被丢弃',async()=>{
- // 可控的 mock 传输：手动投递回复
- let client:MockClient|null=null;
+ // 可控的 mock 传输：手动投递回复。client 装进对象属性,避开闭包赋值的收窄盲区
+ const box:{c:MockClient|null}={c:null};
  const factory=():WorkerTransport=>{
   const c:MockClient={handler:()=>{},post:()=>{}};
-  client=c;
+  box.c=c;
   return {post:()=>{},terminate:()=>{},onMessage:cb=>{c.handler=cb;}};
  };
  const host=new TaskHost(factory,{timeoutMs:5000});
@@ -107,9 +109,9 @@ test('A17 取消任务后延迟到达的旧结果被丢弃',async()=>{
  assert.equal((await p1 as Error).message,'切换视图');
  assert.equal(host.activeTaskCount,0);
  // 延迟回复（旧 requestId=1）应被丢弃而不影响后续任务
- client?.handler({requestId:1,ok:true,result:{matches:[],truncated:false,revision:1}});
- const p2=host.run({type:'regexp-search',text:'abc','pattern':'c',flags:'',maxMatches:1,maxIterations:10,revision:2});
- client?.handler({requestId:2,ok:true,result:{matches:[{start:2,end:3,text:'c',groups:[]}],truncated:false,revision:2}});
+ box.c?.handler({requestId:1,ok:true,result:{matches:[],truncated:false,revision:1}});
+ const p2=host.run<RegexpSearchResult>({type:'regexp-search',text:'abc','pattern':'c',flags:'',maxMatches:1,maxIterations:10,revision:2});
+ box.c?.handler({requestId:2,ok:true,result:{matches:[{start:2,end:3,text:'c',groups:[]}],truncated:false,revision:2}});
  assert.equal((await p2).matches[0].text,'c');
  host.dispose();
 });

@@ -70,7 +70,7 @@ test('A22 默认值与 45 项设置键完整性',()=>{
  // 且与 embeds.defaultHeight 同名不同义,已按审计 round4 缺陷 38 移除。
  // 43→44:新增 editor.toolbarPlacement(工具栏承载在侧栏还是视图内)。
  // 44→45:新增 preview.allowScripts(默认关;开启后页面脚本运行于不透明源沙箱)。
- const count=(o:unknown):number=>typeof o==='object'&&o!==null?Object.values(o as Record<string,unknown>).reduce((n,v)=>n+count(v),0):1;
+ const count=(o:unknown):number=>typeof o==='object'&&o!==null?Object.values(o as Record<string,unknown>).reduce<number>((n,v)=>n+count(v),0):1;
  assert.equal(count(DEFAULT_SETTINGS),45);
  assert.equal(normalizeSettings(undefined).settings.preview.allowScripts,false);
  assert.equal(normalizeSettings({preview:{allowScripts:true}}).settings.preview.allowScripts,true);

@@ -144,7 +144,7 @@ test('CSS 含 </style> 时转义,不得提前闭合标签逃逸进预览标记�
 });
 
 test('脚本模式:本地 url() 内联为 data: URL,不再输出 app://(真机不透明沙箱读不了)',async()=>{
- const files={'assets/coffee.css':'h1{background:url(bg.png)}'};
+ const files:Record<string,string>={'assets/coffee.css':'h1{background:url(bg.png)}'};
  const src='<html><head><link rel="stylesheet" href="/assets/coffee.css"></head><body><style>h2{background:url(/assets/bg.png)}</style></body></html>';
  const out=await inlineLocalStylesheets(src,'x.html',{
   readCss:async p=>files[p]??null,
@@ -157,7 +157,7 @@ test('脚本模式:本地 url() 内联为 data: URL,不再输出 app://(真机�
 });
 
 test('脚本模式:dataUrlFor 失败时回退绝对 app:// 地址(与旧行为一致)',async()=>{
- const files={'assets/coffee.css':'h1{background:url(bg.png)}'};
+ const files:Record<string,string>={'assets/coffee.css':'h1{background:url(bg.png)}'};
  const src='<html><head><link rel="stylesheet" href="/assets/coffee.css"></head><body></body></html>';
  const out=await inlineLocalStylesheets(src,'x.html',{
   readCss:async p=>files[p]??null,
