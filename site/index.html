@@ -6,7 +6,7 @@
   <meta name="color-scheme" content="light">
   <meta name="theme-color" content="#fbf7f0">
   <title>HTML Atelier · 在 Obsidian 里把 html 当笔记改</title>
-  <meta name="description" content="Obsidian 桌面版插件：把库里的 .html 文件当成笔记，点选文字、链接和图片直接编辑，保存时只改你动过的那一段。支持完整 CSS 与可选脚本、源码与分栏、大纲与搜索、草稿备份和笔记嵌入。MIT 开源。">
+  <meta name="description" content="Obsidian 桌面版插件：把库里的 .html 文件当成笔记，点选文字、链接和图片直接编辑，保存时只改你动过的那一段。完整 CSS 与可选脚本；用 [[页面.html]] 互链，反向链接、出链与引用资源都在侧栏「链接」里。MIT 开源。">
   <link rel="canonical" href="https://htmlatelier.lsjx.xyz/">
   <link rel="icon" type="image/svg+xml" href="assets/icon.svg">
   <link rel="apple-touch-icon" href="assets/icon-180.png">
@@ -15,7 +15,7 @@
   <meta property="og:site_name" content="HTML Atelier">
   <meta property="og:locale" content="zh_CN">
   <meta property="og:title" content="HTML Atelier · 在 Obsidian 里把 html 当笔记改">
-  <meta property="og:description" content="点选笔记里的文字、链接和图片直接编辑，保存时只改你动过的那一段。完整 CSS 与可选脚本、沙箱预览、草稿备份、笔记嵌入，Obsidian 桌面版 1.7.2+。">
+  <meta property="og:description" content="点选笔记里的文字、链接和图片直接编辑，保存时只改你动过的那一段。完整 CSS 与可选脚本；双向链接、沙箱预览、草稿备份与笔记嵌入，Obsidian 桌面版 1.7.2+。">
   <meta property="og:url" content="https://htmlatelier.lsjx.xyz/">
   <meta property="og:image" content="https://htmlatelier.lsjx.xyz/assets/og-cover.png">
   <meta property="og:image:width" content="1200">
@@ -23,7 +23,7 @@
   <meta property="og:image:alt" content="HTML Atelier：在 Obsidian 里把 html 当笔记改">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="HTML Atelier · 在 Obsidian 里把 html 当笔记改">
-  <meta name="twitter:description" content="在 Obsidian 里把 .html 文件当笔记改。完整 CSS 与可选脚本，桌面版 1.7.2+，MIT 开源。">
+  <meta name="twitter:description" content="在 Obsidian 里把 .html 文件当笔记改。完整 CSS 与可选脚本、双向链接，桌面版 1.7.2+，MIT 开源。">
   <meta name="twitter:image" content="https://htmlatelier.lsjx.xyz/assets/og-cover.png">
 
   <link rel="stylesheet" href="site.css">
@@ -146,7 +146,7 @@
           <span class="h1-line">在 Obsidian 里，</span>
           <span class="h1-line h1-accent">把 html 当笔记改。</span>
         </h1>
-        <p class="hero-lead">打开库里的 .html 文件，它和普通笔记一样出现在工作区；完整 CSS 与可选页面脚本，让版式比 Markdown 更丰富。点一下文字、链接或图片，在侧栏里改；保存时只改你动过的那一段，其余格式原样保留。</p>
+        <p class="hero-lead">打开库里的 .html 文件，它和普通笔记一样出现在工作区；完整 CSS 与可选页面脚本，让版式比 Markdown 更丰富。点选直接修改，保存只改你动过的那一段；用 [[页面.html]] 互链，反向链接与出链都在侧栏「链接」里。</p>
         <div class="hero-actions">
           <a class="btn btn-primary btn-lg" href="#install">
             <svg class="icon" aria-hidden="true"><use href="#i-download"/></svg>
@@ -523,7 +523,7 @@
                 <button type="button" role="tab" id="tab-edit" aria-controls="panel-edit" aria-selected="true" tabindex="0">编辑</button>
                 <button type="button" role="tab" id="tab-outline" aria-controls="panel-outline" aria-selected="false" tabindex="-1">大纲</button>
                 <button type="button" role="tab" id="tab-changes" aria-controls="panel-changes" aria-selected="false" tabindex="-1">修改<span class="tab-count" id="changesCount" hidden>0</span></button>
-                <button type="button" role="tab" id="tab-resources" aria-controls="panel-resources" aria-selected="false" tabindex="-1">资源</button>
+                <button type="button" role="tab" id="tab-links" aria-controls="panel-links" aria-selected="false" tabindex="-1">链接</button>
               </div>
 
               <div class="panel-body">
@@ -553,35 +553,59 @@
                   </div>
                 </div>
 
-                <div class="panel-section" role="tabpanel" id="panel-resources" aria-labelledby="tab-resources" tabindex="0" hidden>
-                  <div class="panel-subhead"><span>页面资源</span><span>4 项</span></div>
+                <div class="panel-section" role="tabpanel" id="panel-links" aria-labelledby="tab-links" tabindex="0" hidden>
+                  <div class="panel-subhead"><span>反向链接</span><span>2</span></div>
+                  <ul class="res-list">
+                    <li>
+                      <span class="res-icon tone-violet"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></span>
+                      <div class="res-info"><strong>项目/咖啡角改造计划.md</strong><span>笔记 · 来源</span></div>
+                      <span class="res-state is-ok">笔记</span>
+                      <span class="res-source">打开</span>
+                    </li>
+                    <li>
+                      <span class="res-icon tone-violet"><svg class="icon" aria-hidden="true"><use href="#i-book"/></svg></span>
+                      <div class="res-info"><strong>首页.md</strong><span>笔记 · 来源</span></div>
+                      <span class="res-state is-ok">笔记</span>
+                      <span class="res-source">打开</span>
+                    </li>
+                  </ul>
+                  <div class="panel-subhead"><span>出链</span><span>3</span></div>
+                  <ul class="res-list">
+                    <li>
+                      <span class="res-icon tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg></span>
+                      <div class="res-info"><strong>手冲入门指南</strong><span>外部链接</span></div>
+                      <span class="res-state is-remote">外部</span>
+                      <span class="res-source">定位</span>
+                    </li>
+                    <li>
+                      <span class="res-icon tone-sage"><svg class="icon" aria-hidden="true"><use href="#i-file"/></svg></span>
+                      <div class="res-info"><strong>第 38 周工作周报</strong><span>库内页面</span></div>
+                      <span class="res-state is-ok">页面</span>
+                      <span class="res-source">定位</span>
+                    </li>
+                    <li>
+                      <span class="res-icon tone-amber"><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg></span>
+                      <div class="res-info"><strong>咖啡角改造计划</strong><span>库内笔记</span></div>
+                      <span class="res-state is-ok">笔记</span>
+                      <span class="res-source">定位</span>
+                    </li>
+                  </ul>
+                  <div class="panel-subhead"><span>引用资源</span><span>2</span></div>
                   <ul class="res-list">
                     <li>
                       <span class="res-icon tone-sage"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg></span>
                       <div class="res-info"><strong>assets/cup.svg</strong><span>本地图片</span></div>
                       <span class="res-state is-ok">已加载</span>
-                      <button class="res-source" type="button" data-res="cup">源码</button>
+                      <span class="res-source">源码</span>
                     </li>
                     <li>
                       <span class="res-icon tone-amber"><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg></span>
                       <div class="res-info"><strong>assets/favicon.png</strong><span>本地图片</span></div>
                       <span class="res-state is-missing">缺失</span>
-                      <button class="res-source" type="button" data-res="favicon">源码</button>
-                    </li>
-                    <li>
-                      <span class="res-icon tone-blue"><svg class="icon" aria-hidden="true"><use href="#i-globe"/></svg></span>
-                      <div class="res-info"><strong>example.com/brew-guide</strong><span>远程链接</span></div>
-                      <span class="res-state is-remote">远程</span>
-                      <button class="res-source" type="button" data-res="remote">源码</button>
-                    </li>
-                    <li>
-                      <span class="res-icon tone-violet"><svg class="icon" aria-hidden="true"><use href="#i-code"/></svg></span>
-                      <div class="res-info"><strong>内联 style</strong><span>页面样式</span></div>
-                      <span class="res-state is-inline">内联</span>
-                      <button class="res-source" type="button" data-res="style">源码</button>
+                      <span class="res-source">源码</span>
                     </li>
                   </ul>
-                  <p class="panel-footnote">资源状态在真实插件里会标出本地、缺失、远程或已拦截，点击可跳到对应源码。</p>
+                  <p class="panel-footnote">三段均可折叠。「定位」会在预览中高亮链接，同目标出现多次时可循环定位。</p>
                 </div>
               </div>
             </aside>
@@ -620,7 +644,7 @@
           <p class="eyebrow">功能</p>
           <h2 id="featuresTitle">从预览到保存，都在 Obsidian 里完成。</h2>
         </div>
-        <p class="lead">四种视图模式、侧栏工作台、草稿备份和笔记嵌入。打开、修改、查找、保存一份 HTML，不用在浏览器、编辑器和文件管理器之间来回切换。</p>
+        <p class="lead">四种视图模式、侧栏工作台、双向链接、草稿备份和笔记嵌入。打开、修改、查找、保存一份 HTML，不用在浏览器、编辑器和文件管理器之间来回切换。</p>
       </div>
 
       <div class="bento">
@@ -667,13 +691,12 @@
             <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg></span>
           </div>
           <h3>侧栏工作台</h3>
-          <p>编辑、大纲、搜索、修改、资源五个面板在同一列。搜索可以替换、区分大小写；「修改」面板可以对照和定位每处文字改动。</p>
+          <p>标签页上方是常驻搜索栏，下面四个标签：编辑、大纲、修改、链接。</p>
           <ul class="mini-tabs" aria-hidden="true">
             <li><svg class="icon"><use href="#i-type"/></svg>编辑</li>
             <li><svg class="icon"><use href="#i-list"/></svg>大纲</li>
-            <li><svg class="icon"><use href="#i-search"/></svg>搜索</li>
             <li><svg class="icon"><use href="#i-diff"/></svg>修改</li>
-            <li><svg class="icon"><use href="#i-box"/></svg>资源</li>
+            <li><svg class="icon"><use href="#i-link"/></svg>链接</li>
           </ul>
         </article>
 
@@ -712,15 +735,15 @@
             <div class="feature-top">
               <span class="icon-box"><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg></span>
             </div>
-            <h3>链接、锚点和分享</h3>
-            <p>页内锚点和库内文件链接都能直接跳转。笔记里的 Wiki 链接或 Markdown 链接指向 HTML 文件时，会在插件视图里打开，并滚动到对应锚点。</p>
-            <p>工具栏菜单可以复制页面链接、小节链接或嵌入代码块，也可以在外部浏览器里打开当前页。</p>
+            <h3>双向链接，构筑知识网络</h3>
+            <p>笔记里用 <code>[[页面.html]]</code>（带扩展名）链接 HTML 文件，反向链接与出链就会进入 Obsidian 原生索引；侧栏「链接」标签实时显示。</p>
+            <p>「定位」会在预览里高亮链接，同目标出现多次时可循环定位；反向链接、出链、引用资源三段均可折叠。</p>
           </div>
           <ul class="share-menu" aria-hidden="true">
-            <li><svg class="icon"><use href="#i-link"/></svg>复制页面链接</li>
-            <li><svg class="icon"><use href="#i-list"/></svg>复制小节链接</li>
-            <li><svg class="icon"><use href="#i-code"/></svg>复制嵌入代码块</li>
-            <li><svg class="icon"><use href="#i-external"/></svg>在外部浏览器打开</li>
+            <li><svg class="icon"><use href="#i-book"/></svg>反向链接 · 首页.md</li>
+            <li><svg class="icon"><use href="#i-link"/></svg>出链 · 第 38 周工作周报</li>
+            <li><svg class="icon"><use href="#i-box"/></svg>引用资源 · cup.svg</li>
+            <li><svg class="icon"><use href="#i-search"/></svg>定位 · 循环高亮</li>
           </ul>
         </article>
       </div>
@@ -728,6 +751,7 @@
       <div class="feature-chips" data-reveal>
         <span><svg class="icon" aria-hidden="true"><use href="#i-undo"/></svg>撤销与重做，历史默认 200 条</span>
         <span><svg class="icon" aria-hidden="true"><use href="#i-save"/></svg>另存为时可调整相对引用</span>
+        <span><svg class="icon" aria-hidden="true"><use href="#i-link"/></svg>双向链接：反向链接、出链与引用资源</span>
         <span><svg class="icon" aria-hidden="true"><use href="#i-refresh"/></svg>本地资源变化时自动刷新</span>
         <span><svg class="icon" aria-hidden="true"><use href="#i-image"/></svg>选择库内图片或导入外部图片</span>
         <span><svg class="icon" aria-hidden="true"><use href="#i-sliders"/></svg>工具栏可移到主视图</span>
@@ -744,7 +768,7 @@
           <p class="eyebrow">截图</p>
           <h2 id="screenshotsTitle">在真实界面里看一眼。</h2>
         </div>
-        <p class="lead">下面的截图来自 HTML Atelier 2.1.0 桌面版，亮色主题。点击任意一张可以放大查看。</p>
+        <p class="lead">下面的截图来自 HTML Atelier 2.3.0 桌面版，亮色主题。点击任意一张可以放大查看。</p>
       </div>
 
       <div class="gallery" id="gallery">
@@ -765,12 +789,12 @@
             <span class="shot-caption"><strong>源码与预览并排对照</strong><span>分栏模式 · 带行号</span></span>
           </button>
 
-          <button class="shot-card" type="button" data-full="assets/shot-search.webp" data-caption="在当前草稿里搜索文案，结果显示标题与段落摘要。" aria-label="放大查看截图：在当前草稿里搜索文案" data-reveal>
+          <button class="shot-card" type="button" data-full="assets/shot-links.webp" data-caption="侧栏「链接」标签：反向链接、出链与引用资源三段。" aria-label="放大查看截图：链接面板" data-reveal>
             <span class="shot-media">
-              <img src="assets/shot-search@900.webp" srcset="assets/shot-search@900.webp 900w, assets/shot-search.webp 1600w" sizes="(max-width: 860px) 92vw, 560px" width="1600" height="900" loading="lazy" decoding="async" alt="搜索面板：关键词“咖啡”搜索出标题与段落结果。">
+              <img src="assets/shot-links@900.webp" srcset="assets/shot-links@900.webp 900w, assets/shot-links.webp 1600w" sizes="(max-width: 860px) 92vw, 560px" width="1600" height="900" loading="lazy" decoding="async" alt="链接面板：反向链接列出 2 篇来源笔记，出链列出 3 个目标，引用资源 2 项。">
               <span class="shot-hover"><svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>点击放大</span>
             </span>
-            <span class="shot-caption"><strong>在当前草稿里搜索文案</strong><span>搜索 · 草稿内容</span></span>
+            <span class="shot-caption"><strong>反向链接、出链与资源</strong><span>链接 · 2.3.0</span></span>
           </button>
 
           <button class="shot-card" type="button" data-full="assets/shot-embed.webp" data-caption="在笔记里用 html-atelier 代码块嵌入整页，可调高度、宽度与锚点。" aria-label="放大查看截图：在笔记里嵌入整页内容" data-reveal>
@@ -1011,6 +1035,15 @@ toolbar: false
 ```</code></pre>
             <p>嵌入读取的是已保存文件，不会显示当前未保存的草稿。保存修改后，点嵌入里的刷新按钮重新载入。</p>
           </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q" aria-hidden="true">Q</span>
+            <span>HTML 笔记怎么和普通笔记互相链接？</span>
+            <span class="faq-toggle" aria-hidden="true"></span>
+          </summary>
+          <div class="faq-answer"><p>在笔记里用 <code>[[页面.html]]</code>（带扩展名）链接 HTML 文件，就会进入 Obsidian 原生的出链 / 反向链接索引。打开 HTML 文件后，侧栏「链接」标签会列出反向链接、出链和引用资源：点反向链接打开来源笔记，点出链跳到目标文件，「定位」会在预览里循环高亮同一目标的多次出现。</p></div>
         </details>
 
         <details class="faq-item">

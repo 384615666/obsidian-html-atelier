@@ -25,17 +25,17 @@ Select text, links or images on the page, edit them in the sidebar, and save onl
 </p>
 
 <p align="center">
-  <a href="assets/readme/hero-en.png"><img src="assets/readme/hero-en.png" width="100%" alt="HTML Atelier brand visual: edit page, sidebar workbench and search panel"></a>
+  <a href="assets/readme/hero-en.png"><img src="assets/readme/hero-en.png" width="100%" alt="HTML Atelier brand visual: edit page, sidebar workbench and links panel"></a>
 </p>
 
 <p align="center"><sub>Supports .html / .htm · English and Chinese UI · local files, no account or cloud service</sub></p>
 
 ## Why HTML Atelier
 
-- <img src="assets/readme/icon-edit.svg" width="24" alt=""> **Select and edit in place**: pick text, a link or an image on the page, change it in the sidebar form, and watch the preview update.
+- <img src="assets/readme/icon-edit.svg" width="24" alt=""> **Select on the page, edit directly**: pick text, a link or an image, change it in the sidebar form, and watch the preview update.
 - <img src="assets/readme/icon-embed.svg" width="24" alt=""> **Optional JS, richer styling**: full CSS plus optional page scripts; scripts are off by default and can be enabled in settings, for layouts and interactions Markdown cannot express.
-- <img src="assets/readme/icon-patch.svg" width="24" alt=""> **Only the part you changed is rewritten**: untouched tags, attributes, comments, indentation, line endings and entity spellings stay exactly as they were.
-- <img src="assets/readme/icon-workbench.svg" width="24" alt=""> **One workbench for the whole flow**: search, outline, changes and resources in the sidebar; drafts are backed up and conflicts can be merged.
+- <img src="assets/readme/icon-draft.svg" width="24" alt=""> **Draft backup, edit without fear**: snapshots are saved while you type and restored when you reopen the file or restart Obsidian; disk conflicts can be three-way merged.
+- <img src="assets/readme/icon-link.svg" width="24" alt=""> **Two-way links, connected notes**: link an HTML file from a note with `[[page.html]]`; backlinks and outgoing links live in the sidebar's Links tab, and a click jumps between the source note and the target.
 
 ## At a glance
 
@@ -45,6 +45,7 @@ Select text, links or images on the page, edit them in the sidebar, and save onl
 
 - **Main view**: Preview / Edit / Source / Split.
 - **Sidebar**: a persistent search bar above the tabs plus Edit / Outline / Changes / Links.
+- **Links**: collapsible Backlinks / Outgoing links / Referenced assets sections.
 - **Save**: only the part you changed is rewritten; everything else stays as it was.
 
 ## What happens on every edit
@@ -68,12 +69,12 @@ Select text, links or images on the page, edit them in the sidebar, and save onl
 </p>
 
 <p align="center">
-  <a href="assets/readme/shot-search.png"><img src="assets/readme/card-search.png" width="48%" alt="Search panel: search within the current draft and jump to matches"></a>
+  <a href="assets/readme/shot-links.png"><img src="assets/readme/card-links.png" width="48%" alt="Links panel: backlinks, outgoing links and referenced assets"></a>
   <a href="assets/readme/shot-embed.png"><img src="assets/readme/card-embed.png" width="48%" alt="Note embed: a saved HTML page rendered inside a Markdown note"></a>
-  <br><sub><b>Search</b> find and replace in the draft &nbsp;·&nbsp; <b>Embed</b> scroll a note page to an anchor</sub>
+  <br><sub><b>Links</b> backlinks / outgoing links / assets &nbsp;·&nbsp; <b>Embed</b> scroll a note page to an anchor</sub>
 </p>
 
-<p align="center"><sub>Screenshots are from HTML Atelier 2.1.0 in a demo vault; individual settings may differ from defaults.</sub></p>
+<p align="center"><sub>Screenshots are from HTML Atelier 2.3.0 in a demo vault; individual settings may differ from defaults.</sub></p>
 
 ## Quick start
 
@@ -82,6 +83,7 @@ Requires **Obsidian Desktop 1.7.2 or later**; supports `.html` and `.htm`; mobil
 1. **Install**: open **Settings → Community plugins → Browse**, search for **HTML Atelier**, then install and enable it.
 2. **Open a page**: open any `.html` or `.htm` file; the page appears in the main workspace and the sidebar workbench opens automatically.
 3. **Edit**: switch to **Edit**, select an object on the page, change it in the sidebar, then click **Save**. Unsaved work is backed up automatically.
+4. **Link your notes**: write `[[page.html]]` (extension required) in a Markdown note; backlinks appear in the HTML sidebar's Links tab, and `<a href>` links on the page appear as outgoing links.
 
 <details>
 <summary><b>Manual install / another HTML plugin is enabled</b></summary>
@@ -138,7 +140,7 @@ Embeds read the **saved file**, not the unsaved draft; use the embed's refresh b
 ### Sidebar workbench
 
 - **Search bar**: find and replace within the current draft, with case matching and Replace all; matches crossing formatting boundaries are skipped and counted.
-- **Edit / Outline / Changes / Links**: edit the selected object, jump to headings and text, locate and restore text changes; the Links tab has three collapsible sections — backlinks, outgoing links, referenced assets.
+- **Edit / Outline / Changes / Links**: edit the selected object, jump to headings and text, locate and restore text changes; the Links tab holds backlinks, outgoing links and referenced assets.
 - The footer shows the save button plus save / draft / conflict status and missing-file warnings.
 
 ### Drafts & conflicts
@@ -147,10 +149,16 @@ Embeds read the **saved file**, not the unsaved draft; use the embed's refresh b
 - When the content on disk differs from the last saved base, a conflict is reported: three-way merge (my draft / disk version / common base), use the disk version, or save the draft as a separate file.
 - **More → Draft manager…** lets you search drafts, open the original or discard drafts; **Save as** can rewrite local relative references without copying assets.
 
+### Two-way links
+
+- Linking an HTML file from a note with `[[page.html]]` (extension required) puts it into Obsidian's native outgoing / backlink index; the index refreshes live.
+- The sidebar Links tab has three collapsible sections: **Backlinks** (click to open the source note), **Outgoing links** (scanned from the page's `<a href>`; repeated targets are merged with a count; click to open the target), and **Referenced assets**.
+- **Locate** highlights the link in the preview and cycles through repeated targets as 1/N, 2/N…; text links get a centered selection, while image/icon links scroll into view with a flashing outline. Rows are keyboard operable (Enter / Space).
+- Links inside `template` / `svg` are excluded; in script mode the sandbox is not reachable, so Locate falls back to source.
+
 ### Links, anchors & sharing
 
 - Wiki and Markdown links to HTML files open in the plugin view; in-page anchors and vault links jump inside the preview.
-- Link to an HTML file from a note with `[[page.html]]` (extension required) to enter Obsidian's native outgoing / backlink index; the sidebar Links tab lists backlinks (click to open the source note) and the page's outgoing links (click to open the target; the Locate button highlights the link in the preview, cycling through repeated targets as 1/N, 2/N…), refreshed live as the index changes.
 - The More menu copies the page link or HTML embed code, or opens the current file in your system browser; copying a section link requires a selected anchor.
 - Embeds support height, width, anchor and toolbar visibility, and show the file name with refresh / open buttons by default.
 
@@ -221,6 +229,7 @@ The plugin detects the change before saving and refuses to overwrite. You can th
 - **Parse & locate**: `parse5` parses with source locations and maps text nodes to source ranges; paragraphs that cannot be aligned prompt segment editing.
 - **Surgical writes**: edits become range patches (`src/core/patch.ts`; paragraph planning in `src/parsing/paragraphEdit.ts`), and saving replaces only the affected ranges.
 - **Isolated preview**: `srcdoc` + per-render nonce + sandboxed iframe + CSP; script mode switches to an opaque-origin sandbox and inlines static local assets.
+- **Two-way links**: backlinks are derived from Obsidian's native `resolvedLinks`; outgoing links reuse the LinkRouter resolver, merging repeated targets and cycling through them on Locate.
 - **Drafts & conflicts**: records contain the base source, working copy, checksum and device ID, written via "temp file → verify → final file"; conflicts use a diff3-based three-way merge.
 
 <details>

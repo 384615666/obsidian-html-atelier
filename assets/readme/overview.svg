@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="ovTitle ovDesc">
   <title id="ovTitle">HTML Atelier 功能地图</title>
-  <desc id="ovDesc">静态 HTML 文件进入 Obsidian 窗口：主视图提供预览、编辑、源码与分栏四种模式，侧栏工作台包含搜索栏与编辑、大纲、修改、资源四个标签页；修改只更新受影响的源码区间，保存写回文件，并支持草稿自动备份、冲突三方合并、笔记嵌入与链接锚点。</desc>
+  <desc id="ovDesc">静态 HTML 文件进入 Obsidian 窗口：主视图提供预览、编辑、源码与分栏四种模式，侧栏工作台包含搜索栏与编辑、大纲、修改、链接四个标签页；修改只更新受影响的源码区间，保存写回文件，并支持草稿自动备份、冲突三方合并、笔记嵌入与双向链接。</desc>
   <defs>
     <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#402b1d" flood-opacity="0.06"/>
@@ -16,7 +16,7 @@
     <!-- 顶部标题 -->
     <text x="48" y="72" font-size="26" letter-spacing="3" fill="#a9622f">HTML ATELIER · 功能地图</text>
     <text x="48" y="128" font-size="46" font-weight="700" fill="#2f2724">从打开文件到写回源码</text>
-    <text x="48" y="174" font-size="26" fill="#6f6056">主视图负责预览与编辑，侧栏工作台负责搜索、大纲、改动与资源，保存时只重写受影响的源码区间。</text>
+    <text x="48" y="174" font-size="26" fill="#6f6056">主视图负责预览与编辑，侧栏工作台负责搜索、大纲、改动与链接，保存时只重写受影响的源码区间。</text>
 
     <!-- 左侧：输入文件 -->
     <rect x="48" y="212" width="264" height="580" rx="20" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
@@ -94,7 +94,7 @@
     <text x="855" y="413" font-size="26" font-weight="600" text-anchor="middle" fill="#6d3a15">编辑</text>
     <text x="929" y="413" font-size="26" text-anchor="middle" fill="#6f6056">大纲</text>
     <text x="1003" y="413" font-size="26" text-anchor="middle" fill="#6f6056">修改</text>
-    <text x="1077" y="413" font-size="26" text-anchor="middle" fill="#6f6056">资源</text>
+    <text x="1077" y="413" font-size="26" text-anchor="middle" fill="#6f6056">链接</text>
 
     <!-- 侧栏：编辑表单 -->
     <rect x="816" y="442" width="300" height="238" rx="14" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12"/>
@@ -165,8 +165,8 @@
       <rect x="844" y="867" width="24" height="14" rx="7" fill="none" stroke="#315f87" stroke-width="2"/>
       <rect x="862" y="867" width="24" height="14" rx="7" fill="none" stroke="#315f87" stroke-width="2"/>
     </g>
-    <text x="900" y="880" font-size="30" font-weight="600" fill="#2f2724">链接与锚点</text>
-    <text x="900" y="922" font-size="26" fill="#6f6056">页内锚点 · 库内文件</text>
+    <text x="900" y="880" font-size="30" font-weight="600" fill="#2f2724">双向链接</text>
+    <text x="900" y="922" font-size="26" fill="#6f6056">反向链接 · 出链</text>
     <rect x="1358" y="848" width="78" height="44" rx="22" fill="#e3eef7"/>
     <text x="1397" y="877" font-size="26" text-anchor="middle" fill="#315f87">后退</text>
     <rect x="1446" y="848" width="80" height="44" rx="22" fill="#e3eef7"/>

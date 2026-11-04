@@ -34,7 +34,7 @@ python -m http.server 8899 --directory site
 | --- | --- |
 | `assets/icon.svg`、`icon-180.png`、`icon-256.png`、`icon-512.png` | 品牌图标（焦糖底 + `</>`）。 |
 | `assets/cup.svg` | 演示页与首屏插画，来自 `promo/build/我的笔记/页面/assets/cup.svg`。 |
-| `assets/shot-edit.webp` 等 4 组 | 真实界面截图，来自 `promo/build/explore/` 与 `promo/build/explore-scenes/`；每组含 1600w 与 900w 两档 WebP。 |
+| `assets/shot-*.webp` | 真实界面截图（编辑 / 分栏 / 双向链接 / 嵌入，2.3.0 版）；每组含 1600w 与 900w 两档 WebP。 |
 | `assets/og-cover.png` | 1200×630 社交分享封面。源文件在 `site/tools/og-cover.html`。 |
 
 重新生成分享封面：

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="ilTitle">
+  <title id="ilTitle">Link: two-way links between notes</title>
+  <rect x="2" y="2" width="60" height="60" rx="16" fill="#ece8f9"/>
+  <g fill="none" stroke="#7566c4" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round">
+    <g transform="rotate(-45 32 32)">
+      <rect x="12" y="26" width="22" height="12" rx="6"/>
+      <rect x="29" y="26" width="22" height="12" rx="6" fill="#ece8f9"/>
+    </g>
+  </g>
+</svg>

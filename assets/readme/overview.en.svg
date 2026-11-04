@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" role="img" aria-labelledby="ovEnTitle ovEnDesc">
   <title id="ovEnTitle">HTML Atelier feature map</title>
-  <desc id="ovEnDesc">A static HTML file opened in an Obsidian window: the main view offers Preview, Edit, Source and Split modes; the sidebar workbench has a persistent search field plus Edit, Outline, Changes and Resources tabs. Edits rewrite only the affected source ranges, saving writes them back to the file, and drafts, three-way merge, note embeds and links/anchors are covered too.</desc>
+  <desc id="ovEnDesc">A static HTML file opened in an Obsidian window: the main view offers Preview, Edit, Source and Split modes; the sidebar workbench has a persistent search field plus Edit, Outline, Changes and Links tabs. Edits rewrite only the affected source ranges, saving writes them back to the file, and drafts, three-way merge, note embeds and two-way links are covered too.</desc>
   <defs>
     <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
       <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#402b1d" flood-opacity="0.06"/>
@@ -16,7 +16,7 @@
     <!-- header -->
     <text x="48" y="72" font-size="26" letter-spacing="3" fill="#a9622f">HTML ATELIER · FEATURE MAP</text>
     <text x="48" y="128" font-size="46" font-weight="700" fill="#2f2724">From opening a file to writing source back</text>
-    <text x="48" y="174" font-size="26" fill="#6f6056">Preview and edit in the main view; search, outline, changes and resources in the sidebar; saving rewrites only affected ranges.</text>
+    <text x="48" y="174" font-size="26" fill="#6f6056">Preview and edit in the main view; search, outline, changes and links in the sidebar; saving rewrites only affected ranges.</text>
 
     <!-- left: input file -->
     <rect x="48" y="212" width="264" height="580" rx="20" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12" stroke-width="1.5" filter="url(#soft)"/>
@@ -89,14 +89,14 @@
 
     <!-- sidebar: four tabs -->
     <rect x="732" y="380" width="400" height="48" rx="12" fill="#f5ecdf"/>
-    <rect x="738" y="384" width="57.9" height="40" rx="9" fill="#fffdfa" stroke="#a9622f" stroke-opacity="0.3" stroke-width="1.5"/>
-    <text x="766.95" y="413" font-size="25" font-weight="600" text-anchor="middle" fill="#6d3a15">Edit</text>
-    <line x1="801.9" y1="392" x2="801.9" y2="416" stroke="#583a25" stroke-opacity="0.14"/>
-    <text x="807.9" y="413" font-size="25" fill="#6f6056">Outline</text>
-    <line x1="894.2" y1="392" x2="894.2" y2="416" stroke="#583a25" stroke-opacity="0.14"/>
-    <text x="900.7" y="413" font-size="25" fill="#6f6056">Changes</text>
-    <line x1="1001.6" y1="392" x2="1001.6" y2="416" stroke="#583a25" stroke-opacity="0.14"/>
-    <text x="1007.6" y="413" font-size="25" fill="#6f6056">Resources</text>
+    <rect x="763.7" y="384" width="57.9" height="40" rx="9" fill="#fffdfa" stroke="#a9622f" stroke-opacity="0.3" stroke-width="1.5"/>
+    <text x="792.65" y="413" font-size="25" font-weight="600" text-anchor="middle" fill="#6d3a15">Edit</text>
+    <line x1="829.6" y1="392" x2="829.6" y2="416" stroke="#583a25" stroke-opacity="0.14"/>
+    <text x="837.6" y="413" font-size="25" fill="#6f6056">Outline</text>
+    <line x1="926.4" y1="392" x2="926.4" y2="416" stroke="#583a25" stroke-opacity="0.14"/>
+    <text x="934.4" y="413" font-size="25" fill="#6f6056">Changes</text>
+    <line x1="1037.3" y1="392" x2="1037.3" y2="416" stroke="#583a25" stroke-opacity="0.14"/>
+    <text x="1045.3" y="413" font-size="25" fill="#6f6056">Links</text>
 
     <!-- sidebar: form -->
     <rect x="732" y="442" width="400" height="238" rx="14" fill="#fffdfa" stroke="#583a25" stroke-opacity="0.12"/>
@@ -167,8 +167,8 @@
       <rect x="844" y="867" width="24" height="14" rx="7" fill="none" stroke="#315f87" stroke-width="2"/>
       <rect x="862" y="867" width="24" height="14" rx="7" fill="none" stroke="#315f87" stroke-width="2"/>
     </g>
-    <text x="900" y="880" font-size="30" font-weight="600" fill="#2f2724">Links &amp; anchors</text>
-    <text x="900" y="922" font-size="26" fill="#6f6056">In-page anchors · vault files</text>
+    <text x="900" y="880" font-size="30" font-weight="600" fill="#2f2724">Two-way links</text>
+    <text x="900" y="922" font-size="26" fill="#6f6056">Backlinks · outgoing</text>
     <rect x="1323.6" y="848" width="77.1" height="44" rx="22" fill="#e3eef7"/>
     <text x="1362.15" y="877" font-size="26" text-anchor="middle" fill="#315f87">Back</text>
     <rect x="1408.7" y="848" width="117.3" height="44" rx="22" fill="#e3eef7"/>
