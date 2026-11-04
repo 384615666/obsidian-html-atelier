@@ -813,7 +813,7 @@
     } else {
       fields = `
         <div class="form-field">
-          <label for="editText">文字内容 <span>${def.field}</span></label>
+          <label for="editText">文字内容 <span>${def.label}</span></label>
           <textarea id="editText" data-field="text" rows="${def.rows || 3}" spellcheck="false">${escapeHTML(
         value.text
       )}</textarea>
@@ -824,13 +824,6 @@
     const restoreDisabled = isDirtyKey(selected) ? "" : " disabled";
 
     editForm.innerHTML = `
-      <div class="form-type">
-        <span class="form-type-icon"><svg class="icon" aria-hidden="true"><use href="#${fieldIcon(
-          def.kind
-        )}"/></svg></span>
-        <strong>${def.label}</strong>
-        <span>${kindWord}</span>
-      </div>
       ${fields}
       <p class="form-hint">修改即预览，保存后写入原文件。</p>
       <div class="form-actions">
