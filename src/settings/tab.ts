@@ -47,6 +47,11 @@ export class AtelierSettingTab extends PluginSettingTab {
   const {containerEl}=this;
   containerEl.empty();
   containerEl.addClass('html-atelier-settings');
+  // Obsidian 1.14 起设置项是整张卡片(--setting-items-* 变量存在),卡片自带 16px 内边距;
+  // 旧宿主是分隔行。分组头与「恢复本组默认」的右侧留白要跟卡片内边距对齐,
+  // 用宿主变量做特性探测,不依赖版本号。
+  const cardLayout=!!getComputedStyle(containerEl).getPropertyValue('--setting-items-radius').trim();
+  containerEl.toggleClass('html-atelier-settings--cards',cardLayout);
   const current=structuredCloneProxy(this.get());
   // 与 i18n.resolveLocale 同一套判定。此前这里自带一份 copy,末尾多了 `&& false`,
   // 于是 auto 恒判为中文——英文宿主上的默认设置页是中文(审计复检 §3.5)。
@@ -136,6 +141,13 @@ export class AtelierSettingTab extends PluginSettingTab {
      });
     }
    }
+  }
+  // 主题可能改掉卡片的左右内边距(Blue Topaz 是 8px 0,原生 1.14 是 16px):
+  // 用实测值让「恢复本组默认」的右边缘对齐卡片控件右边缘,而不是写死 16px。
+  const cardRow=containerEl.querySelector<HTMLElement>('.setting-item:not(.setting-item-heading)');
+  if(cardRow){
+   const padRight=Number.parseFloat(getComputedStyle(cardRow).paddingRight);
+   if(Number.isFinite(padRight))containerEl.style.setProperty('--ha-set-card-pad-right',`${padRight}px`);
   }
  }
 }

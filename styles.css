@@ -439,8 +439,12 @@
  outline:2px solid var(--ha-set-accent);outline-offset:1px;
 }
 
+/* Obsidian 1.14+ 把设置项画成卡片(卡片自带 16px 内边距):分组头与恢复按钮
+   也要按这个内边距收进来,标题和控件才和卡片文字/控件右边缘对齐 */
+.html-atelier-settings--cards .html-atelier-settings-grouphead{margin-bottom:12px}
+.html-atelier-settings--cards .html-atelier-restoregroup{margin-inline-end:var(--ha-set-card-pad-right,0px)}
+
 /* 设置行:只调排版与控件列,不动主题给行/卡片加的底色、圆角与间距 */
-.html-atelier-settings .setting-item{padding-block:.8em;column-gap:16px}
 .html-atelier-settings .setting-item-info{min-width:0}
 .html-atelier-settings .setting-item-name{font-weight:500;line-height:1.5}
 .html-atelier-settings .setting-item-description{
