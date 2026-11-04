@@ -163,6 +163,28 @@ const OPTIONS_EN:Record<string,Record<string,string>>={
 // "恢复本组默认"按钮文案(设置页此前硬编码中文,英文界面会露中文)
 export const RESTORE_GROUP_TEXT={zh:'恢复本组默认',en:'Restore group defaults'};
 
+// 设置页页眉的一句话说明。放在这里而不是 i18n 词典:它只服务设置页,
+// 与主界面文案的键位表无关(也更不容易漏翻——两张表就在同一文件)。
+export const SETTINGS_PAGE_TEXT={
+ zh:{tagline:'在 Obsidian 里预览并就地编辑 HTML 页面。下面的选项修改后会自动保存。'},
+ en:{tagline:'Preview and edit HTML pages in Obsidian. Changes to the options below are saved automatically.'},
+};
+
+// 数值设置的单位/量词(只用于显示,存储不变)。
+const UNIT_TEXT={
+ zh:{ms:'ms',px:'px',pct:'%',mib:'MiB',entries:'项',files:'个文件'},
+ en:{ms:'ms',px:'px',pct:'%',mib:'MiB',entries:'entries',files:'files'},
+};
+
+export function settingsPageText(useEn:boolean):{tagline:string}{
+ return useEn?SETTINGS_PAGE_TEXT.en:SETTINGS_PAGE_TEXT.zh;
+}
+
+export function settingsUnitText(unit:string,useEn:boolean):string{
+ const table=useEn?UNIT_TEXT.en:UNIT_TEXT.zh;
+ return (table as Record<string,string>)[unit]??'';
+}
+
 export function settingsOptions(group:string,key:string):Record<string,string>|null{
  return OPTIONS_ZH[`${group}.${key}`]??null;
 }

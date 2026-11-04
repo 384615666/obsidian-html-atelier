@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {DEFAULT_SETTINGS,ENUM_VALUES,normalizeSettings} from '../src/settings/schema';
-import {settingsOptions,settingsOptionsEn,settingsText,settingsTextEn} from '../src/settings/settingsText';
+import {settingsOptions,settingsOptionsEn,settingsText,settingsTextEn,settingsPageText,settingsUnitText,RESTORE_GROUP_TEXT} from '../src/settings/settingsText';
 import {resolveLocale,createTranslator} from '../src/i18n';
 
 // 设置页枚举下拉必须显示本地化文字:此前直接把标识符当标签,中文界面里是
@@ -49,6 +49,25 @@ test('A22 设置页的分组标题与"恢复本组默认"按钮都有双语',()=
   const en=settingsTextEn(group,'');
   assert.ok(zh?.name&&en?.name,`${group} 分组标题缺失`);
   assert.notEqual(zh!.name,group,`${group} 分组标题没有本地化(直接用了组名)`);
+ }
+});
+
+// 2026-11 设置页视觉改版新增的文案(页眉说明、数值单位)同样必须双语齐备,
+// 且英文里不能混进中文 —— 这类漏翻只会在切到英文界面时露出来。
+test('A22 设置页页眉说明与数值单位双语完整',()=>{
+ const zh=settingsPageText(false);
+ const en=settingsPageText(true);
+ assert.ok(zh.tagline.trim(),'中文页眉说明为空');
+ assert.ok(en.tagline.trim(),'英文页眉说明为空');
+ assert.ok(!/[\u4e00-\u9fff]/.test(en.tagline),'英文页眉说明里含中文');
+ assert.ok(RESTORE_GROUP_TEXT.zh.trim()&&RESTORE_GROUP_TEXT.en.trim());
+ assert.ok(!/[\u4e00-\u9fff]/.test(RESTORE_GROUP_TEXT.en),'英文恢复按钮文案含中文');
+ for(const unit of ['ms','px','pct','mib','entries','files']){
+  const zhUnit=settingsUnitText(unit,false);
+  const enUnit=settingsUnitText(unit,true);
+  assert.ok(zhUnit.trim(),`单位 ${unit} 缺中文`);
+  assert.ok(enUnit.trim(),`单位 ${unit} 缺英文`);
+  assert.ok(!/[\u4e00-\u9fff]/.test(enUnit),`单位 ${unit} 的英文里含中文`);
  }
 });
 

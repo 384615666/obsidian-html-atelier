@@ -352,3 +352,131 @@
 @media (prefers-reduced-motion:reduce){
  .html-atelier-panel *,.html-atelier-panel *::before{transition:none!important;animation:none!important}
 }
+
+/* ===== 设置页(2026-11 视觉改版) =====
+   Obsidian 把插件设置页放进 .vertical-tab-content,不同主题会把 .setting-item 画成
+   分隔行或圆角卡片。所以这里只加"页眉 / 分组标题 / 控件列"的结构样式,不给设置行
+   加底色和边框,避免和主题卡片的底双重叠加。颜色一律取 Obsidian 变量。
+   结构见 src/settings/tab.ts 顶部注释。 */
+.html-atelier-settings{
+ --ha-set-line:var(--background-modifier-border,#e4e4e8);
+ --ha-set-accent:var(--interactive-accent,#7756cd);
+ --ha-set-tint:color-mix(in srgb,var(--ha-set-accent) 10%,transparent);
+ --ha-set-ease:cubic-bezier(.22,.61,.36,1);
+ container-type:inline-size;
+}
+
+/* 页眉:插件图标 + 名称/版本 + 一句话说明 */
+.html-atelier-settings .html-atelier-settings-hero{
+ display:flex;align-items:center;gap:14px;
+ padding:2px 0 18px;margin-bottom:6px;border-bottom:1px solid var(--ha-set-line);
+}
+.html-atelier-settings .html-atelier-settings-heroicon{
+ display:flex;align-items:center;justify-content:center;flex:0 0 44px;
+ width:44px;height:44px;border-radius:12px;
+ border:1px solid color-mix(in srgb,var(--ha-set-accent) 18%,var(--ha-set-line));
+ background:var(--ha-set-tint);color:var(--ha-set-accent);
+}
+.html-atelier-settings .html-atelier-settings-heroicon svg{width:22px;height:22px}
+.html-atelier-settings .html-atelier-settings-herotext{min-width:0;flex:1}
+.html-atelier-settings .html-atelier-settings-heroname{
+ display:flex;align-items:center;gap:8px;margin:0;line-height:1.4;
+ font-size:var(--font-ui-medium);font-weight:600;color:var(--text-normal);
+}
+.html-atelier-settings .html-atelier-settings-heroname-text{
+ min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.html-atelier-settings .html-atelier-settings-version{
+ flex:0 0 auto;padding:1px 7px;border-radius:99px;line-height:1.5;
+ font-size:calc(var(--font-ui-smaller) - 1px);font-weight:500;
+ color:var(--text-muted);background:var(--background-modifier-hover);
+}
+.html-atelier-settings .html-atelier-settings-herodesc{
+ margin-top:3px;max-width:64ch;line-height:1.6;
+ font-size:var(--font-ui-smaller);color:var(--text-muted);
+}
+
+/* 分组:图标 + 标题 + 恢复按钮同一行,下面直接接原生设置行 */
+.html-atelier-settings .html-atelier-settings-group{margin-top:26px}
+.html-atelier-settings .html-atelier-settings-group:first-of-type{margin-top:14px}
+.html-atelier-settings .html-atelier-settings-grouphead{
+ display:flex;align-items:center;gap:8px;min-height:30px;margin-bottom:2px;
+}
+.html-atelier-settings .html-atelier-settings-groupicon{
+ display:flex;flex:0 0 auto;color:var(--ha-set-accent);opacity:.75;
+}
+.html-atelier-settings .html-atelier-settings-groupicon svg{width:15px;height:15px}
+/* 标题仍是原生 .setting-item.setting-item-heading(探针按它取分组名),
+   这里只把它的内边距/分隔线压掉,并让名字占满余下宽度 */
+.html-atelier-settings .html-atelier-settings-grouphead .setting-item.setting-item-heading{
+ flex:1 1 auto;min-width:0;gap:0;margin:0;padding:0;border:0;
+}
+.html-atelier-settings .html-atelier-settings-grouphead .setting-item-heading .setting-item-info{
+ flex:1 1 auto;min-width:0;margin:0;
+}
+.html-atelier-settings .html-atelier-settings-grouphead .setting-item-heading .setting-item-name{
+ font-size:var(--font-ui-small);font-weight:600;line-height:1.5;
+ color:var(--text-normal);letter-spacing:.01em;
+ overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.html-atelier-settings .html-atelier-settings-grouphead .setting-item-heading .setting-item-control{display:none}
+
+.html-atelier-settings .html-atelier-restoregroup{
+ display:inline-flex;align-items:center;justify-content:center;gap:5px;flex:0 0 auto;
+ height:28px;padding:0 9px;border:0;border-radius:6px;box-shadow:none;
+ background:transparent;color:var(--text-muted);
+ font-family:inherit;font-size:var(--font-ui-smaller);line-height:1;white-space:nowrap;cursor:pointer;
+ transition:background-color .15s var(--ha-set-ease),color .15s var(--ha-set-ease);
+}
+.html-atelier-settings .html-atelier-restoregroup svg{width:13px;height:13px}
+.html-atelier-settings .html-atelier-restoregroup:hover{
+ background:var(--background-modifier-hover);color:var(--text-normal);
+}
+.html-atelier-settings .html-atelier-restoregroup:active{
+ background:var(--ha-set-tint);color:var(--ha-set-accent);
+}
+.html-atelier-settings .html-atelier-restoregroup:focus-visible{
+ outline:2px solid var(--ha-set-accent);outline-offset:1px;
+}
+
+/* 设置行:只调排版与控件列,不动主题给行/卡片加的底色、圆角与间距 */
+.html-atelier-settings .setting-item{padding-block:.8em;column-gap:16px}
+.html-atelier-settings .setting-item-info{min-width:0}
+.html-atelier-settings .setting-item-name{font-weight:500;line-height:1.5}
+.html-atelier-settings .setting-item-description{
+ padding-top:4px;line-height:1.6;max-width:68ch;
+}
+.html-atelier-settings .setting-item-control{
+ flex:0 1 auto;min-width:0;align-items:center;gap:7px;
+}
+.html-atelier-settings .setting-item-control select{
+ width:220px;max-width:100%;min-width:0;text-overflow:ellipsis;
+}
+.html-atelier-settings .html-atelier-setting--number .setting-item-control input[type=text]{
+ width:92px;text-align:end;font-variant-numeric:tabular-nums;
+}
+.html-atelier-settings .html-atelier-setting--text .setting-item-control input[type=text]{
+ width:220px;max-width:100%;
+}
+.html-atelier-settings .html-atelier-setting-unit{
+ flex:0 0 auto;line-height:1;white-space:nowrap;
+ font-size:var(--font-ui-smaller);color:var(--text-muted);
+}
+
+/* 设置页拉窄(手机/小窗口):说明占一行、控件换到下一行左对齐 */
+@container (max-width:560px){
+ .html-atelier-settings .setting-item{flex-wrap:wrap;row-gap:8px}
+ .html-atelier-settings .setting-item-info{flex:1 1 100%}
+ .html-atelier-settings .setting-item-description{max-width:none}
+ .html-atelier-settings .setting-item-control{flex:1 1 100%;justify-content:flex-start}
+ .html-atelier-settings .html-atelier-settings-hero{gap:12px}
+ .html-atelier-settings .html-atelier-settings-heroicon{flex-basis:40px;width:40px;height:40px;border-radius:11px}
+}
+/* 更窄时「恢复本组默认」只留图标(无障碍名仍在 aria-label 上) */
+@container (max-width:420px){
+ .html-atelier-settings .html-atelier-restoregroup{width:28px;padding:0}
+ .html-atelier-settings .html-atelier-restoregroup-label{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+ .html-atelier-settings *,.html-atelier-settings *::before{transition:none!important;animation:none!important}
+}
