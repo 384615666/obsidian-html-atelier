@@ -615,6 +615,35 @@ try{
  const deadKeys=await page.evaluate(()=>{const p=window.harness.plugin;const has=(o,k)=>Object.prototype.hasOwnProperty.call(o,k);
   return {schema:has(p.settings.preview,'defaultHeight')};});
  assert.equal(deadKeys.schema,false,'preview.defaultHeight 仍在 schema 中');
+ // 回归(2026-11-13,宿主 1.15.1):工作区会按需延迟创建视图 —— 后台标签的叶子仍在
+ // getLeavesOfType 里,但 leaf.view 是宿主的占位对象,只有 getViewType,没有
+ // refresh/refreshToolbar/relabel。此前 refreshPanels 与 activeHtmlView 都按类型断言
+ // 直接取,占位对象被当成视图:前者抛 TypeError,异常经 onLoadFile 的宿主通知把已经
+ // 加载好的预览整页换成"无法读取 HTML 文件";后者会把占位对象当活动视图返回。
+ const deferredViews=await page.evaluate(async()=>{
+  const h=window.harness,p=h.plugin;
+  const placeholder=type=>({app:p.app,el:document.createElement('div'),view:{getViewType:()=>type}});
+  const phPreview=placeholder('html-atelier-preview'),phPanel=placeholder('html-atelier-panel');
+  // 放在数组最前面:任何"取第一个/第一个有会话说"的实现都会先撞上占位对象
+  h.leaves.unshift(phPreview,phPanel);
+  const out={};
+  try{
+   // 让 getActiveViewOfType 返回 null,进入 activeHtmlView 的"找有会话的视图"回退分支
+   const realGet=p.app.workspace.getActiveViewOfType;
+   p.app.workspace.getActiveViewOfType=()=>null;
+   out.activeIsRealView=p.activeHtmlView()===h.main.view;
+   p.app.workspace.getActiveViewOfType=realGet;
+   p.refreshPanels();   // 旧实现:占位视图没有 refresh/refreshToolbar → 直接 TypeError
+   h.main.view.file=h.file;
+   await h.main.view.onLoadFile(h.file);
+   out.rendered=!!h.main.view.contentEl.querySelector('iframe')&&!h.main.view.contentEl.textContent.includes('无法读取');
+  }catch(e){out.throw=String(e);}
+  finally{for(const leaf of [phPreview,phPanel])h.leaves.splice(h.leaves.indexOf(leaf),1);}
+  return out;
+ });
+ assert.equal(deferredViews.throw,undefined,'延迟占位视图让加载路径抛出异常: '+JSON.stringify(deferredViews));
+ assert.equal(deferredViews.activeIsRealView,true,'activeHtmlView 把延迟占位对象当成了活动视图: '+JSON.stringify(deferredViews));
+ assert.equal(deferredViews.rendered,true,'后台延迟标签存在时当前文件显示为加载失败: '+JSON.stringify(deferredViews));
  assert.deepEqual(errors,[]);
  console.log('Browser checks passed: sidebar opening, isolated preview, modes UI, selection, live editing, restore, undo, save, external conflict, save-as draft, v2 draft recovery, adopt-remote, shared sessions, narrow sidebar, settings-actually-work (revision gate, change highlights, language hot-switch, dead key removed).');
 }finally{await browser.close();}

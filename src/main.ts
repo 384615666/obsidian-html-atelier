@@ -225,10 +225,26 @@ export default class HtmlAtelier extends Plugin {
   return this.router;
  }
 
+ // 只返回**真的**本插件视图实例。Obsidian 1.15 起工作区按需延迟创建视图:后台标签的
+ // 叶子仍会被 getLeavesOfType 列出,但 leaf.view 是宿主的占位对象(有 getViewType,
+ // 没有 refresh/refreshToolbar/relabel 等方法)。此前这里与所有"遍历同类视图并调用
+ // 方法"的地方都是裸类型断言:占位对象被当成视图,调用即 TypeError。最典型的是
+ // refreshPanels —— 它由 onLoadFile 的宿主通知进入,异常把已经加载好的预览整页换成
+ // "无法读取 HTML 文件"(2026-11-13,宿主 1.15.1 实测)。统一过滤后顺带解决插件重载
+ // 瞬间残留旧视图实例的同类问题(旧实例不是当前类的 instanceof)。
+ private htmlViews():HtmlFileView[]{
+  return this.app.workspace.getLeavesOfType(HTML_VIEW).map(l=>l.view)
+   .filter((v):v is HtmlFileView=>v instanceof HtmlFileView);
+ }
+ private panelViews():HtmlPanelView[]{
+  return this.app.workspace.getLeavesOfType(HTML_PANEL).map(l=>l.view)
+   .filter((v):v is HtmlPanelView=>v instanceof HtmlPanelView);
+ }
+
  private activeHtmlView():HtmlFileView|null{
   const view=this.app.workspace.getActiveViewOfType(HtmlFileView);
   if(view)return view;
-  return this.app.workspace.getLeavesOfType(HTML_VIEW).map(l=>l.view as HtmlFileView).find(v=>v.session!==null)??null;
+  return this.htmlViews().find(v=>v.session!==null)??null;
  }
 
  // ---- 会话与保存(§12.4/F26) ----
@@ -279,10 +295,7 @@ export default class HtmlAtelier extends Plugin {
    // 不改内容/revision),预览无需重建:原地清掉修改高亮即可。此前这里 renderFrame(true)
    // 先 empty 再等 srcdoc 异步构建,中间露出一帧空白(screencast 实测 40ms 处整帧白)。
    // 真正需要重绘的场景(外部修改、冲突合并、手动刷新)由各自路径调用 renderFrame。
-   for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
-    const v=leaf.view as HtmlFileView;
-    if(v.session===session)v.applyChangeHighlights();
-   }
+   for(const v of this.htmlViews())if(v.session===session)v.applyChangeHighlights();
    view?.restoreFocusAfterSave();
    await this.drainQueuedExternal(file,session);
    this.refreshPanels();
@@ -352,21 +365,21 @@ export default class HtmlAtelier extends Plugin {
    this.translator=createTranslator(resolveLocale(next.ui.language,this.hostLang));
    this.settingTab.display();
    this.refreshPanels(true);
-   for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).relabelToolbar();
+   for(const v of this.htmlViews())v.relabelToolbar();
    // 面板承载工具栏时,它才是那段 aria-label 的所在地
-   for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).relabel();
+   for(const v of this.panelViews())v.relabel();
   }
   // 工具栏换位必须立即生效,否则用户改了设置却还看着旧位置那一条
   if(toolbarMoved){
-   for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).syncToolbarPlacement();
-   for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).syncToolbarPlacement();
+   for(const v of this.htmlViews())v.syncToolbarPlacement();
+   for(const v of this.panelViews())v.syncToolbarPlacement();
    if(this.panelNeeded())void this.showPanel(false);
   }
   // 网络开关也写进嵌入的 CSP(此前嵌入写死放行,不受开关控制——README 曾以注记兜底,
   // 现已改为遵循设置);已渲染的嵌入随开关重绘
   if(networkChanged){this.rerenderFrames();this.refreshEmbedHosts();}
-  if(highlightChanged)for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).applyChangeHighlights();
-  if(sourceChanged)for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).reconfigureSourceEditor();
+  if(highlightChanged)for(const v of this.htmlViews())v.applyChangeHighlights();
+  if(sourceChanged)for(const v of this.htmlViews())v.reconfigureSourceEditor();
   if(embeddingsChanged)this.refreshEmbedHosts();
   // 开关拨动后存量会话的 draftStatus 不会自愈:关闭期间编辑过的会话停在 disabled,
   // 重新开启后面板继续谎报"备份已关闭",直到下一次编辑(审计 m4)。按新设置重算:
@@ -436,8 +449,10 @@ export default class HtmlAtelier extends Plugin {
  }
 
  private refreshPanels(force=false){
-  for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).refresh(force);
-  for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW))(leaf.view as HtmlFileView).refreshToolbar();
+  // 必须走过滤后的视图列表:1.15 的延迟占位视图没有 refresh/refreshToolbar,
+  // 这里抛出的 TypeError 会顺着 onLoadFile 的宿主通知把预览毁成"无法读取文件"
+  for(const v of this.panelViews())v.refresh(force);
+  for(const v of this.htmlViews())v.refreshToolbar();
  }
 
  // 只要面板工具栏是模式切换的唯一入口,面板就属于必需而不是可选
@@ -446,9 +461,9 @@ export default class HtmlAtelier extends Plugin {
  }
 
  private refreshPanelToolbars(){
-  // ?.():插件重载瞬间,残留的面板叶子可能还挂着旧视图实例,没有新方法 ——
-  // 真机实测此处抛 TypeError 会把 HtmlFileView.onOpen 一并带崩("Failed to open view")
-  for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).refreshToolbar?.();
+  // 插件重载瞬间残留的面板叶子可能还挂着旧视图实例(不是当前类的 instanceof,
+  // 已被 panelViews 滤掉);真机实测这里抛 TypeError 会把 HtmlFileView.onOpen 带崩
+  for(const v of this.panelViews())v.refreshToolbar();
  }
 
  // 链接区刷新去抖:resolved 事件在索引重建期间连发,而反演是全量遍历 resolvedLinks,
@@ -465,12 +480,11 @@ export default class HtmlAtelier extends Plugin {
  }
  private flushLinksRefresh(){
   this.linksTimer=null;this.linksFirstAt=0;
-  for(const leaf of this.app.workspace.getLeavesOfType(HTML_PANEL))(leaf.view as HtmlPanelView).refreshLinks?.();
+  for(const v of this.panelViews())v.refreshLinks();
  }
 
  private rerenderFrames(){
-  for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
-   const v=leaf.view as HtmlFileView;
+  for(const v of this.htmlViews()){
    // 不再跳过脏会话:renderFrame 从 session.workingSource 重建,不存在丢弃草稿的风险,
    // 而"正在改 HTML 同时调 CSS"恰恰是最需要自动刷新的场景(审计复检 §3.12)。
    if(v.session)v.renderFrame(true);
@@ -493,8 +507,7 @@ export default class HtmlAtelier extends Plugin {
    if(!(f instanceof TFile))return null;
    return this.app.vault.cachedRead(f).catch(()=>null);
   };
-  for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
-   const v=leaf.view as HtmlFileView;
+  for(const v of this.htmlViews()){
    const session=v.session;
    if(!session||!v.file)continue;
    try{
@@ -507,7 +520,10 @@ export default class HtmlAtelier extends Plugin {
 
  async showPanel(explicit=false){
   await this.sidebar.showPanel(leaf=>{
-   (leaf.view as HtmlPanelView).refresh(true);
+   // 叶子刚创建时视图可能仍是延迟占位对象;面板自己 onOpen 时会 refresh,
+   // 这里只在真是本插件视图时补一次
+   const view=leaf.view;
+   if(view instanceof HtmlPanelView)view.refresh(true);
   },explicit);
  }
 
@@ -572,10 +588,7 @@ export default class HtmlAtelier extends Plugin {
       if(disk2!==null)changed=session.externalChange(disk2)!==null;
      }
      if(changed){
-      for(const leaf of this.app.workspace.getLeavesOfType(HTML_VIEW)){
-       const v=leaf.view as HtmlFileView;
-       if(v.session===session)v.renderFrame(true);
-      }
+      for(const v of this.htmlViews())if(v.session===session)v.renderFrame(true);
       this.refreshPanels(true);
      }
     })();

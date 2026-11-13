@@ -210,7 +210,10 @@ export class HtmlFileView extends FileView {
     this.pendingTraverse=null;
     this.callbacks.nav.alignToPath(this,loadedPath);
    }else this.pushNav();
-   this.callbacks.onSelectChanged(null,s);
+   // 宿主通知(面板/工具栏刷新)单独兜底:它出错不该把已经渲染好的文档换成
+   // "无法读取 HTML 文件"。1.15 延迟视图事故里正是这条通知抛 TypeError,
+   // 把一次纯 UI 刷新失败放大成"文件读不出来"(2026-11-13)。
+   try{this.callbacks.onSelectChanged(null,s);}catch(e){console.error(e);}
   }catch(e){
    console.error(e);
    this.contentEl.setText(this.callbacks.t('viewLoadFailed'));
